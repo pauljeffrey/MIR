@@ -1,0 +1,118 @@
+output_dir: "trained-model"
+load_dir: null 
+
+dataset:
+  name: null
+  train_batch_size: 4
+  eval_batch_size: 8
+
+  tokens:
+    s_max: 10
+    n_max: 50
+
+  train:
+    image_dir: null
+    caption_json: null
+    history_json: null
+    file_list: null
+
+  eval:
+    image_dir: null
+    caption_json: null
+    history_json: null
+    file_list: null
+
+model:
+  name: null
+  config_name: null
+  build_model: true
+  from_trained: false
+
+tokenizer:
+  name: null
+  use_fast: true
+  preprocessing_num_workers: null
+
+vocabs:
+  name1: null
+  name2: null
+  
+training:
+  seed: 15
+  shuffle: true
+  learning_rate: 1e-4
+  weight_decay: 0.0
+  num_epochs: 50
+  max_train_steps: 400000
+  gradient_accumulation_steps: 16
+  lr_scheduler: "cosine" # ["linear", "cosine", "cosine_with_restarts", "polynomial", "constant", "constant_with_warmup"]
+  lr_warmup_steps: 500
+  eval_every: 64
+  save_every: 256
+
+  checkpoint:
+    resume_from_checkpoint: 0 # integer representing which checkpoint to load from, or <= 0 to not
+    every_n_steps: null
+
+
+architecture:
+  encoder:
+    model_name: "densenet201"
+    pretrained: true
+    hidden_layer_size: 256 # Number of units in the hidden layer of the MLP
+    classes: 156
+    fc_in_features: 2048 # Number of units given as input to the classification layer (MLP)
+    add_encoder: false
+    # state_path:
+    #   cnn_model: null
+    #   mlc: null
+
+  history_encoder:
+    hist_vocab_size: null
+    history_encoder_num_layers: null
+    history_encoder_n_heads: null
+    history_encoder_dim_feedforward: null
+    history_encoder_dmodel: null
+
+  semantic_extractor:
+    semantic_features_dim: 512
+    k: 10
+    state_path: null
+
+  attention:
+    co_attention: true
+    features_dim: 2048 # visual features dim
+    #hidden_dim: 512 # must be the same for hidden size of lstm in sentence lstm
+    att_units: 256 # Number of linear units for the attention network
+    semantic_dim: 512 # Must be the same as semantic_features_dim in semantic_extractor
+    
+
+  sent_lstm:
+    #hidden_layer_size: 128 # Number of units for the hidden layer of the MLP
+    hidden_dim: 512
+    num_layers: 1 #Num of lstm layers
+    #features_dim: 2048 # visual features dim (not number of channels)
+    enforce_info: false
+    
+
+  decoder:
+    dec_num_layers: 6
+    vocab_size: 5000 
+    use_topic_per_layer: [false, false, false, true, true]
+    use_cross_att_per_layer: [false, false, false, false, true , true]
+    d_model: 768
+    nhead: 12
+    #mem_dim: 2048 # visual features dim (not number of channels)
+    dim_feedforward: 2048
+    #topic_emb:  512 # must be the same as hidden_size for lstm 
+    topic_units:  256 # Number of units for the topic's linear transform network in each layer
+    dropout: 0.1
+    activation: F.relu
+    layer_norm_eps: 1e-5
+    batch_first: false
+    norm_first: false
+    device: auto # previously None
+    dtype: null
+    norm: null
+    state_path: null
+

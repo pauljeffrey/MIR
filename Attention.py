@@ -13,20 +13,29 @@ attention weights. Finally, it returns the context vector and the attention weig
 
 
 class BahdanauAttention(nn.Module):
-    def __init__(self, features_dim, hidden_dim, att_units):
+    def __init__(self, features_dim, hidden_dim,  att_units, encoder_dim = None):
         super(BahdanauAttention, self).__init__()
 
         self.W1 = nn.Linear(hidden_dim, att_units, bias=False)
         self.W2 = nn.Linear(features_dim, att_units, bias=False)
+        if encoder_dim is not None:
+            self.W3 = nn.Linear(encoder_dim, att_units)
+            self.patient_data_encoder_provided= True
+        else:
+            self.patient_data_encoder_provided= False
+            
         self.v = nn.Linear(att_units, 1, bias=False)
 
-    def forward(self, query, visual_features):
+    def forward(self, query, visual_features, patient_info=None):
         # query: [batch_size, hidden_size]
          # visual_features: [batch_size, channels, h*w]
 
         # Compute scores
         query = query.unsqueeze(1)  # [batch_size, 1, hidden_size]
-        scores = self.v(torch.tanh(self.W1(query) + self.W2(visual_features)))  # [batch_size, seq_len, 1]
+        if self.patient_data_encoder_provided and patient_info is not None:
+            scores = self.v(torch.tanh(self.W1(query) + self.W2(visual_features) + self.W3(patient_info)))
+        else:
+            scores = self.v(torch.tanh(self.W1(query) + self.W2(visual_features)))  # [batch_size, seq_len, 1]
 
         # Compute attention weights
         attn_weights = torch.softmax(scores, dim=1)  # [batch_size, seq_len, 1]
@@ -40,12 +49,18 @@ class BahdanauAttention(nn.Module):
 
 
 class CoAttention(nn.Module):
-    def __init__(self, features_dim, semantic_dim, hidden_dim, att_units):
+    def __init__(self, features_dim, semantic_dim, hidden_dim, att_units, encoder_dim=None):
         super(BahdanauAttention, self).__init__()
     
         self.W1_visual = nn.Linear(hidden_dim, att_units, bias=False)
         self.W2_visual = nn.Linear(features_dim, att_units, bias=False)
         self.v_visual = nn.Linear(att_units, 1, bias=False)
+        
+        if encoder_dim is not None:
+            self.W3 = nn.Linear(encoder_dim, att_units)
+            self.patient_data_encoder_provided= True
+        else:
+            self.patient_data_encoder_provided= False
         
         self.W1_semantic = nn.Linear(hidden_dim, att_units, bias=False)
         self.W2_semantic = nn.Linear(semantic_dim, att_units, bias=False)
@@ -53,14 +68,18 @@ class CoAttention(nn.Module):
 
         self.W = nn.Linear(features_dim + semantic_dim, features_dim)
         
-    def forward(self, query, visual_features, semantic_features):
+    def forward(self, query, visual_features, semantic_features, patient_info=None):
         # query: [batch_size, hidden_size]
         # visual_features: [batch_size, channels, h*w]
         # semantic_features: [batch_szie, n, dim]
 
         # Compute scores
         query = query.unsqueeze(1)  # [batch_size, 1, hidden_size]
-        v_scores = self.v_visual(torch.tanh(self.W1_visual(query) + self.W2_visual(visual_features)))  # [batch_size, seq_len, 1]
+        if patient_info is not None and self.patient_data_encoder_provided:
+            v_scores = self.v_visual(torch.tanh(self.W1_visual(query) + self.W2_visual(visual_features) + self.W3(patient_info)))  # [batch_size, seq_len, 1]
+        else:
+            v_scores = self.v_visual(torch.tanh(self.W1_visual(query) + self.W2_visual(visual_features)))  # [batch_size, seq_len, 1]
+            
 
         # Compute attention weights
         visual_attn_weights = torch.softmax(v_scores, dim=1)  # [batch_size, seq_len, 1]
