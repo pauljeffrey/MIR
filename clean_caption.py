@@ -213,16 +213,21 @@ def clean_text(images_captions_df, df_output= './data/image_captions.csv', split
                     if correction[1] == "all":
                         clean_sentence = ""
                     else:
-                        deletions = correction[1].split(";")
-                        #print(deletions)
+                        deletions = correction[1].split(";")[:-1]
+                        print(deletions)
                         for x in deletions:
-                            print(x)
+                            #print(x)
                             if "=" in x:
-                                old_text, new_text = x.split("=")
+                                old_text = x.split("=")[0].strip(" ")
+                                new_text = x.split("=")[1].strip(" ")
+                                #
                                 #print("in = in deletions")
-                                clean_sentence = clean_sentence.replace(old_text, new_text,1)
+                                if old_text != " ":
+                                    clean_sentence = clean_sentence.replace(old_text, new_text,1)
                             else:
-                                clean_sentence = clean_sentence.replace(" " + x ,"",1)
+                                #print('yes')
+                                if x != "" or x != " ":
+                                    clean_sentence = clean_sentence.replace(" " + x ,"",1)
                 
                 print(clean_sentence)
                 print()
@@ -308,4 +313,4 @@ if __name__ == '__main__':
     #Stableprominent; and below the  -of-view; certified radiologist;If there are any questions about this examination please
     #XXXX for the opportunity to assist in the care of your patient; check are normal
     #stable from prior exam.
-    
+    # attributed to the patient's recent abdominal surgery
