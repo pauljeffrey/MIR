@@ -2,7 +2,7 @@ import pickle
 from collections import Counter
 import json
 
-DIRECTIONS = ["left", "right", "up", "down", "upper", "lower","medial", "lateral", "middle", "contralateral", "bilateral"]
+DIRECTIONS = ["left", "right", "up", "mid","down", "upper", "lower","medial", "lateral", "middle", "contralateral", "bilateral"]
 #RELATION
 
 class JsonReader(object):
