@@ -103,15 +103,25 @@ def split_undone(captions, size=1200):
 
 def clean_text(images_captions_df, df_output= './data/image_captions.csv', split=False, load_from_file=True):
     
+    if os.path.exists("./data/clean_caption_index.txt"):
+        with open("./data/clean_caption_index.txt","r") as f:
+            indices = f.readlines()
+        clean_caption_index = []
+        for each in indices:
+            clean_caption_index.append(int(each))
+    else:
+        clean_caption_index = []
+        
+    total = len(images_captions_df)
     # Get all captions that have XXXX in them
     if load_from_file:
-        with open(os.listdir("./data/data_shard")[0], 'r') as f:
+        print(os.listdir("./data/data_shard")[0])
+        with open(os.path.join(os.path.abspath('./data/data_shard'),os.listdir("./data/data_shard")[0]), 'r') as f:
             contains_xxx = json.load(f)
+        count = len(contains_xxx) - len(clean_caption_index)
     else:
         contains_xxx = {}
-        clean_caption_index = []
         count = 0
-        total = len(images_captions_df)
         for ind, each in enumerate(images_captions_df['caption']):
             if "XXXX" in each:
                 count += 1
@@ -127,11 +137,13 @@ def clean_text(images_captions_df, df_output= './data/image_captions.csv', split
     
     if split:
         split_undone(contains_xxx)
+        print("split done..")
     
     
-    
+    field="image"
     end = False   
     for ind, unclean_text in contains_xxx.items():
+        ind = int(ind)
         if len(clean_caption_index) > 0 and ind in clean_caption_index:
             continue
         
@@ -140,13 +152,15 @@ def clean_text(images_captions_df, df_output= './data/image_captions.csv', split
         print()
         for i, sentence in enumerate(unclean_text):
             if "XXXX" in sentence:
-                print(f"Image - {ind}, Text - ({i})\n {sentence}.")
+                print(f"Image - {ind} , Image name {images_captions_df[field][ind]}, Text - ({i})\n {sentence}.")
                 print()
                 correction = input(f"Type correction / deletions or match a phrase with the database below...\n")
                 
                 if correction == "exit":
                     end = True
                     break
+                if correction == "ignore":
+                    continue
                 
                 if correction == "check":
                     print(images_captions_df.iloc[ind]['caption'])
@@ -154,6 +168,9 @@ def clean_text(images_captions_df, df_output= './data/image_captions.csv', split
                     print(f"Image - {ind}, Text - ({i})\n {sentence}.")
                     print()
                     correction = input("Type correction / deletions or match a phrase with the database below...\n")
+                
+                if correction == "ignore":
+                    continue
                     
                 if "match-" in correction:
                     text = correction.split("-")[1]
@@ -218,10 +235,14 @@ def clean_text(images_captions_df, df_output= './data/image_captions.csv', split
         # find all occurrences of unclean text
         indices = findall_occurrences(images_captions_df, ind)
         clean_caption_index.extend(indices)
-        with open("clean_caption_index.json", 'w') as f:
-            json.dump({"indices", clean_caption_index},f)
+        
+        with open("./data/clean_caption_index.txt", 'w') as f:
+            for each in clean_caption_index:
+                f.write(f"{each}\n")
+            
         # apply corrections to all occurrences
         images_captions_df = apply(images_captions_df, unclean_text, clean_text, indices)
+        print("Saving in file now..")
         images_captions_df.to_csv(df_output)
        
     print('Saving file now...')
@@ -283,3 +304,8 @@ if __name__ == '__main__':
     #A total of 3 images were obtained.;The following examination consists of frontal, lateral and swimmers lateral radiographs of the thoracic spine
     # chck;  lateral chest examination was obtained
     # at is not identified on the PA projection.;  Calcificationseen
+    #as more readily demonstrated on the previous CT chest study from 
+    #Stableprominent; and below the  -of-view; certified radiologist;If there are any questions about this examination please
+    #XXXX for the opportunity to assist in the care of your patient; check are normal
+    #stable from prior exam.
+    
