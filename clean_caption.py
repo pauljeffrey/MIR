@@ -74,6 +74,9 @@ def apply(images_captions_df, unclean_sent, clean_sent, indices, df_output= './d
     for ind in indices:
         caption = images_captions_df.iloc[ind]["caption"]
         for i , each in enumerate(unclean_sent):
+            # print(each)
+            # print(clean_sent[i])
+            # print()
             caption = caption.replace(each, clean_sent[i])
         
         images_captions_df.loc[ind,"caption"] = caption
@@ -227,6 +230,8 @@ def clean_text(images_captions_df, df_output= './data/image_captions.csv', split
                             else:
                                 #print('yes')
                                 if x != "" or x != " ":
+                                    #print("this:",x)
+                                    x =x.strip(" ")
                                     clean_sentence = clean_sentence.replace(" " + x ,"",1)
                 
                 print(clean_sentence)
@@ -314,3 +319,25 @@ if __name__ == '__main__':
     #XXXX for the opportunity to assist in the care of your patient; check are normal
     #stable from prior exam.
     # attributed to the patient's recent abdominal surgery
+    
+    
+    #Findings: There are no focal airspace opacities within the lungs. There is a 1 cm nodular density projecting in the right midlung between the third and fourth right anterior ribs   . To the pulmonary interstitium is not clear, making it the vasculature somewhat indistinct in the mid and lower lungs. This may reflect multiple parenchymal nodules. . Mediastinal contours appear grossly normal. There are small calcified left hilar lymph nodes. The heart and pulmonary vasculature otherwise appear normal. Pleural spaces appear clear.
+    #Impression: 1. A 1 cm nodular density seen  projecting in the right midlung. Recommend noncontrasted enhanced CT chest for 
+    # evaluation of this nodule. Does this patient have known risk factors for malignancy? 2. Somewhat indistinct pulmonary interstitium
+    # possibly reflecting underlying pulmonary sarcoidosis
+    # Findings: The chest examination consists of frontal and lateral radiographs of the chest
+    # Findings: The chest examination consists of frontal and lateral radiographs of the chest
+    # Stable appearance of the chest.
+    # Stable appearance of the chest.
+    # Findings: The chest examination consists of frontal and lateral radiographs of the chest
+    # Findings: The chest examination consists of frontal and lateral radiographs of the chest
+    # Findings: Frontal and lateral views of the chest show an unchanged cardiomediastinal silhouette
+    # Findings: Frontal and lateral views of the chest show an unchanged cardiomediastinal silhouette
+    # Findings: Frontal and lateral views of the chest show normal size and configuration of the cardiac silhouette
+    
+    #     Image - 3903, Text - (3) -Add it back
+    #  Visualized XXXX of the chest XXXX are within normal limits.
+    #  Impression: 2 cm noncalcified nodule in the right lower lobe would benefit from a XXXX..
+    
+    #  Impression: Patchy airspace disease on the lateral view, probably within the right lower lobe, XXXX a pneumonia superimposed on XXXX severe underlying emphysema. 
+    #  Recommend following this process to resolution.
