@@ -341,3 +341,5 @@ if __name__ == '__main__':
     
     #  Impression: Patchy airspace disease on the lateral view, probably within the right lower lobe, XXXX a pneumonia superimposed on XXXX severe underlying emphysema. 
     #  Recommend following this process to resolution.
+    #automated implantable cardioverter defibrillator (AICD) ; 9th, fourth
+    #Comparison
