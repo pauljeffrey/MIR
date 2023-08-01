@@ -77,7 +77,10 @@ def apply(images_captions_df, unclean_sent, clean_sent, indices, df_output= './d
             # print(each)
             # print(clean_sent[i])
             # print()
-            caption = caption.replace(each, clean_sent[i])
+            if clean_sent[i].endswith(".") or clean_sent[i].endswith(". "):
+                caption = caption.replace(each, clean_sent[i])
+            else:
+                caption = caption.replace(each, clean_sent[i] +".")
         
         images_captions_df.loc[ind,"caption"] = caption
         print(images_captions_df.iloc[ind]['caption'])
@@ -342,4 +345,4 @@ if __name__ == '__main__':
     #  Impression: Patchy airspace disease on the lateral view, probably within the right lower lobe, XXXX a pneumonia superimposed on XXXX severe underlying emphysema. 
     #  Recommend following this process to resolution.
     #automated implantable cardioverter defibrillator (AICD) ; 9th, fourth
-    #Comparison
+    #Comparison;  on lateral view, T9,T6, T8, T11 and T12
