@@ -77,10 +77,7 @@ def apply(images_captions_df, unclean_sent, clean_sent, indices, df_output= './d
             # print(each)
             # print(clean_sent[i])
             # print()
-            if clean_sent[i].endswith(".") or clean_sent[i].endswith(". "):
-                caption = caption.replace(each, clean_sent[i])
-            else:
-                caption = caption.replace(each, clean_sent[i] +".")
+            caption = caption.replace(each, clean_sent[i])
         
         images_captions_df.loc[ind,"caption"] = caption
         print(images_captions_df.iloc[ind]['caption'])
@@ -346,3 +343,4 @@ if __name__ == '__main__':
     #  Recommend following this process to resolution.
     #automated implantable cardioverter defibrillator (AICD) ; 9th, fourth
     #Comparison;  on lateral view, T9,T6, T8, T11 and T12
+    #not well demonstrated on x-ray;not; study.
