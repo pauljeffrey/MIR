@@ -23,7 +23,7 @@ import logging
 import math
 import os
 import torch
-import hydra
+#import hydra
 import torch
 
 from tqdm.auto import tqdm
@@ -202,7 +202,7 @@ def evaluate(model, accelerator, eval_loader, custom_loss, bce_loss):
 
 
 
-@hydra.main(version_base=None, config_path="conf", config_name="config")
+#@hydra.main(version_base=None, config_path="conf", config_name="config")
 def train(cfg: DictConfig):
     logger = get_logger(__name__)
     logging.basicConfig(
@@ -490,8 +490,8 @@ def train(cfg: DictConfig):
 
 
 if __name__ == "__main__":
-    
-    train()
+    cfg = OmegaConf.load("./conf/config.yaml")
+    train(cfg)
     # cfg = OmegaConf.load("./conf/config.yaml")
     # #train(cfg)
     # model = load_model(cfg)
