@@ -39,16 +39,18 @@ if __name__ == '__main__':
     
     # print(inputs)
     
-    q = torch.randn(3, 1, 10) # source sequence length 3, batch size 1, embedding size 10
+    q = torch.randn( 5,3, 10) # source sequence length 3, batch size 1, embedding size 10
     w= torch.randn(1,3)
-    attn = nn.MultiheadAttention(10, 1) # embedding size 10, one head
+    attn = nn.MultiheadAttention(10, 1, batch_first=True) # embedding size 10, one head
     attn(q, q, q) # self attention
     
     def src_mask(sz):
         mask = (torch.triu(torch.ones(sz, sz)) == 1).transpose(0, 1)
         mask = mask.float().masked_fill(mask == 0, float('-inf')).masked_fill(mask == 1, float(0.0))
         return mask
-    
-    print(attn(q, q, q, attn_mask=src_mask(3))[1]) # attention output weights
+    out = attn(q, q, q, attn_mask=src_mask(3))
+    print(out[1][0], out[0][0])
+    print(out[1].shape, out[0].shape) # attention output weights
+    print(src_mask(3))
     
     

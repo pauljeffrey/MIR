@@ -2,7 +2,7 @@ import pickle
 from collections import Counter
 import json
 
-DIRECTIONS = ["left", "right", "up", "mid","down", "upper", "lower","medial", "lateral", "middle", "contralateral", "bilateral"]
+
 #RELATION
 
 class JsonReader(object):
@@ -28,19 +28,18 @@ class Vocabulary(object):
         self.word2idx = {}
         self.id2word = {}
         self.idx = 0
-        self.add_word('<pad>')
-        self.add_word('<unk>')
+        self.add_word("<PAD>" )
+        self.add_word("<UNK>")
         
         if not for_patient_info:
-            self.add_word('<end>')
+            self.add_word('</s>')
             self.add_word('<start>')
-        
-        
+       
         if desc_tags:
             self.add_word('<size>')
-            self.add_word('</size>')
+            #self.add_word('</size>')
             self.add_word('<loc>')
-            self.add_word('</loc>')
+            #self.add_word('</loc>')
             
     def add_word(self, word):
         if word not in self.word2idx:
@@ -77,59 +76,6 @@ def build_vocab(json_file, threshold, desc_tags = True, save_dir= "vocab_tokeniz
     return vocab
 
 
-def contains_digit_and_alphabet(string):
-    has_digit = False
-    has_alpha = False
-    
-    for char in string:
-        if char.isdigit():
-            has_digit = True
-        elif char.isalpha():
-            has_alpha = True
-        
-        if has_digit and has_alpha:
-            return True
-    
-    return False
-
-
-def add_tags(caption):
-    caption = caption.lower()
-    caption = caption.replace('.',' . ')
-    caption = caption.replace(',', ' , ')
-    caption_split = caption.split(" ")
-    #print(caption_split)
-    for index in range(len(caption_split)):
-        if index < len(caption_split):
-            word = caption_split[index]
-        else:
-            return " ".join(caption_split)
-        
-        if word.isdigit():
-            caption_split[index] = "<size> " + word + " </size>"
-            
-        elif contains_digit_and_alphabet(word):
-            number = ""
-            for char in word:
-                if char.isdigit():
-                    number += char
-                else:
-                    break
-            unit = word.strip(number)
-            caption_split[index] = "<size> "  + number + " </size> " +  unit
-        
-        elif word in DIRECTIONS:
-            if caption_split[index + 1] not in DIRECTIONS:
-                caption_split[index] = "<loc> " + word + " </loc>"
-            else:
-                caption_split[index] = "<loc> " + word + " " + caption_split[index + 1] + " </loc>"
-                caption_split.pop(index + 1)
-                index += 3
-        
-        else:
-            continue
-        
-    return " ".join(caption_split)
 
 def load_vocab(vocab_path):
     with open(vocab_path, "rb") as f:

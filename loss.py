@@ -10,21 +10,42 @@ class CustomLoss(nn.Module):
         super(CustomLoss, self).__init__()
         #self.alpha = alpha
         self.cross_entropy = nn.CrossEntropyLoss()
-        self.bce = nn.BCEWithLogitsLoss()
+        self.bce = nn.BCELoss()#nn.BCEWithLogitsLoss()
         
     
-    def forward(self, y1_true, y2_true, y1_pred, y2_pred, with_logits=True):
+    def forward(self,y1_true, y2_true, y1_pred, y2_pred, with_logits=False, eval=False):
         if with_logits:
             y2_pred = y2_pred.softmax(dim=2)
-        y1_mask = y1_true.ne(-1)
+        #y1_mask = y1_true.ne(-1)
         y2_mask = y2_true.ne(0)
-        sparse_loss = self.cross_entropy(y2_pred[y2_mask], y2_true[y2_mask])
-        bce_loss = self.bce(y1_pred[y1_mask], y1_true[y1_mask])
-        print(bce_loss)
         
-        return bce_loss + sparse_loss
+        #Set y2 label to long and y label to float, leave the pred in float32
+        # print(y1_true.dtype, y2_true.dtype, y1_pred.dtype, y2_pred.dtype)
+        # print("masks shape: ", y1_mask.shape, y2_mask.shape)
+        # print("Outpoutshape: ", y1_pred.shape, y1_true.shape)
+        # print("Outpoutshape: ", y2_pred.shape, y2_true.shape)
+        
+        sparse_loss = self.cross_entropy(y2_pred[y2_mask], y2_true[y2_mask])
+        bce_loss = self.bce(y1_pred, y1_true.to(torch.float32))
+        
+        #print(bce_loss, sparse_loss)
+        if eval:
+            return bce_loss , sparse_loss
+        else:
+            return bce_loss + sparse_loss
+        
 
-
+class CustomBCELoss(nn.Module):
+    def __init__(self, alpha=0.5):
+        super(CustomBCELoss, self).__init__()
+        #self.alpha = alpha
+        self.bce = nn.BCELoss()#nn.BCEWithLogitsLoss()
+        
+    
+    def forward(self,label_true, label_pred):
+        label_mask = label_true.ne(-1)
+        label_loss = self.bce(label_pred[label_mask], label_true[label_mask].to(torch.float32))
+        return label_loss
 
 
 

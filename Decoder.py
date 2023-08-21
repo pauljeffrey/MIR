@@ -1,10 +1,17 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from typing import Union, Callable, Optional, List
+from typing import Union, Callable, Optional, List,Tuple
 from torch import Tensor
 from torch.nn import MultiheadAttention, Linear, Dropout, LayerNorm
 from utils import *
+#from xformers.components.positional_embedding import XFORMERS.COMPONENTS.POSITIONAL_EMBEDDING.ROTARY
+#from rotary_embedding import RotaryEmbedding
+
+import torch
+import torch.nn as nn
+import math
+from rotary_embedding_torch import RotaryEmbedding
 
 class DecoderLayer(nn.Module):
     r"""TransformerDecoderLayer is made up of self-attn, multi-head-attn and feedforward network.
@@ -30,10 +37,10 @@ class DecoderLayer(nn.Module):
     """
     __constants__ = ['batch_first', 'norm_first']
 
-    def __init__(self, d_model: int, nhead: int, dim_feedforward: int = 2048, topic_emb: Optional[int]= 0,
-                 topic_units: Optional[int]= 0,dropout: float = 0.1, mem_dim: Optional[int]=0, activation: Union[str, Callable[[Tensor], Tensor]] = F.gelu,
+    def __init__(self, pos_emb: RotaryEmbedding, d_model: int, nhead: int, dim_feedforward: int = 2048, topic_emb: Optional[int]= 0,
+                 topic_units: Optional[int]= 0,dropout: float = 0.1, features_dim: Optional[int]=0, activation: Union[str, Callable[[Tensor], Tensor]] = F.gelu,
                  layer_norm_eps: float = 1e-5, batch_first: bool = True, norm_first: bool = False, use_cross_attention=True,
-                 use_topic= True, device=None, dtype=None) -> None:
+                 use_topic= True, use_prompt=False, device=None, dtype=None) -> None:
         
         factory_kwargs = {'device': device, 'dtype': dtype}
         super().__init__()
@@ -43,13 +50,20 @@ class DecoderLayer(nn.Module):
         
         key_value_emb_size = d_model + topic_units
         
+        self.pos_emb  = pos_emb
+        self.n_head = nhead
+        self.d_model = d_model
+        self.use_prompt = use_prompt
+        
         self.self_attn = MultiheadAttention(d_model, nhead, kdim= key_value_emb_size, vdim=key_value_emb_size, dropout=dropout, batch_first=batch_first,
                                             **factory_kwargs)
         
         if use_cross_attention:
-            if mem_dim == 0:
-                mem_dim = d_model
-            self.multihead_attn = MultiheadAttention(d_model, nhead, kdim=mem_dim, vdim=mem_dim, dropout=dropout, batch_first=batch_first,
+            if use_prompt:
+                self.multihead_attn = MultiheadAttention(d_model, nhead, kdim=d_model, vdim=d_model, dropout=dropout, batch_first=batch_first,
+                                                 **factory_kwargs)
+            else:
+                self.multihead_attn = MultiheadAttention(d_model, nhead, kdim=features_dim, vdim=features_dim, dropout=dropout, batch_first=batch_first,
                                                  **factory_kwargs)
             self.norm2 = LayerNorm(d_model, eps=layer_norm_eps, **factory_kwargs)
             
@@ -93,6 +107,7 @@ class DecoderLayer(nn.Module):
         memory_key_padding_mask: Optional[Tensor] = None,
         tgt_is_causal: bool = True,
         memory_is_causal: bool = False,
+      
     ) -> Tensor:
         r"""Pass the inputs (and mask) through the decoder layer.
 
@@ -123,18 +138,29 @@ class DecoderLayer(nn.Module):
             see the docs in Transformer class.
         """
         # see Fig. 1 of https://arxiv.org/pdf/2002.04745v1.pdf
-
+        
         x = tgt
         #print("Forward topic shape: ", topic.shape)
         if self.norm_first:
             x = x + self._sa_block(self.norm1(x), tgt_mask, tgt_key_padding_mask, topic, tgt_is_causal)
             if self.use_cross_attention:
-                x = x + self._mha_block(self.norm2(x), memory, memory_mask, memory_key_padding_mask, memory_is_causal)
+                prompt, weighted_images = memory[0], memory[1]
+                if self.use_prompt:
+                    x = x + self._mha_block(self.norm2(x), prompt, memory_mask, memory_key_padding_mask, memory_is_causal)
+                else:    
+                    x = x + self._mha_block(self.norm2(x), weighted_images, memory_mask, key_padding_mask=None, is_causal=memory_is_causal)
             x = x + self._ff_block(self.norm3(x))
         else:
             x = self.norm1(x + self._sa_block(x, tgt_mask, tgt_key_padding_mask, topic, tgt_is_causal))
             if self.use_cross_attention:
-                x = self.norm2(x + self._mha_block(x, memory, memory_mask, memory_key_padding_mask, memory_is_causal))
+                prompt, weighted_images = memory[0], memory[1]
+                if self.use_prompt:
+                    #print("Image shape; ", memory_mask, memory_key_padding_mask)
+                    x = self.norm2(x + self._mha_block(x, prompt, memory_mask, key_padding_mask=memory_key_padding_mask, is_causal=memory_is_causal))
+                else:
+                    memory_key_padding_mask = None
+                    #print("Image shape; ", memory_mask.shape)
+                    x = self.norm2(x + self._mha_block(x, weighted_images, memory_mask, key_padding_mask=memory_key_padding_mask, is_causal=memory_is_causal))
             x = self.norm3(x + self._ff_block(x))
 
         return x
@@ -146,6 +172,21 @@ class DecoderLayer(nn.Module):
                   topic: Optional[Tensor] = None,
                   is_causal: bool = False) -> Tensor:
         
+        
+        b, seq_l = x.shape[:2]
+        
+        q= x.reshape(-1, seq_l, self.n_head, int(self.d_model/self.n_head)).permute(0,2,1,3)
+        k = x.reshape(-1, seq_l, self.n_head, int(self.d_model/self.n_head)).permute(0,2,1,3)
+        
+        #apply positional rotary embedding:
+        q = self.pos_emb.rotate_queries_or_keys(q)
+        k = self.pos_emb.rotate_queries_or_keys(k)
+        
+        # Reshape q, k to normal
+        q = q.permute(0,2,1,3).reshape(b, seq_l, self.d_model)
+        k = k.permute(0,2,1,3).reshape(b, seq_l, self.d_model)
+        
+        # Apply topic vector to each token
         if self.use_topic:
             # topic.shape  = (batch_size, topic_emb)
     
@@ -155,11 +196,11 @@ class DecoderLayer(nn.Module):
             # print(topic_key.shape)
             # print(topic_value.unsqueeze(1).repeat(1,x.shape[1],1).shape)
             # print("Concatenated: ", torch.cat([x, topic_key.unsqueeze(1).repeat(1,x.shape[1],1)], dim=-1).shape)
-            
-            
-            x = self.self_attn(x, 
-                               torch.cat([x, topic_key.unsqueeze(1).repeat(1,x.shape[1],1)], dim=-1), 
-                               torch.cat([x, topic_value.unsqueeze(1).repeat(1,x.shape[1],1)], dim=-1),
+            #print("Use Topic: ",x.shape, topic_key.shape, topic_value.shape)
+            #print(k.shape, topic_key.repeat(1,x.shape[1],1).shape)
+            x = self.self_attn(q, 
+                               torch.cat([k, topic_key.repeat(1,x.shape[1],1)], dim=-1), 
+                               torch.cat([x, topic_value.repeat(1,x.shape[1],1)], dim=-1),
                             attn_mask=attn_mask,
                             key_padding_mask=key_padding_mask,
                             is_causal=is_causal,
@@ -180,11 +221,45 @@ class DecoderLayer(nn.Module):
     # multihead attention block
     def _mha_block(self, x: Tensor, mem: Optional[Tensor],
                    attn_mask: Optional[Tensor], key_padding_mask: Optional[Tensor], is_causal: bool = False) -> Tensor:
-        x = self.multihead_attn(x, mem, mem,
-                                attn_mask=attn_mask,
-                                key_padding_mask=key_padding_mask,
-                                is_causal=is_causal,
-                                need_weights=False)[0]
+        #print("mha shape: ",x.shape, mem.shape)
+        b, seq_l = x.shape[:2]
+        if self.use_prompt:
+            #print("Prompt shape: ", mem.shape)
+            prompt_seq_l, prompt_d_model = mem.shape[1], mem.shape[-1]
+            #print(prompt_seq_l, prompt_d_model, self.n_head)
+            assert prompt_d_model % self.n_head == 0
+            
+            q= x.reshape(-1, seq_l, self.n_head, int(self.d_model/self.n_head)).permute(0,2,1,3)
+            k = mem.reshape(-1, prompt_seq_l, self.n_head, int(prompt_d_model/self.n_head)).permute(0,2,1,3)
+            
+            #apply positional rotary embedding:
+            #print(k.shape, q.shape)
+            q = self.pos_emb.rotate_queries_or_keys(q)
+            k = self.pos_emb.rotate_queries_or_keys(k)
+            
+            # Reshape q, k to normal
+            q = q.permute(0,2,1,3).reshape(b, seq_l, self.d_model)
+            k = k.permute(0,2,1,3).reshape(b, prompt_seq_l, prompt_d_model)
+        
+            x = self.multihead_attn(q, k, mem,
+                                    attn_mask=attn_mask,
+                                    key_padding_mask=key_padding_mask,
+                                    is_causal=is_causal,
+                                    need_weights=False)[0]
+        else:
+            x= x.reshape(-1, seq_l, self.n_head, int(self.d_model/self.n_head)).permute(0,2,1,3)
+            #apply positional rotary embedding:
+            x= self.pos_emb.rotate_queries_or_keys(x)
+        
+            # Reshape q to normal
+            x = x.permute(0,2,1,3).reshape(b, seq_l, self.d_model)
+            
+            x = self.multihead_attn(x, mem, mem,
+                                    attn_mask=attn_mask,
+                                    key_padding_mask=key_padding_mask,
+                                    is_causal=is_causal,
+                                    need_weights=False)[0]
+            
         return self.dropout2(x)
 
 
@@ -198,11 +273,11 @@ class MIRDecoder(nn.Module):
     """
     __constants__ = ['norm']
 
-    def __init__(self, num_layers, vocab_size: int, use_topic_per_layer: List[bool], use_cross_att_per_layer: List[bool], d_model: int, 
+    def __init__(self, num_layers, vocab_size: int, use_topic_per_layer: List[bool], use_prompt_per_layer: List[bool], use_cross_att_per_layer: List[bool], d_model: int, 
                  nhead: int, mem_dim: Optional[int], dim_feedforward: int = 2048, topic_emb: Optional[int]= 0, topic_units: Optional[int]= 0, 
                  dropout: float = 0.1, activation: Union[str, Callable[[Tensor], Tensor]] = F.gelu, layer_norm_eps: float = 1e-5, 
                  batch_first: bool = False, norm_first: bool = False, device=None, 
-                 dtype=None,  norm=None):
+                 dtype=None,  norm=True):
         
         super().__init__()
         torch._C._log_api_usage_once(f"torch.nn.modules.{self.__class__.__name__}")
@@ -210,19 +285,25 @@ class MIRDecoder(nn.Module):
         assert num_layers == len(use_topic_per_layer)
         assert num_layers == len(use_cross_att_per_layer)
         self.embed_layer = nn.Embedding(vocab_size, d_model)
+        self.rotary_embed =  RotaryEmbedding(
+            dim = 32,
+            #use_xpos = True   # set this to True to make rotary embeddings extrapolate better to sequence lengths greater than the one used at training time
+        )
         
+        #self.use_prompt_per_layer = use_prompt_per_layer
         self.layers = nn.ModuleList([
-            DecoderLayer(d_model, nhead, dim_feedforward, topic_emb = topic_emb if use_topic_per_layer[i] else 0,
-                         topic_units= topic_units if use_topic_per_layer[i] else 0, dropout =dropout,mem_dim=mem_dim,
+            DecoderLayer(self.rotary_embed, d_model, nhead, dim_feedforward, topic_emb = topic_emb if use_topic_per_layer[i] else 0,
+                         topic_units= topic_units if use_topic_per_layer[i] else 0, dropout =dropout,features_dim=mem_dim,
                          activation=activation, layer_norm_eps=layer_norm_eps, batch_first=batch_first, norm_first=norm_first,
-                         use_cross_attention= use_cross_att_per_layer[i], use_topic= use_topic_per_layer[i], device=device, dtype=dtype) for i in range(num_layers)
+                         use_cross_attention= use_cross_att_per_layer[i], use_topic= use_topic_per_layer[i], use_prompt=use_prompt_per_layer[i],device=device, dtype=dtype) for i in range(num_layers)
             ])
         
 
         self.num_layers = num_layers
         
         self.norm = norm
-        self.causal_lm_head = Linear(d_model, vocab_size,activation="softmax")
+        self.causal_lm_head = Linear(d_model, vocab_size)
+        
 
 
     def forward(self, tgt: Tensor, topic: Tensor, memory: Tensor, tgt_mask: Optional[Tensor] = None,
@@ -260,18 +341,19 @@ class MIRDecoder(nn.Module):
         output = tgt
         output = self.embed_layer(output)
         
+        
         for mod in self.layers:
-            output = mod(output, memory,topic, tgt_mask=tgt_mask,
+            output = mod(output, memory, topic, tgt_mask=tgt_mask,
                          memory_mask=memory_mask,
                          tgt_key_padding_mask=tgt_key_padding_mask,
                          memory_key_padding_mask=memory_key_padding_mask,
                          tgt_is_causal=tgt_is_causal,
-                         memory_is_causal=memory_is_causal)
+                         memory_is_causal=memory_is_causal) #memory_is_causal=memory_is_causal,use_prompt=self.use_prompt_per_layer[ind]
 
         if self.norm is not None:
             output = self.norm(output)
 
-        output = self.causal_lm_head(output)
+        output = F.softmax(self.causal_lm_head(output), dim=-1)
         
         return output
     
@@ -285,6 +367,8 @@ def _get_activation_fn(activation: str) -> Callable[[Tensor], Tensor]:
     raise RuntimeError("activation should be relu/gelu, not {}".format(activation))
 
 
+
+
 if __name__ == '__main__':
     # layer = DecoderLayer(256, 4)
     # inputs = torch.randint(size=(3,4,6))
@@ -296,7 +380,8 @@ if __name__ == '__main__':
         'vocab_size': 1000,
         'use_topic_per_layer' : [False,False, False, True, True, True], #[False, True], #
         'use_cross_att_per_layer' : [False, False, False, False, True,True], #[False, True], #
-        'd_model': 128, 
+        'use_prompt_per_layer': [False, False, False,True, True, False],
+        'd_model': 256, 
         'nhead' : 8, 
         'dim_feedforward' : 256, 
         'topic_emb': 64, 
@@ -321,14 +406,19 @@ if __name__ == '__main__':
                           [13,1,0,4,6]])
     
     padding_mask = create_padding_mask(inputs)
+    #print(padding_mask)
     #causal_mask1 = create_causal_masks(inputs)
     causal_mask2 = src_mask(inputs.shape[1])
     
     #print("masks: ", causal_mask2, padding_mask)
     images = torch.randn((4,64, 64 ))
-    topic= torch.randn((4,64))
+    topic= torch.randn((4,1,64))
     
-    # emb_layer = nn.Embedding(100, 128)
+    #embeddings = torch.randn(4,20,256)
+    hist = torch.randint(0,5, (4,20))
+    mem_mask= create_padding_mask(hist)
+    emb_layer = nn.Embedding(1000, 256)
+    embeddings = emb_layer(hist)
     # inputs = emb_layer(inputs)
     # print("embeddings shape: ", inputs.shape)
     
@@ -338,8 +428,46 @@ if __name__ == '__main__':
     #             memory_is_causal: bool = False
                 
     #outputs = decoder_layer(inputs, images, topic,tgt_key_padding_mask=padding_mask, tgt_mask=causal_mask2, tgt_is_causal=True)
-    outputs = decoder(inputs,topic,images,tgt_key_padding_mask=padding_mask, tgt_mask=causal_mask2, tgt_is_causal=True)
+    outputs = decoder(inputs,topic,(embeddings,images),tgt_key_padding_mask=padding_mask,
+                      memory_key_padding_mask=mem_mask, tgt_mask=causal_mask2, tgt_is_causal=True)
     print("Output shape: ", outputs.shape)
     #print(decoder)
+    
+    
+    images = torch.randn((4,64, 128 ))
+    encoded = torch.randn((4,20, 128))
+    #mha = MHA(128,2,)
+    
+   
+    #print("Rotary embedding: ", torch.transpose(q[1,1,1,:4],0,1), torch.transpose(q[2,1,1,:4], 0,1))
+    # emb_layer = RotaryEmbedding(256)
+    
+    # print(emb_layer(embeddings, torch.range(0,20)).shape)
+
+# import torch
 
 
+# # instantiate the positional embedding in your transformer and pass to all your attention layers
+
+# rotary_emb = RotaryEmbedding(dim = 32)
+
+# # mock queries and keys - dimensions should end with (seq_len, feature dimension), and any number of preceding dimensions (batch, heads, etc)
+
+# q = torch.randn(1, 8, 1024, 64) # queries - (batch, heads, seq len, dimension of head)
+# k = torch.randn(1, 8, 1024, 64) # keys
+
+# # apply the rotations to your queries and keys after the heads have been split out, but prior to the dot product and subsequent softmax (attention)
+
+# q = rotary_emb.rotate_queries_or_keys(q)
+# k = rotary_emb.rotate_queries_or_keys(k)
+# print("q shape: ", torch.permute(q, (0,2,1,3)).shape)
+# q =torch.permute(q, (0,2,1,3)).reshape(1,1024, 64*8)
+# k = torch.permute(k,(0,2,1,3)).reshape(1,1024, 8*64)
+# # then do your attention with your queries (q) and keys (k) as usual
+
+# v = torch.randn(1, 1024, 64*8)
+# att = nn.MultiheadAttention(64*8, 8)
+# out = att(q,k,v)
+# print("q shape", q.shape)
+# print("k shape", k.shape)
+# # then do your attention with your queries (q) and keys (k) as usual
