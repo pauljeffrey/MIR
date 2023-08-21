@@ -361,6 +361,7 @@ class EncoderLayer(nn.Module):
         q= x.reshape(-1, seq_l, self.n_head, int(self.d_model/self.n_head)).permute(0,2,1,3)
         k = x.reshape(-1, seq_l, self.n_head, int(self.d_model/self.n_head)).permute(0,2,1,3)
         
+        print(q.shape, k.shape)
         #apply positional rotary embedding:
         q , k= self.pos_emb.rotate_queries_and_keys(q, k)
         #k = self.pos_emb.rotate_queries_or_keys(k)
