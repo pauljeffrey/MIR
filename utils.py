@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import numpy as np
 
 
 def src_mask(sz):
@@ -10,7 +11,7 @@ def src_mask(sz):
 
 def create_masks(inputs):
     # Create padding mask
-    padding_mask = (inputs != 0).unsqueeze(1).unsqueeze(2)
+    padding_mask = torch.tensor((inputs != 0)).unsqueeze(1).unsqueeze(2)
     
     # Create causal mask
     causal_mask = src_mask(inputs.shape[1])
@@ -23,18 +24,18 @@ def create_masks(inputs):
 
 
 def create_padding_mask(inputs):
-    mask = (inputs == 0)#.unsqueeze(1).unsqueeze(2)
+    mask = torch.tensor((inputs == 0))#.unsqueeze(1).unsqueeze(2)
     mask = mask.float().masked_fill(mask == 1, float('-inf'))#.masked_fill(mask == 1, float(0.0))
     return mask
 
 
 if __name__ == '__main__':
-    inputs = torch.tensor([[5, 12, 8, 0, 0],[32, 15, 16, 0, 7],[0,0, 15,32, 64]])
+    inputs = np.array([[5, 12, 8, 0, 0],[32, 15, 16, 0, 7],[0,0, 15,32, 64]])
    
     #print(create_causal_masks(inputs))
     # print(generate_square_subsequent_mask(5))
     # print()
-    # # print(create_padding_mask(inputs))
+    print(create_padding_mask(inputs))
     # # print()
     
     # print(inputs)
