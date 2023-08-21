@@ -140,7 +140,7 @@ def collate_fn2(data, max_word_num=60):
     for i, tokens in enumerate(indication):
         indication_prompts[i,:len(tokens)] = tokens
         
-    return images, torch.tensor(indication_prompts), torch.tensor(labels), torch.tensor(probs), torch.tensor(targets) #images, 
+    return images, torch.tensor(indication_prompts).type(torch.int32), torch.tensor(labels), torch.tensor(probs), torch.tensor(targets) #images, 
 
 
 def get_loader(image_dir,
