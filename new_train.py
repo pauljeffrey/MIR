@@ -315,8 +315,8 @@ def train(cfg: DictConfig):
     for epoch in range(cfg.training.num_epochs):
         model.train()
                 
-        if cfg.tracking:
-            total_loss = 0
+        # if cfg.tracking:
+        #     total_loss = 0
         train_losses = []
         
         for step, (encoded_images,indication_prompt, labels,true_stop_probs, reports) in enumerate(train_loader):
