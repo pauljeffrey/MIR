@@ -140,7 +140,7 @@ def collate_fn2(data, max_word_num=60):
     for i, tokens in enumerate(indication):
         indication_prompts[i,:len(tokens)] = tokens
         
-    return indication_prompts, labels, probs, targets #images, 
+    return images, indication_prompts, labels, probs, targets #images, 
 
 
 def get_loader(image_dir,
