@@ -102,7 +102,7 @@ architecture:
 
   #decoder:
   dec_num_layers: 8
-  vocab_size: 8000 
+  vocab_size: 5665 
   use_topic_per_layer: [false, false, false,true, true, true,true, false]
   use_cross_att_per_layer: [false, false, false, false, true, false, true, false]
   use_prompt_per_layer: [false, false, false, false , false, true, false, false]
