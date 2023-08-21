@@ -3,21 +3,22 @@ load_dir: "pretrained"
 
 dataset:
   name: null
-  train_batch_size: 4
+  train_batch_size: 8
   eval_batch_size: 8
 
   tokens:
     s_max: 15
     n_max: 40
+    encoder_n_max: 60
 
   train:
-    image_dir: "/kaggle/input/chest-xrays-indiana-university"
+    image_dir: "/kaggle/input/chest-xrays-indiana-university/images/images_normalized"
     caption_json: "/kaggle/input/train.json"
     #history_json: null
     #file_list: null
 
   eval:
-    image_dir: "/kaggle/input/chest-xrays-indiana-university"
+    image_dir: "/kaggle/input/chest-xrays-indiana-university/images/images_normalized"
     caption_json: "/kaggle/input/val.json"
     #history_json: null
     #file_list: null
@@ -40,7 +41,7 @@ tokenizer:
 training:
   seed: 15
   shuffle: true
-  learning_rate: 1e-4
+  learning_rate: 3e-4
   weight_decay: 0.0
   num_epochs: 50
   max_train_steps: 400000
