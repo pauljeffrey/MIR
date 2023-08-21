@@ -35,7 +35,7 @@ if __name__ == '__main__':
     #print(create_causal_masks(inputs))
     # print(generate_square_subsequent_mask(5))
     # print()
-    print(create_padding_mask(inputs))
+    print(create_padding_mask(inputs).shape)
     # # print()
     
     # print(inputs)

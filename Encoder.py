@@ -370,6 +370,7 @@ class EncoderLayer(nn.Module):
         q = q.permute(0,2,1,3).reshape(b, seq_l, self.d_model)
         k = k.permute(0,2,1,3).reshape(b, seq_l, self.d_model)
         
+        print(q.shape, k.shape, x.shape, key_padding_mask.shape)
         x = self.self_attn(q, k, x,
                            attn_mask=attn_mask,
                            key_padding_mask=key_padding_mask,

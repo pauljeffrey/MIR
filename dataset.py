@@ -192,7 +192,7 @@ class ChestXrayDataSet2(Dataset):
         if use_tokenizer_fast:
             self.tokenizer = Tokenizer.from_pretrained(tokenizer_name)
         else:
-            print(tokenizer_name)
+            #print(tokenizer_name)
             self.tokenizer = Tokenizer.from_file(tokenizer_name)
             
         self.transform = transforms
