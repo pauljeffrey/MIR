@@ -9,7 +9,7 @@ import string  as st
 from Questions import QUESTION_TEMPLATE
 
 characters = st.ascii_letters + st.digits + st.punctuation
-
+openai.api_key = "" #os.getenv("OPENAI_API_KEY")
 
 
 def return_report_template(report):
