@@ -3,18 +3,18 @@ from torch import nn
 from utils import *
 from loss import *
 from dataset import *
-from build_vocab import load_vocab
+#from build_vocab import load_vocab
 from full_model import * 
 
 import torch.optim as optim
 from torch.utils.data import DataLoader
 from torch.utils.data.dataset import random_split
-from transformers import AdamW,Adafactor, get_linear_schedule_with_warmup
+from transformers import AdamW, Adafactor, get_linear_schedule_with_warmup
 
 from accelerate import Accelerator
 from accelerate import Accelerator, DistributedType ,DeepSpeedPlugin
 from accelerate.logging import get_logger
-from accelerate.utils import DummyOptim, DummyScheduler, set_seed
+#from accelerate.utils import DummyOptim, DummyScheduler, set_seed
 
 from omegaconf.dictconfig import DictConfig
 from omegaconf import OmegaConf
@@ -226,27 +226,27 @@ def train(cfg: DictConfig):
     # Creates Dummy Optimizer if `optimizer` was specified in the config file else creates Adam Optimizer
     optimizer_cls = (
         Adafactor #torch.optim.AdamW
-        if accelerator.state.deepspeed_plugin is None
-        or "optimizer" not in accelerator.state.deepspeed_plugin.deepspeed_config
-        else DummyOptim
+        # if accelerator.state.deepspeed_plugin is None
+        # or "optimizer" not in accelerator.state.deepspeed_plugin.deepspeed_config
+        # else DummyOptim
     )
     optimizer = optimizer_cls(model.parameters(), lr=cfg.training.learning_rate)
 
 
-    if (
-        accelerator.state.deepspeed_plugin is None
-        or "scheduler" not in accelerator.state.deepspeed_plugin.deepspeed_config
-    ):
-        lr_scheduler = get_scheduler(
-            name=cfg.training.lr_scheduler,
-            optimizer=optimizer,
-            num_warmup_steps=cfg.training.lr_warmup_steps,
-            num_training_steps=cfg.training.max_train_steps,
-        )
-    else:
-        lr_scheduler = DummyScheduler(
-            optimizer, total_num_steps=cfg.training.max_train_steps, warmup_num_steps=cfg.training.lr_warmup_steps
-        )
+    # if (
+    #     accelerator.state.deepspeed_plugin is None
+    #     or "scheduler" not in accelerator.state.deepspeed_plugin.deepspeed_config
+    # ):
+    lr_scheduler = get_scheduler(
+        name=cfg.training.lr_scheduler,
+        optimizer=optimizer,
+        num_warmup_steps=cfg.training.lr_warmup_steps,
+        num_training_steps=cfg.training.max_train_steps,
+    )
+    # else:
+    #     lr_scheduler = DummyScheduler(
+    #         optimizer, total_num_steps=cfg.training.max_train_steps, warmup_num_steps=cfg.training.lr_warmup_steps
+    #     )
 
 
     # On TPU, the tie weights in our model have been disconnected, so we need to restore the ties.
