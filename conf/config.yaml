@@ -30,7 +30,7 @@ model:
   from_trained: false
 
 tokenizer:
-  name: 'tokenizers/wordpiece_tokenizer8000.json'
+  name: 'wordpiece_tokenizer8000.json'
   use_fast: false
   preprocessing_num_workers: null
 
