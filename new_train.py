@@ -11,10 +11,10 @@ from torch.utils.data import DataLoader
 from torch.utils.data.dataset import random_split
 from transformers import AdamW,Adafactor, get_linear_schedule_with_warmup
 
-# from accelerate import Accelerator
-# from accelerate import Accelerator, DistributedType# ,DeepSpeedPlugin
-# from accelerate.logging import get_logger
-# from accelerate.utils import DummyOptim, DummyScheduler, set_seed
+from accelerate import Accelerator
+from accelerate import Accelerator, DistributedType# ,DeepSpeedPlugin
+from accelerate.logging import get_logger
+from accelerate.utils import DummyOptim, DummyScheduler, set_seed
 
 from omegaconf.dictconfig import DictConfig
 from omegaconf import OmegaConf
@@ -201,7 +201,7 @@ def evaluate(model, accelerator, eval_loader, custom_loss, bce_loss):
 
 
 
-#@hydra.main(version_base=None, config_path="conf", config_name="config")
+@hydra.main(version_base=None, config_path="conf", config_name="config")
 def train(cfg: DictConfig):
     logger = get_logger(__name__)
     logging.basicConfig(
@@ -484,10 +484,10 @@ def train(cfg: DictConfig):
 
 if __name__ == "__main__":
     
-    #train()
-    cfg = OmegaConf.load("./conf/config.yaml")
-    #train(cfg)
-    model = load_model(cfg)
+    train()
+    # cfg = OmegaConf.load("./conf/config.yaml")
+    # #train(cfg)
+    # model = load_model(cfg)
     #save_model(model, "pretrained")
     # images = torch.randn((256,3,224,224))
     # prompt = torch.randint(0, 5000, (256, 30))
