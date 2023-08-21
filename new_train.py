@@ -339,7 +339,7 @@ def train(cfg: DictConfig):
                 
             if model.history_encoder is not None:
                 indication_prompt = model.decoder.embed_layer(indication_prompt)
-                indication_prompt = model.history_encoder(indication_prompt, mask=encoder_pad_mask)
+                indication_prompt = model.history_encoder(indication_prompt, mask=encoder_pad_mask.type(indication_prompt.dtype))
                     
 
             # # compute mask, confirm the first part.
