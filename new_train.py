@@ -6,6 +6,7 @@ from dataset import *
 #from build_vocab import load_vocab
 from full_model import * 
 
+from torchvision import transforms
 import torch.optim as optim
 from torch.utils.data import DataLoader
 from torch.utils.data.dataset import random_split
@@ -22,7 +23,7 @@ import logging
 import math
 import os
 import torch
-#import hydra
+import hydra
 import torch
 
 from tqdm.auto import tqdm
@@ -248,7 +249,12 @@ def train(cfg: DictConfig):
     #         optimizer, total_num_steps=cfg.training.max_train_steps, warmup_num_steps=cfg.training.lr_warmup_steps
     #     )
 
-
+    transform = transforms.Compose(
+    [
+        transforms.Resize(cfg.training.img_size), 
+        transforms.ToTensor(),
+    ]
+)
     # On TPU, the tie weights in our model have been disconnected, so we need to restore the ties.
     if accelerator.distributed_type == DistributedType.TPU:
         model.tie_weights()

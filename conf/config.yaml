@@ -49,6 +49,7 @@ training:
   lr_warmup_steps: 200
   eval_every: 16
   save_every: 32
+  img_size: (224,224)
 
   checkpoint:
     resume_from_checkpoint: 0 # integer representing which checkpoint to load from, or <= 0 to not
