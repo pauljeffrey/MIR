@@ -251,7 +251,7 @@ def train(cfg: DictConfig):
 
     transform = transforms.Compose(
     [
-        transforms.Resize(cfg.training.img_size), 
+        transforms.Resize((224,224)), 
         transforms.ToTensor(),
     ]
 )
