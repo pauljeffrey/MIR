@@ -490,7 +490,7 @@ def train(cfg: DictConfig):
 
 
 if __name__ == "__main__":
-    cfg = OmegaConf.load("./conf/config.yaml")
+    cfg = OmegaConf.load("/kaggle/working/MIR/conf/config.yaml")
     train(cfg)
     # cfg = OmegaConf.load("./conf/config.yaml")
     # #train(cfg)
