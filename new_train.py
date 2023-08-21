@@ -212,7 +212,7 @@ def train(cfg: DictConfig):
     )
 
     deepspeed_plugin = DeepSpeedPlugin(zero_stage=3, gradient_accumulation_steps=cfg.training.gradient_accumulation_steps)
-    accelerator = Accelerator(mixed_precision='fp16', deepspeed_plugin =deepspeed_plugin)
+    accelerator = Accelerator(mixed_precision='bf16', deepspeed_plugin =deepspeed_plugin)
     
     accelerator.wait_for_everyone()
     device= accelerator.device
@@ -226,7 +226,7 @@ def train(cfg: DictConfig):
     # Optimizer
     # Creates Dummy Optimizer if `optimizer` was specified in the config file else creates Adam Optimizer
     optimizer_cls = (
-        Adafactor #torch.optim.AdamW
+        torch.optim.AdamW #Adafactor #
         # if accelerator.state.deepspeed_plugin is None
         # or "optimizer" not in accelerator.state.deepspeed_plugin.deepspeed_config
         # else DummyOptim
