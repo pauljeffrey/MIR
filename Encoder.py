@@ -222,7 +222,7 @@ class EncoderLayer(nn.Module):
         
         self.pos_emb =  RotaryEmbedding(
             dim = 32,
-            use_xpos = True   # set this to True to make rotary embeddings extrapolate better to sequence lengths greater than the one used at training time
+            #use_xpos = True   # set this to True to make rotary embeddings extrapolate better to sequence lengths greater than the one used at training time
         )
         
 
@@ -363,8 +363,8 @@ class EncoderLayer(nn.Module):
         
         print(q.shape, k.shape)
         #apply positional rotary embedding:
-        q , k= self.pos_emb.rotate_queries_and_keys(q, k)
-        #k = self.pos_emb.rotate_queries_or_keys(k)
+        q = self.pos_emb.rotate_queries_or_keys(q)
+        k = self.pos_emb.rotate_queries_or_keys(k)
         
         # Reshape q, k to normal
         q = q.permute(0,2,1,3).reshape(b, seq_l, self.d_model)
