@@ -12,7 +12,7 @@ from torch.utils.data.dataset import random_split
 from transformers import AdamW,Adafactor, get_linear_schedule_with_warmup
 
 from accelerate import Accelerator
-from accelerate import Accelerator, DistributedType# ,DeepSpeedPlugin
+from accelerate import Accelerator, DistributedType ,DeepSpeedPlugin
 from accelerate.logging import get_logger
 from accelerate.utils import DummyOptim, DummyScheduler, set_seed
 
@@ -210,7 +210,8 @@ def train(cfg: DictConfig):
         level=logging.INFO,
     )
 
-    accelerator = Accelerator()
+    deepspeed_plugin = DeepSpeedPlugin(zero_stage=3, gradient_accumulation_steps=cfg.training.gradient_accumulation_steps)
+    accelerator = Accelerator(mixed_precision='fp16', deepspeed_plugin =deepspeed_plugin)
     
     accelerator.wait_for_everyone()
     device= accelerator.device

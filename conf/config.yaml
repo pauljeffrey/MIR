@@ -11,16 +11,16 @@ dataset:
     n_max: 40
 
   train:
-    image_dir: null
-    caption_json: null
-    history_json: null
-    file_list: null
+    image_dir: "/kaggle/input/chest-xrays-indiana-university"
+    caption_json: "/kaggle/input/train.json"
+    #history_json: null
+    #file_list: null
 
   eval:
-    image_dir: null
-    caption_json: null
-    history_json: null
-    file_list: null
+    image_dir: "/kaggle/input/chest-xrays-indiana-university"
+    caption_json: "/kaggle/input/val.json"
+    #history_json: null
+    #file_list: null
 
 model:
   name: null
