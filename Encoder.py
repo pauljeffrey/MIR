@@ -370,11 +370,11 @@ class EncoderLayer(nn.Module):
         q = q.permute(0,2,1,3).reshape(b, seq_l, self.d_model)
         k = k.permute(0,2,1,3).reshape(b, seq_l, self.d_model)
         
-        print("Shapes of these values: ", q.shape, k.shape, x.shape, key_padding_mask.shape)
+        #print("Shapes of these values: ", q.shape, k.shape, x.shape, key_padding_mask.shape)
         if attn_mask is not None:
             print(attn_mask.shape)
             
-        x = self.self_attn(x, x, x,
+        x = self.self_attn(q,k, x,
                            attn_mask=attn_mask,
                            key_padding_mask=key_padding_mask,
                            need_weights=False)[0]
