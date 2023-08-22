@@ -44,7 +44,7 @@ class CustomBCELoss(nn.Module):
     
     def forward(self,label_true, label_pred):
         label_mask = label_true.ne(-1)
-        print(type(label_pred), type(label_true))
+        print(label_pred.dtype, label_true.dtype, label_mask.dtype)
         label_loss = self.bce(label_pred[label_mask], label_true[label_mask])
         return label_loss
 
