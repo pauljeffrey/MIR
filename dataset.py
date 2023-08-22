@@ -142,7 +142,7 @@ def collate_fn2(data, history_word_num=60):
         
     indication_prompts = torch.tensor(indication_prompts).type(torch.int32)
     probs = torch.tensor(probs) 
-    targets = torch.tensor(targets)
+    targets = torch.tensor(targets).type(torch.int32)
     
     #print(type(prompt), type(label), type(target), type(prob))
     
