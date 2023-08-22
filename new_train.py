@@ -161,7 +161,8 @@ def evaluate(model, accelerator, eval_loader, custom_loss, bce_loss):
                 #lstm_init= False
                 
                 # Decode reports
-                tgt = reports[:,i, :-1]  # Remove last token from reports
+                print(reports.shape)
+                tgt = reports[:,i, :-1]   # Remove last token from reports
                 padding_mask = create_padding_mask(tgt)
                 #causal_mask1 = create_causal_masks(inputs)
                 tgt_mask = src_mask(tgt.shape[1]).to(accelerator.device)
