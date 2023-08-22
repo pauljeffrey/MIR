@@ -140,9 +140,9 @@ def collate_fn2(data, history_word_num=60):
     for i, tokens in enumerate(indication):
         indication_prompts[i,:len(tokens)] = tokens
         
-    indication_prompts = torch.tensor(indication_prompts).type(torch.int32)
+    indication_prompts = torch.tensor(indication_prompts).type(torch.LongTensor)
     probs = torch.tensor(probs) 
-    targets = torch.tensor(targets).type(torch.int32)
+    targets = torch.tensor(targets).type(torch.LongTensor)
     
     #print(type(prompt), type(label), type(target), type(prob))
     
