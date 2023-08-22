@@ -211,8 +211,8 @@ def train(cfg: DictConfig):
         level=logging.INFO,
     )
 
-    #deepspeed_plugin = DeepSpeedPlugin(zero_stage=2, gradient_accumulation_steps=cfg.training.gradient_accumulation_steps)
-    accelerator = Accelerator(mixed_precision='fp16')#, deepspeed_plugin =deepspeed_plugin)
+    deepspeed_plugin = DeepSpeedPlugin(zero_stage=2, gradient_accumulation_steps=cfg.training.gradient_accumulation_steps)
+    accelerator = Accelerator(mixed_precision='fp16', deepspeed_plugin =deepspeed_plugin)
     
     accelerator.wait_for_everyone()
     device= accelerator.device
