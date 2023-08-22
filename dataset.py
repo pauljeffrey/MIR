@@ -141,11 +141,12 @@ def collate_fn2(data, history_word_num=60):
         indication_prompts[i,:len(tokens)] = tokens
         
     indication_prompts = torch.tensor(indication_prompts).type(torch.int32)
-    labels = torch.tensor(labels) if type(labels) == np._NdArraySubClass else labels
-    probs = torch.tensor(probs) if type(probs) == np._NdArraySubClass else probs
-    targets = torch.tensor(targets) if type(targets ) == np._NdArraySubClass else targets
+    probs = torch.tensor(probs) 
+    targets = torch.tensor(targets)
     
-    return images, indication_prompts , labels, probs, targets #images, 
+    #print(type(prompt), type(label), type(target), type(prob))
+    
+    return  images, indication_prompts , labels, probs, targets #images, 
 
 
 def get_loader(image_dir,
@@ -396,7 +397,7 @@ if __name__ == '__main__':
     data_loader = get_loader2(image_dir="jeefff",
                               
                              caption_json="./data/full_data/train.json",
-                             tokenizer_name= "5000_bpe_tokenizer.json",
+                             tokenizer_name= "./tokenizers/wordpiece_tokenizer8000.json",
                              transform=None,
                              batch_size=8,
                              use_tokenizer_fast=False,
@@ -409,4 +410,5 @@ if __name__ == '__main__':
         print(target.shape)
         print(prob.shape)
         print(prob)
+        print(type(prompt), type(label), type(target), type(prob))
         break
