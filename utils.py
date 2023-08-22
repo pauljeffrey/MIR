@@ -24,7 +24,9 @@ def create_masks(inputs):
 
 
 def create_padding_mask(inputs):
-    mask = torch.tensor((inputs == 0))#.unsqueeze(1).unsqueeze(2)
+    # if type(inputs) == np._NdArraySubClass:
+    #     print("yes")
+    mask = (inputs == 0)#.unsqueeze(1).unsqueeze(2)
     mask = mask.float().masked_fill(mask == 1, float('-inf'))#.masked_fill(mask == 1, float(0.0))
     return mask
 

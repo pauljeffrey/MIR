@@ -112,8 +112,8 @@ def collate_fn(data):
     return images, patient_history, torch.Tensor(label), targets, prob
 
 
-def collate_fn2(data, max_word_num=60):
-    images, indication, labels, captions, history_token_max, sentence_num, word_num = zip(*data)
+def collate_fn2(data, history_word_num=60):
+    images, indication, labels, captions, sentence_num, word_num = zip(*data)
     images = torch.stack(images, 0)
     #print(labels.shape)
     labels = torch.stack(labels, 0)
@@ -124,7 +124,7 @@ def collate_fn2(data, max_word_num=60):
 
     #history_max_word_num = max(history_max_word_num)
 
-    indication_prompts = np.zeros((len(indication), history_token_max))
+    indication_prompts = np.zeros((len(indication), history_word_num))
     
     targets = np.zeros((len(captions), max_sentence_num + 1, max_word_num))
     probs = np.zeros((len(captions), max_sentence_num + 1)) 
@@ -140,7 +140,12 @@ def collate_fn2(data, max_word_num=60):
     for i, tokens in enumerate(indication):
         indication_prompts[i,:len(tokens)] = tokens
         
-    return images, torch.tensor(indication_prompts).type(torch.int32), torch.tensor(labels), torch.tensor(probs), torch.tensor(targets) #images, 
+    indication_prompts = torch.tensor(indication_prompts).type(torch.int32)
+    labels = torch.tensor(labels) if type(labels) == np._NdArraySubClass else labels
+    probs = torch.tensor(probs) if type(probs) == np._NdArraySubClass else probs
+    targets = torch.tensor(targets) if type(targets ) == np._NdArraySubClass else targets
+    
+    return images, indication_prompts , labels, probs, targets #images, 
 
 
 def get_loader(image_dir,
