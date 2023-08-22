@@ -127,6 +127,7 @@ class TextEncoder(nn.Module):
                 output = torch._nested_tensor_from_mask(output, src_key_padding_mask.logical_not(), mask_check=False)
                 src_key_padding_mask_for_layers = None
 
+        print("src_mask: ", mask)
         for mod in self.layers:
             output = mod(output, src_mask=mask, src_key_padding_mask=src_key_padding_mask_for_layers)
 
@@ -371,8 +372,8 @@ class EncoderLayer(nn.Module):
         k = k.permute(0,2,1,3).reshape(b, seq_l, self.d_model)
         
         #print("Shapes of these values: ", q.shape, k.shape, x.shape, key_padding_mask.shape)
-        if attn_mask is not None:
-            print(attn_mask.shape)
+        #if attn_mask is not None:
+            #print(attn_mask.shape)
             
         x = self.self_attn(q,k, x,
                            attn_mask=attn_mask,

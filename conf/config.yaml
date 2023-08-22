@@ -42,10 +42,10 @@ training:
   weight_decay: 0.0
   num_epochs: 50
   max_train_steps: 400000
-  gradient_accumulation_steps: 16
+  gradient_accumulation_steps: 2
   lr_scheduler: "cosine" # ["linear", "cosine", "cosine_with_restarts", "polynomial", "constant", "constant_with_warmup"]
   lr_warmup_steps: 200
-  eval_every: 16
+  eval_every: 8
   save_every: 32
   img_size: (224,224)
   train_batch_size: 8
@@ -68,7 +68,7 @@ architecture:
   #   mlc: null
 
   #history_encoder:
-  history_encoder_num_layers: 3
+  history_encoder_num_layers: 6
   history_encoder_n_heads: 12
   history_encoder_dim_feedforward: 2048
   #history_encoder_dmodel: 256 
