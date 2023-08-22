@@ -141,6 +141,7 @@ class DecoderLayer(nn.Module):
         
         x = tgt
         #print("Forward topic shape: ", topic.shape)
+        print("Got here")
         if self.norm_first:
             x = x + self._sa_block(self.norm1(x), tgt_mask, tgt_key_padding_mask, topic, tgt_is_causal)
             if self.use_cross_attention:

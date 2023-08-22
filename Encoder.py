@@ -361,7 +361,7 @@ class EncoderLayer(nn.Module):
         q= x.reshape(-1, seq_l, self.n_head, int(self.d_model/self.n_head)).permute(0,2,1,3)
         k = x.reshape(-1, seq_l, self.n_head, int(self.d_model/self.n_head)).permute(0,2,1,3)
         
-        print(q.shape, k.shape)
+        #print(q.shape, k.shape)
         #apply positional rotary embedding:
         q = self.pos_emb.rotate_queries_or_keys(q)
         k = self.pos_emb.rotate_queries_or_keys(k)
@@ -370,8 +370,11 @@ class EncoderLayer(nn.Module):
         q = q.permute(0,2,1,3).reshape(b, seq_l, self.d_model)
         k = k.permute(0,2,1,3).reshape(b, seq_l, self.d_model)
         
-        print(q.shape, k.shape, x.shape, key_padding_mask.shape)
-        x = self.self_attn(q, k, x,
+        print("Shapes of these values: ", q.shape, k.shape, x.shape, key_padding_mask.shape)
+        if attn_mask is not None:
+            print(attn_mask.shape)
+            
+        x = self.self_attn(x, x, x,
                            attn_mask=attn_mask,
                            key_padding_mask=key_padding_mask,
                            need_weights=False)[0]
