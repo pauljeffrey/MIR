@@ -46,7 +46,7 @@ class CustomBCELoss(nn.Module):
         label_mask = label_true.ne(-1)
         label_true = label_true.to(torch.float32)
         label_pred  = label_pred.to(torch.float32)
-        print(label_pred.dtype, label_true.dtype, label_mask.dtype)
+        print(label_pred, label_true)
         label_loss = self.bce(label_pred[label_mask], label_true[label_mask])
         return label_loss
 
