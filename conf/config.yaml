@@ -3,8 +3,7 @@ load_dir: "pretrained"
 
 dataset:
   name: null
-  train_batch_size: 8
-  eval_batch_size: 8
+  
 
   tokens:
     s_max: 15
@@ -51,6 +50,8 @@ training:
   eval_every: 16
   save_every: 32
   img_size: (224,224)
+  train_batch_size: 8
+  eval_batch_size: 8
 
   checkpoint:
     resume_from_checkpoint: 0 # integer representing which checkpoint to load from, or <= 0 to not
