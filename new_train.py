@@ -349,7 +349,7 @@ def train(cfg: DictConfig):
             if len(encoded_images.shape) > 3:
                 encoded_images = encoded_images.reshape(bs, n_channels, -1)
                 
-            #print(model.sent_lstm.num_layers)
+            print("lstm hidden state and cell state: ", model.sent_lstm.num_layers)
             
             prev_hidden, (hn, cn) = model.sent_lstm.init_state(encoded_images,indication_prompt)
             #lstm_init = True

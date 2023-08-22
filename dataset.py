@@ -113,18 +113,18 @@ def collate_fn(data):
 
 
 def collate_fn2(data, max_word_num=60):
-    images, indication, labels, captions, sentence_num, word_num = zip(*data)
+    images, indication, labels, captions, history_token_max, sentence_num, word_num = zip(*data)
     images = torch.stack(images, 0)
     #print(labels.shape)
     labels = torch.stack(labels, 0)
-    max_prompt_length = max([len(each) for each in indication])
+    #max_prompt_length = max([len(each) for each in indication])
     max_word_num = max(word_num)
     max_sentence_num = max(sentence_num)
     #max_word_num = max(max_word_num)
 
     #history_max_word_num = max(history_max_word_num)
 
-    indication_prompts = np.zeros((len(indication), max_prompt_length))
+    indication_prompts = np.zeros((len(indication), history_token_max))
     
     targets = np.zeros((len(captions), max_sentence_num + 1, max_word_num))
     probs = np.zeros((len(captions), max_sentence_num + 1)) 
@@ -278,7 +278,7 @@ class ChestXrayDataSet2(Dataset):
         if len(indication_prompt) > self.encoder_n_max:
             indication_prompt = indication_prompt[:self.encoder_n_max -2] + self.tokenizer.encode('<prompt>').ids
         
-        return  image, indication_prompt, label, target, sentence_num, word_num  #image_name,
+        return  image, indication_prompt, label, target, self.encoder_n_max, sentence_num, word_num  #image_name,
 
     def __len__(self):
         return len(self.data)
