@@ -44,7 +44,7 @@ class CustomBCELoss(nn.Module):
     
     def forward(self,label_true, label_pred):
         label_mask = label_true.ne(-1)
-        label_loss = self.bce(label_pred[label_mask], label_true[label_mask].to(torch.float32))
+        label_loss = self.bce(label_pred[label_mask], label_true[label_mask].to(torch.LongTensor))
         return label_loss
 
 
