@@ -120,6 +120,6 @@ architecture:
   norm_first: false
   device: null # previously None
   dtype: null
-  norm: true
+  norm: null
   #state_path: null
 
