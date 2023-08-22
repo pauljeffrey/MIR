@@ -103,7 +103,7 @@ def evaluate(model, accelerator, eval_loader, custom_loss, bce_loss):
         eval_losses = []
         eval_stop_losses = []
         eval_bce_losses = []
-        for _ , (encoded_images,indication_prompt, labels, reports, true_stop_probs) in enumerate(eval_loader):
+        for _ , (encoded_images,indication_prompt, labels, true_stop_probs, reports) in enumerate(eval_loader):
             # encoded_images = encoded_images.to(device)
             # reports = reports.to(device)
             # true_stop_probs = true_stop_probs.to(device)
