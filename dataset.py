@@ -283,7 +283,7 @@ class ChestXrayDataSet2(Dataset):
         if len(indication_prompt) > self.encoder_n_max:
             indication_prompt = indication_prompt[:self.encoder_n_max -2] + self.tokenizer.encode('<prompt>').ids
         
-        return  image, indication_prompt, label, target, self.encoder_n_max, sentence_num, word_num  #image_name,
+        return  image, indication_prompt, label, target, sentence_num, word_num  #image_name,
 
     def __len__(self):
         return len(self.data)
