@@ -77,6 +77,7 @@ class HistoryEncoder(nn.Module):
         super(HistoryEncoder, self).__init__()
         encoder = EncoderLayer(d_model, n_heads,dim_feedforward , dropout=dropout,
                                                   activation=activation, batch_first=True, device=device)
+        print(num_layers)
         self.encoder= TextEncoder(encoder, num_layers=num_layers)
         # if d_model != visual_features_dim:
         #     self.linear = nn.Linear(d_model, visual_features_dim)
