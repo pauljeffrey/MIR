@@ -112,7 +112,7 @@ def evaluate(model, accelerator, eval_loader, custom_loss, bce_loss):
             loss = 0            
             n_sentences  = reports.shape[1]
             
-            encoder_pad_mask = create_padding_mask(indication_prompt)
+            encoder_pad_mask = create_padding_mask(indication_prompt).to(accelerator.device)
             #encoder_causal_mask = src_mask(indication_prompt.shape[1])
             
             encoded_images , tags = model.encoder(encoded_images)
@@ -164,7 +164,7 @@ def evaluate(model, accelerator, eval_loader, custom_loss, bce_loss):
                 tgt = reports[:,i, :-1]  # Remove last token from reports
                 padding_mask = create_padding_mask(tgt)
                 #causal_mask1 = create_causal_masks(inputs)
-                tgt_mask = src_mask(tgt.shape[1])
+                tgt_mask = src_mask(tgt.shape[1]).to(accelerator.device)
                 
                 memory = encoded_images * att_wts # [batch_size, seq_len, d_model]
                 #memory_mask = None
@@ -327,7 +327,7 @@ def train(cfg: DictConfig):
             loss = 0            
             n_sentences  = reports.shape[1]
             
-            encoder_pad_mask = create_padding_mask(indication_prompt)
+            encoder_pad_mask = create_padding_mask(indication_prompt).to(device)
             #encoder_causal_mask = src_mask(indication_prompt.shape[1])
             
             encoded_images , tags = model.encoder(encoded_images)#.type(torch.cuda.HalfTensor))
@@ -349,7 +349,7 @@ def train(cfg: DictConfig):
             if len(encoded_images.shape) > 3:
                 encoded_images = encoded_images.reshape(bs, n_channels, -1)
                 
-            print("lstm hidden state and cell state: ", model.sent_lstm.num_layers)
+            #print("lstm hidden state and cell state: ", model.sent_lstm.num_layers)
             
             prev_hidden, (hn, cn) = model.sent_lstm.init_state(encoded_images,indication_prompt)
             #lstm_init = True
@@ -379,7 +379,7 @@ def train(cfg: DictConfig):
                 tgt = reports[:,i, :-1]  # Remove last token from reports
                 padding_mask = create_padding_mask(tgt)
                 #causal_mask1 = create_causal_masks(inputs)
-                tgt_mask = src_mask(tgt.shape[1])
+                tgt_mask = src_mask(tgt.shape[1]).to(device)
                 
                 memory = encoded_images * att_wts # [batch_size, seq_len, d_model]
                 #memory_mask = None
