@@ -277,11 +277,11 @@ def train(cfg: DictConfig):
     # Create train_loader and eval_loader here
     #if cfg.tokenizer.name is not None:
     train_loader = get_loader2(cfg.dataset.train.image_dir, cfg.dataset.train.caption_json, 
-            tokenizer_name = cfg.tokenizer.name, transform= transform, batch_size = cfg.dataset.train_batch_size, s_max= cfg.dataset.tokens.s_max,
+            tokenizer_name = cfg.tokenizer.name, transform= transform, batch_size = cfg.training.train_batch_size, s_max= cfg.dataset.tokens.s_max,
             n_max=cfg.dataset.tokens.n_max, encoder_n_max=cfg.dataset.tokens.encoder_n_max, shuffle=cfg.training.shuffle, use_tokenizer_fast=cfg.tokenizer.use_fast, collate_fn=collate_fn2)
     
     eval_loader = get_loader2(cfg.dataset.eval.image_dir, cfg.dataset.eval.caption_json, 
-            tokenizer_name = cfg.tokenizer.name, transform= transform, batch_size = cfg.dataset.eval_batch_size, s_max= cfg.dataset.tokens.s_max,
+            tokenizer_name = cfg.tokenizer.name, transform= transform, batch_size = cfg.training.eval_batch_size, s_max= cfg.dataset.tokens.s_max,
             n_max=cfg.dataset.tokens.n_max, encoder_n_max=cfg.dataset.tokens.encoder_n_max, shuffle=cfg.training.shuffle, use_tokenizer_fast=cfg.tokenizer.use_fast, collate_fn=collate_fn2)
     # else:
     #     vocabulary1 = load_vocab(cfg.vocabs.name1)
