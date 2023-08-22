@@ -421,6 +421,9 @@ def train(cfg: DictConfig):
                 eval_loss, eval_bce_loss, perplexity, label_loss = evaluate(model, accelerator, eval_loader, custom_loss, custom_bce_loss)
                 logger.info(f"Epoch {epoch}, Step {step} : train_loss: {train_loss} perplexity: {perplexity} sparse_loss: {eval_loss}  \
                     stop_loss {eval_bce_loss} label_loss: {label_loss} total_eval_loss {eval_loss + eval_bce_loss + label_loss}" )
+                
+                print(f"Epoch {epoch}, Step {step} : train_loss: {train_loss} perplexity: {perplexity} sparse_loss: {eval_loss}  \
+                    stop_loss {eval_bce_loss} label_loss: {label_loss} total_eval_loss {eval_loss + eval_bce_loss + label_loss}" )
                 model.train()
                 
                 # Tracks the best checkpoint and best metric
@@ -470,6 +473,8 @@ def train(cfg: DictConfig):
         eval_loss, eval_bce_loss, perplexity, label_loss = evaluate(model,accelerator,eval_loader, custom_loss, custom_bce_loss)
         model.train()
         logger.info(f"Epoch {epoch}, Step {step} : train_loss: {train_loss} perplexity: {perplexity} sparse_loss: {eval_loss}  \
+                    stop_loss {eval_bce_loss} label_loss: {label_loss} total_eval_loss {eval_loss + eval_bce_loss + label_loss}" )
+        print(f"Epoch {epoch}, Step {step} : train_loss: {train_loss} perplexity: {perplexity} sparse_loss: {eval_loss}  \
                     stop_loss {eval_bce_loss} label_loss: {label_loss} total_eval_loss {eval_loss + eval_bce_loss + label_loss}" )
         
     print('Saving the model using the best weights checkpoint in the current output directory')
