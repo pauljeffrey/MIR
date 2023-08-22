@@ -75,10 +75,9 @@ class SentLSTM(nn.Module):
 class HistoryEncoder(nn.Module):
     def __init__(self,  num_layers = 1, d_model=128, n_heads =4, dim_feedforward=256, dropout=0.1, activation=F.gelu, device=None):
         super(HistoryEncoder, self).__init__()
-        encoder = nn.TransformerEncoderLayer(d_model, n_heads,dim_feedforward , dropout=dropout,
+        encoder = EncoderLayer(d_model, n_heads,dim_feedforward , dropout=dropout,
                                                   activation=activation, batch_first=True, device=device)
-        print(num_layers)
-        self.encoder= nn.TransformerEncoder(encoder, num_layers=num_layers)
+        self.encoder= TextEncoder(encoder, num_layers=num_layers)
         # if d_model != visual_features_dim:
         #     self.linear = nn.Linear(d_model, visual_features_dim)
         # else:

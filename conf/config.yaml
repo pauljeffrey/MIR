@@ -61,7 +61,7 @@ architecture:
   #encoder:
   model_name: "densenet201"
   pretrained: true
-  hidden_layer_size: 256 # Number of units in the hidden layer of the MLP
+  hidden_layer_size: 50 #256 # Number of units in the hidden layer of the MLP
   classes: 210
   add_encoder: true
   # state_path:
@@ -69,9 +69,9 @@ architecture:
   #   mlc: null
 
   #history_encoder:
-  history_encoder_num_layers: 1
-  history_encoder_n_heads: 12
-  history_encoder_dim_feedforward: 2048
+  history_encoder_num_layers: 3
+  history_encoder_n_heads: 10 #12
+  history_encoder_dim_feedforward: 100 #2048
   #history_encoder_dmodel: 256 
   use_history: true
 
@@ -81,7 +81,7 @@ architecture:
 
 
   #semantic_extractor:
-  semantic_features_dim: 512
+  semantic_features_dim: 100 #512
   k: 8
   #state_path: null
 
@@ -89,14 +89,14 @@ architecture:
   co_attention: true
   features_dim: 49 # visual features dim
   #hidden_dim: 512 # must be the same for hidden size of lstm in sentence lstm
-  att_units: 512 # Number of linear units for the attention network
+  att_units: 100 #512 # Number of linear units for the attention network
   #semantic_dim: 512 # Must be the same as semantic_features_dim in semantic_extractor
   
 
   #sent_lstm:
   #hidden_layer_size: 128 # Number of units for the hidden layer of the MLP
-  hidden_dim: 768
-  lstm_layers: 4 #Num of lstm layers
+  hidden_dim: 100 #768
+  lstm_layers: 2 #4 #Num of lstm layers
   #features_dim: 2048 # visual features dim (not number of channels)
   enforce_info: false
   
@@ -107,12 +107,12 @@ architecture:
   use_topic_per_layer: [false, false, false,true, true, true,true, false]
   use_cross_att_per_layer: [false, false, false, false, true, false, true, false]
   use_prompt_per_layer: [false, false, false, false , false, true, false, false]
-  d_model: 768
+  d_model: 100 #768
   nhead: 12
   #mem_dim: 2048 # visual features dim (not number of channels)
-  dim_feedforward: 2048
+  dim_feedforward: 100 #2048
   #topic_emb:  512 # must be the same as hidden_size for lstm 
-  topic_units:  256 # Number of units for the topic's linear transform network in each layer
+  topic_units: 100 # 256 # Number of units for the topic's linear transform network in each layer
   dropout: 0.1
   activation: gelu
   layer_norm_eps: 1e-5
