@@ -116,7 +116,7 @@ def collate_fn2(data): #, history_word_num=60
     images, indication, labels, captions, sentence_num, word_num = zip(*data)
     images = torch.stack(images, 0)
     #print(labels.shape)
-    labels = torch.stack(labels, 0)
+    labels = torch.stack(labels, 0).type(torch.LongTensor)
     max_prompt_length = max([len(each) for each in indication])
     max_word_num = max(word_num)
     max_sentence_num = max(sentence_num)
