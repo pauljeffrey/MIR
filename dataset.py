@@ -127,15 +127,15 @@ def collate_fn2(data): #, history_word_num=60
     indication_prompts = np.zeros((len(indication), max_prompt_length))
     
     targets = np.zeros((len(captions), max_sentence_num + 1, max_word_num))
-    probs = np.zeros((len(captions), max_sentence_num + 1)) 
+    probs = np.ones((len(captions), max_sentence_num + 1))  * -1
 
     for i, caption in enumerate(captions):
         for j, sentence in enumerate(caption):
             targets[i, j, :len(sentence)] = sentence
-            if len(sentence) > 0:
-                probs[i][j] = 1
+            # if len(sentence) > 0:
+            probs[i][j] = 1
             
-        #probs[i][len(caption)] = 
+        probs[i][len(sentence)] = 0 
             
     for i, tokens in enumerate(indication):
         indication_prompts[i,:len(tokens)] = tokens

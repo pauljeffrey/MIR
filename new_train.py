@@ -330,6 +330,9 @@ def train(cfg: DictConfig):
 
             loss = 0            
             n_sentences  = reports.shape[1]
+            print('Length of sentences: ', n_sentences)
+            print("Inputs shape: ", encoded_images.shape, indication_prompt.shape, labels.shape, true_stop_probs.shape, reports.shape)
+            print("True probs: ",true_stop_probs)
             
             encoder_pad_mask = create_padding_mask(indication_prompt).to(device)
             #print("Mem shape: ", indication_prompt.shape, "mask shape: ", encoder_pad_mask.shape)
@@ -394,11 +397,14 @@ def train(cfg: DictConfig):
                 #memory = model.prompt_attention(memory, indication_prompt, key_padding_mask=mem_mask, residual_connection=True)
                 # print(memory.shape, indication_prompt.shape, tgt.shape, prev_hidden.shape)
                 # print(encoder_pad_mask.shape)
-                output = model.decoder(tgt, prev_hidden, (indication_prompt,memory),tgt_key_padding_mask=padding_mask,
+                output = model.decoder(tgt, prev_hidden, (indication_prompt, memory), tgt_key_padding_mask= padding_mask,
                                     memory_key_padding_mask=encoder_pad_mask, tgt_mask=tgt_mask,
                                         tgt_is_causal=False)  # [batch_size, seq_len - 1, d_model]
                 
-                loss += custom_loss(true_stop_probs[:,i].type(indication_prompt.dtype), reports[:, i, 1:],pred_stop_probs,  output)  # Ignore <sos> token
+                print("output shape: ", output.shape, reports[:, i, 1:].shape)
+                print("stop prob shape: ", pred_stop_probs.shape, true_stop_probs[:, 0].shape)
+                
+                loss += custom_loss(true_stop_probs[:,i].type(indication_prompt.dtype), reports[:, i, 1:], pred_stop_probs,  output)  # Ignore <sos> token
 
             loss += custom_bce_loss( tags, labels)
             
@@ -447,13 +453,13 @@ def train(cfg: DictConfig):
                         unwrapped_model = accelerator.unwrap_model(model)            
 
                         output_dir = os.path.join(cfg.output_dir, epoch_dir)
-
-                        unwrapped_model.save_pretrained(
-                            output_dir,
-                            is_main_process=accelerator.is_main_process,
-                            save_function=accelerator.save,
-                            state_dict=accelerator.get_state_dict(model),
-                        )
+                        save_model(unwrapped_model, output_dir)
+                        # unwrapped_model.save_pretrained(
+                        #     output_dir,
+                        #     is_main_process=accelerator.is_main_process,
+                        #     save_function=accelerator.save,
+                        #     state_dict=accelerator.get_state_dict(model),
+                        # )
                         
             if step % cfg.training.save_every == 0:                 
                 epoch_dir = f"epoch_{epoch}_most_recent"

@@ -362,7 +362,7 @@ class MIRDecoder(nn.Module):
         if self.norm is not None:
             output = self.norm(output)
 
-        output = F.softmax(self.causal_lm_head(output), dim=-1)
+        output = self.causal_lm_head(output)
         
         return output
     
