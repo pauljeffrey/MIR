@@ -98,6 +98,7 @@ def load_model(cfg: DictConfig):
 
 def evaluate(model, accelerator, eval_loader, custom_loss, bce_loss):
     model.eval()
+    device = accelerator.device
     loss = 0
     with torch.no_grad():
         eval_losses = []
@@ -112,10 +113,11 @@ def evaluate(model, accelerator, eval_loader, custom_loss, bce_loss):
             loss = 0            
             n_sentences  = reports.shape[1]
             
-            encoder_pad_mask = create_padding_mask(indication_prompt).to(accelerator.device)
+            encoder_pad_mask = create_padding_mask(indication_prompt).to(device)
+            #print("Mem shape: ", indication_prompt.shape, "mask shape: ", encoder_pad_mask.shape)
             #encoder_causal_mask = src_mask(indication_prompt.shape[1])
             
-            encoded_images , tags = model.encoder(encoded_images)
+            encoded_images , tags = model.encoder(encoded_images.type(torch.cuda.HalfTensor))
             #print("Encoded Images: ", encoded_images.shape)
             bs , n_channels = encoded_images.shape[0], encoded_images.shape[1]
             
@@ -124,7 +126,7 @@ def evaluate(model, accelerator, eval_loader, custom_loss, bce_loss):
                 
             if model.history_encoder is not None:
                 indication_prompt = model.decoder.embed_layer(indication_prompt)
-                indication_prompt = model.history_encoder(indication_prompt, mask=encoder_pad_mask)
+                indication_prompt = model.history_encoder(indication_prompt, mask=encoder_pad_mask.type(indication_prompt.dtype))
                     
 
             # # compute mask, confirm the first part.
@@ -134,7 +136,7 @@ def evaluate(model, accelerator, eval_loader, custom_loss, bce_loss):
             if len(encoded_images.shape) > 3:
                 encoded_images = encoded_images.reshape(bs, n_channels, -1)
                 
-            #print(model.sent_lstm.num_layers)
+            #print("lstm hidden state and cell state: ", model.sent_lstm.num_layers)
             
             prev_hidden, (hn, cn) = model.sent_lstm.init_state(encoded_images,indication_prompt)
             #lstm_init = True
@@ -161,11 +163,11 @@ def evaluate(model, accelerator, eval_loader, custom_loss, bce_loss):
                 #lstm_init= False
                 
                 # Decode reports
-                #print(reports.shape)
-                tgt = reports[:,i, :-1]   # Remove last token from reports
-                padding_mask = create_padding_mask(tgt)
+                tgt = reports[:,i, :-1]  # Remove last token from reports
+                #print('Target mask: ', tgt.shape)
+                padding_mask = create_padding_mask(tgt).to(device).type(indication_prompt.dtype)
                 #causal_mask1 = create_causal_masks(inputs)
-                tgt_mask = src_mask(tgt.shape[1]).to(accelerator.device)
+                tgt_mask = src_mask(tgt.shape[1]).to(device).type(indication_prompt.dtype)
                 
                 memory = encoded_images * att_wts # [batch_size, seq_len, d_model]
                 #memory_mask = None
@@ -176,7 +178,7 @@ def evaluate(model, accelerator, eval_loader, custom_loss, bce_loss):
                 # print(encoder_pad_mask.shape)
                 output = model.decoder(tgt, prev_hidden, (indication_prompt,memory),tgt_key_padding_mask=padding_mask,
                                     memory_key_padding_mask=encoder_pad_mask, tgt_mask=tgt_mask,
-                                        tgt_is_causal=True)  # [batch_size, seq_len - 1, d_model]
+                                        tgt_is_causal=False)  # [batch_size, seq_len - 1, d_model]
                 
                 stop_loss, sparse_loss = custom_loss(true_stop_probs[:,i], reports[:, i, 1:],pred_stop_probs,  output, eval=True)  # Ignore <sos> token
                 
@@ -310,7 +312,7 @@ def train(cfg: DictConfig):
     
 
     device = accelerator.device
-    print(device, model.device)
+    #print(device, model.device)
     custom_loss = CustomLoss()
     custom_bce_loss = CustomBCELoss()
 
@@ -330,7 +332,7 @@ def train(cfg: DictConfig):
             n_sentences  = reports.shape[1]
             
             encoder_pad_mask = create_padding_mask(indication_prompt).to(device)
-            print("Mem shape: ", indication_prompt.shape, "mask shape: ", encoder_pad_mask.shape)
+            #print("Mem shape: ", indication_prompt.shape, "mask shape: ", encoder_pad_mask.shape)
             #encoder_causal_mask = src_mask(indication_prompt.shape[1])
             
             encoded_images , tags = model.encoder(encoded_images.type(torch.cuda.HalfTensor))
