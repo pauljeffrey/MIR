@@ -135,7 +135,7 @@ def collate_fn2(data): #, history_word_num=60
             # if len(sentence) > 0:
             probs[i][j] = 1
             
-        probs[i][len(sentence)] = 0 
+        probs[i][len(caption)] = 0 
             
     for i, tokens in enumerate(indication):
         indication_prompts[i,:len(tokens)] = tokens
