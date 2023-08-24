@@ -394,7 +394,7 @@ def train(cfg: DictConfig):
                 # print(encoder_pad_mask.shape)
                 output = model.decoder(tgt, prev_hidden, (indication_prompt,memory),tgt_key_padding_mask=padding_mask,
                                     memory_key_padding_mask=encoder_pad_mask, tgt_mask=tgt_mask,
-                                        tgt_is_causal=True)  # [batch_size, seq_len - 1, d_model]
+                                        tgt_is_causal=False)  # [batch_size, seq_len - 1, d_model]
                 
                 loss += custom_loss(true_stop_probs[:,i], reports[:, i, 1:],pred_stop_probs,  output)  # Ignore <sos> token
 

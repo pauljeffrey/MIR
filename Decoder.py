@@ -199,7 +199,7 @@ class DecoderLayer(nn.Module):
             # print("Concatenated: ", torch.cat([x, topic_key.unsqueeze(1).repeat(1,x.shape[1],1)], dim=-1).shape)
             #print("Use Topic: ",x.shape, topic_key.shape, topic_value.shape)
             #print(k.shape, topic_key.repeat(1,x.shape[1],1).shape)
-            print("Use topic", attn_mask.shape, is_causal)
+            #print("Use topic", attn_mask.shape, is_causal)
             x = self.self_attn(q, 
                                torch.cat([k, topic_key.repeat(1,x.shape[1],1)], dim=-1), 
                                torch.cat([x, topic_value.repeat(1,x.shape[1],1)], dim=-1),
@@ -208,7 +208,7 @@ class DecoderLayer(nn.Module):
                             is_causal=is_causal,
                             need_weights=False)[0]
         else:
-            print("Don't use topic", attn_mask.shape, is_causal)
+            #print("Don't use topic", attn_mask.shape, is_causal)
             x = self.self_attn(x, x, x,
                             attn_mask=attn_mask,
                             key_padding_mask=key_padding_mask,
