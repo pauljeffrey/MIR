@@ -381,7 +381,7 @@ def train(cfg: DictConfig):
                 # Decode reports
                 tgt = reports[:,i, :-1]  # Remove last token from reports
                 print('Target mask: ', tgt.shape)
-                padding_mask = create_padding_mask(tgt).type(tgt.dtype).to(device)
+                padding_mask = create_padding_mask(tgt).to(device)
                 #causal_mask1 = create_causal_masks(inputs)
                 tgt_mask = src_mask(tgt.shape[1]).type(tgt.dtype).to(device)
                 

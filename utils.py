@@ -28,7 +28,7 @@ def create_padding_mask(inputs):
     # if type(inputs) == np._NdArraySubClass:
     #     print("yes")
     mask = torch.tensor((inputs == 0))#.unsqueeze(1).unsqueeze(2)
-    mask = mask.float().masked_fill(mask == 1, float('-inf'))#.masked_fill(mask == 1, float(0.0))
+    #mask = mask.float().masked_fill(mask == 1, float('-inf'))#.masked_fill(mask == 1, float(0.0))
     return mask
 
 
@@ -56,7 +56,7 @@ if __name__ == '__main__':
     out = attn(q, q, q, key_padding_mask= mask, attn_mask=src_mask(5))#, 
     print(out[1][0], out[0][0])
     print(out[1].shape, out[0].shape) # attention output weights
-    print(src_mask(5))
-    print(mask)
+    print(src_mask(5).dtype)
+    print(mask.dtype)
     
     
