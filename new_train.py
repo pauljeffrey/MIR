@@ -332,7 +332,7 @@ def train(cfg: DictConfig):
             encoder_pad_mask = create_padding_mask(indication_prompt).to(device)
             #encoder_causal_mask = src_mask(indication_prompt.shape[1])
             
-            encoded_images , tags = model.encoder(encoded_images).type(torch.cuda.HalfTensor))
+            encoded_images , tags = model.encoder(encoded_images).type(torch.cuda.HalfTensor)
             #print("Encoded Images: ", encoded_images.shape)
             bs , n_channels = encoded_images.shape[0], encoded_images.shape[1]
             
