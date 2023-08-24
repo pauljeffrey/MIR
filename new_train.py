@@ -381,9 +381,9 @@ def train(cfg: DictConfig):
                 # Decode reports
                 tgt = reports[:,i, :-1]  # Remove last token from reports
                 print('Target mask: ', tgt.shape)
-                padding_mask = create_padding_mask(tgt).to(device)
+                padding_mask = create_padding_mask(tgt).to(device).type(indication_prompt.dtype)
                 #causal_mask1 = create_causal_masks(inputs)
-                #tgt_mask = src_mask(tgt.shape[1]).type(tgt.dtype).to(device)
+                tgt_mask = src_mask(tgt.shape[1]).to(device).type(indication_prompt.dtype)
                 
                 memory = encoded_images * att_wts # [batch_size, seq_len, d_model]
                 #memory_mask = None
@@ -393,8 +393,8 @@ def train(cfg: DictConfig):
                 # print(memory.shape, indication_prompt.shape, tgt.shape, prev_hidden.shape)
                 # print(encoder_pad_mask.shape)
                 output = model.decoder(tgt, prev_hidden, (indication_prompt,memory),tgt_key_padding_mask=padding_mask,
-                                    memory_key_padding_mask=encoder_pad_mask, tgt_mask=None,
-                                        tgt_is_causal=True)  # [batch_size, seq_len - 1, d_model]
+                                    memory_key_padding_mask=encoder_pad_mask, tgt_mask=tgt_mask,
+                                        tgt_is_causal=False)  # [batch_size, seq_len - 1, d_model]
                 
                 loss += custom_loss(true_stop_probs[:,i], reports[:, i, 1:],pred_stop_probs,  output)  # Ignore <sos> token
 
