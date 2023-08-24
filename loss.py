@@ -26,7 +26,7 @@ class CustomLoss(nn.Module):
         # print("Outpoutshape: ", y2_pred.shape, y2_true.shape)
         
         sparse_loss = self.cross_entropy(y2_pred[y2_mask], y2_true[y2_mask])
-        bce_loss = self.bce(y1_pred, y1_true.to(torch.float32))
+        bce_loss = self.bce(y1_pred, y1_true)
         
         #print(bce_loss, sparse_loss)
         if eval:
