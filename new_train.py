@@ -180,7 +180,7 @@ def evaluate(model, accelerator, eval_loader, custom_loss, bce_loss):
                                     memory_key_padding_mask=encoder_pad_mask, tgt_mask=tgt_mask,
                                         tgt_is_causal=False)  # [batch_size, seq_len - 1, d_model]
                 
-                stop_loss, sparse_loss = custom_loss(true_stop_probs[:,i], reports[:, i, 1:],pred_stop_probs,  output, eval=True)  # Ignore <sos> token
+                stop_loss, sparse_loss = custom_loss(true_stop_probs[:,i].type(indication_prompt.dtype), reports[:, i, 1:],pred_stop_probs,  output, eval=True)  # Ignore <sos> token
                 
                 eval_stop_losses.append(accelerator.gather(stop_loss).detach().cpu())
                 eval_losses.append(accelerator.gather(sparse_loss).detach().cpu())
