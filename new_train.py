@@ -309,7 +309,8 @@ def train(cfg: DictConfig):
     )
     
     #n_batches = len(train_loader)
-    
+    if not os.path.exists(cfg.output_dir):
+        os.mkdir(cfg.output_dir)
 
     device = accelerator.device
     #print(device, model.device)
@@ -452,7 +453,12 @@ def train(cfg: DictConfig):
                         accelerator.wait_for_everyone()
                         unwrapped_model = accelerator.unwrap_model(model)            
 
+                        
+                            
                         output_dir = os.path.join(cfg.output_dir, epoch_dir)
+                        if not os.path.exists(output_dir):
+                            os.mkdir(output_dir)
+                            
                         save_model(unwrapped_model, output_dir)
                         # unwrapped_model.save_pretrained(
                         #     output_dir,
@@ -470,6 +476,9 @@ def train(cfg: DictConfig):
                     unwrapped_model = accelerator.unwrap_model(model)            
                     output_dir = os.path.join(os.path.abspath(cfg.output_dir), epoch_dir)
                     
+                    if not os.path.exists(output_dir):
+                            os.mkdir(output_dir)
+                            
                     save_model(unwrapped_model, output_dir)
                     # unwrapped_model.save_pretrained(
                     #     output_dir,
@@ -493,7 +502,12 @@ def train(cfg: DictConfig):
         accelerator.wait_for_everyone()
         unwrapped_model = accelerator.unwrap_model(model)
 
-        save_model(unwrapped_model, os.path.join(os.path.abspath(cfg.output_dir), "final"))
+        os.path.join(os.path.abspath(cfg.output_dir), "final")
+        
+        if not os.path.exists(output_dir):
+                            os.mkdir(output_dir)
+                            
+        save_model(unwrapped_model, output_dir)
         # unwrapped_model.save_pretrained(
         #     os.path.join(os.path.abspath(cfg.output_dir),"final"),
         #     is_main_process=accelerator.is_main_process,
