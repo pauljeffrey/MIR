@@ -453,6 +453,7 @@ if __name__ == '__main__':
     encoded = torch.randn((4,20, 128))
     #mha = MHA(128,2,)
     
+    
    
     #print("Rotary embedding: ", torch.transpose(q[1,1,1,:4],0,1), torch.transpose(q[2,1,1,:4], 0,1))
     # emb_layer = RotaryEmbedding(256)
