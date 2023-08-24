@@ -401,8 +401,8 @@ def train(cfg: DictConfig):
                                     memory_key_padding_mask=encoder_pad_mask, tgt_mask=tgt_mask,
                                         tgt_is_causal=False)  # [batch_size, seq_len - 1, d_model]
                 
-                print("output shape: ", output.shape, reports[:, i, 1:].shape)
-                print("stop prob shape: ", pred_stop_probs.shape, true_stop_probs[:, 0].shape)
+                # print("output shape: ", output.shape, reports[:, i, 1:].shape)
+                # print("stop prob shape: ", pred_stop_probs.shape, true_stop_probs[:, 0].shape)
                 
                 loss += custom_loss(true_stop_probs[:,i].type(indication_prompt.dtype), reports[:, i, 1:], pred_stop_probs,  output)  # Ignore <sos> token
 
