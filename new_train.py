@@ -310,6 +310,7 @@ def train(cfg: DictConfig):
     
 
     device = accelerator.device
+    print(device)
     custom_loss = CustomLoss()
     custom_bce_loss = CustomBCELoss()
 
