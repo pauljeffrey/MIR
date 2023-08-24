@@ -199,6 +199,7 @@ class DecoderLayer(nn.Module):
             # print("Concatenated: ", torch.cat([x, topic_key.unsqueeze(1).repeat(1,x.shape[1],1)], dim=-1).shape)
             #print("Use Topic: ",x.shape, topic_key.shape, topic_value.shape)
             #print(k.shape, topic_key.repeat(1,x.shape[1],1).shape)
+            print("Use topic", attn_mask.shape, is_causal)
             x = self.self_attn(q, 
                                torch.cat([k, topic_key.repeat(1,x.shape[1],1)], dim=-1), 
                                torch.cat([x, topic_value.repeat(1,x.shape[1],1)], dim=-1),
@@ -207,7 +208,7 @@ class DecoderLayer(nn.Module):
                             is_causal=is_causal,
                             need_weights=False)[0]
         else:
-            print(attn_mask, is_causal)
+            print("Don't use topic", attn_mask.shape, is_causal)
             x = self.self_attn(x, x, x,
                             attn_mask=attn_mask,
                             key_padding_mask=key_padding_mask,
@@ -263,6 +264,8 @@ class DecoderLayer(nn.Module):
                                     need_weights=False)[0]
             
         return self.dropout2(x)
+    
+    
 
 
 class MIRDecoder(nn.Module):
@@ -340,10 +343,14 @@ class MIRDecoder(nn.Module):
         Shape:
             see the docs in Transformer class.
         """
+        
+        # tgt_key_padding_mask = self.get_padding_mask(tgt)
+        # #causal_mask1 = create_causal_masks(inputs)
+        # tgt_mask = self.get_causal_mask(tgt)
+        
         output = tgt
         output = self.embed_layer(output)
-        
-        
+         
         for mod in self.layers:
             output = mod(output, memory, topic, tgt_mask=tgt_mask,
                          memory_mask=memory_mask,
@@ -358,6 +365,12 @@ class MIRDecoder(nn.Module):
         output = F.softmax(self.causal_lm_head(output), dim=-1)
         
         return output
+    
+    def get_causal_mask(self, input):
+        return src_mask(input.shape[1])
+    
+    def get_padding_mask(self, input):
+        return create_padding_mask(input)
     
     
 def _get_activation_fn(activation: str) -> Callable[[Tensor], Tensor]:

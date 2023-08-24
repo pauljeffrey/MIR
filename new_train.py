@@ -330,6 +330,7 @@ def train(cfg: DictConfig):
             n_sentences  = reports.shape[1]
             
             encoder_pad_mask = create_padding_mask(indication_prompt).to(device)
+            print("Mem shape: ", indication_prompt.shape, "mask shape: ", encoder_pad_mask.shape)
             #encoder_causal_mask = src_mask(indication_prompt.shape[1])
             
             encoded_images , tags = model.encoder(encoded_images.type(torch.cuda.HalfTensor))
@@ -379,6 +380,7 @@ def train(cfg: DictConfig):
                 
                 # Decode reports
                 tgt = reports[:,i, :-1]  # Remove last token from reports
+                print('Target mask: ', tgt.shape)
                 padding_mask = create_padding_mask(tgt)
                 #causal_mask1 = create_causal_masks(inputs)
                 tgt_mask = src_mask(tgt.shape[1]).to(device)
