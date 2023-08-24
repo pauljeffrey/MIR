@@ -207,6 +207,7 @@ class DecoderLayer(nn.Module):
                             is_causal=is_causal,
                             need_weights=False)[0]
         else:
+            print(attn_mask, is_causal)
             x = self.self_attn(x, x, x,
                             attn_mask=attn_mask,
                             key_padding_mask=key_padding_mask,
