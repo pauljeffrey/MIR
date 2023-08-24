@@ -16,7 +16,7 @@ class CustomLoss(nn.Module):
     def forward(self,y1_true, y2_true, y1_pred, y2_pred,  eval=False): #with_logits=False,
         # if with_logits:
         #     y2_pred = y2_pred.softmax(dim=2)
-        #y1_mask = y1_true.ne(-1)
+        y1_mask = y1_true.ne(0)
         y2_mask = y2_true.ne(0)
         
         #Set y2 label to long and y label to float, leave the pred in float32
@@ -24,9 +24,9 @@ class CustomLoss(nn.Module):
         # print("masks shape: ", y1_mask.shape, y2_mask.shape)
         # print("Outpoutshape: ", y1_pred.shape, y1_true.shape)
         # print("Outpoutshape: ", y2_pred.shape, y2_true.shape)
-        y2_pred = y2_pred.permute(0,2,1) # shape == (batch_size, n_classes, seq_len)
-        sparse_loss = self.cross_entropy(y2_pred[y2_mask], y2_true[y2_mask])
-        bce_loss = self.bce(y1_pred, y1_true)
+        y2_pred = y2_pred[y2_mask].permute(0,2,1) # shape == (batch_size, n_classes, seq_len)
+        sparse_loss = self.cross_entropy(y2_pred, y2_true[y2_mask])
+        bce_loss = self.bce(y1_pred[y1_mask], y1_true[y1_mask])
         
         #print(bce_loss, sparse_loss)
         if eval:

@@ -330,9 +330,9 @@ def train(cfg: DictConfig):
 
             loss = 0            
             n_sentences  = reports.shape[1]
-            print('Length of sentences: ', n_sentences)
-            print("Inputs shape: ", encoded_images.shape, indication_prompt.shape, labels.shape, true_stop_probs.shape, reports.shape)
-            print("True probs: ",true_stop_probs)
+            # print('Length of sentences: ', n_sentences)
+            # print("Inputs shape: ", encoded_images.shape, indication_prompt.shape, labels.shape, true_stop_probs.shape, reports.shape)
+            # print("True probs: ",true_stop_probs)
             
             encoder_pad_mask = create_padding_mask(indication_prompt).to(device)
             #print("Mem shape: ", indication_prompt.shape, "mask shape: ", encoder_pad_mask.shape)
