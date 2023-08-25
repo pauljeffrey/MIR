@@ -412,6 +412,7 @@ def train(cfg: DictConfig):
                     print("Pred_stop_probs : ", pred_stop_probs)
                 # Decode reports
                 tgt = reports[:,i, :-1]  # Remove last token from reports
+                print("Target indices: ", tgt)
                 #print('Target mask: ', tgt.shape)
                 padding_mask = create_padding_mask(tgt).to(device).type(indication_prompt.dtype)
                 #causal_mask1 = create_causal_masks(inputs)
