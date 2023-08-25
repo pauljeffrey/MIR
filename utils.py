@@ -27,7 +27,11 @@ def create_padding_mask(inputs):
     """ False for non-padding element otherwise, True"""
     # if type(inputs) == np._NdArraySubClass:
     #     print("yes")
-    mask = torch.tensor((inputs == 0))#.unsqueeze(1).unsqueeze(2)
+    if type(inputs) != torch.Tensor:
+        mask = torch.tensor((inputs == 0))
+        
+    else:
+        mask = (inputs == 0)#.unsqueeze(1).unsqueeze(2)
     mask = mask.float().masked_fill(mask == 1, float('-inf'))#.masked_fill(mask == 1, float(0.0))
     return mask
 
@@ -45,6 +49,8 @@ if __name__ == '__main__':
     
     q = torch.randn( 3,5, 10) # source sequence length 3, batch size 1, embedding size 10
     w= torch.randn(1,3)
+    if type(w) == torch.Tensor:
+        print("YEEEEEEEEEEEEEEEEEEEEEEEEESSSSSSSSSSSSSSSSSSSS")
     attn = nn.MultiheadAttention(10, 1, batch_first=True) # embedding size 10, one head
     #attn(q, q, q) # self attention
     

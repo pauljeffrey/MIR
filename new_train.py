@@ -417,6 +417,9 @@ def train(cfg: DictConfig):
                 #memory_mask = None
                 if torch.any(torch.isinf(memory)) or torch.any(torch.isnan(memory)):
                     print("Memory : ", memory)
+                    
+                if torch.any(torch.isnan(encoder_pad_mask)) or torch.any(torch.isnan(padding_mask)) or torch.any(torch.isnan(tgt_mask)):
+                    print("Padding mask contains nan values...")
                 # Compute attention for visual_features, encoded_prompt
                 #memory = model.prompt_attention(memory, indication_prompt, key_padding_mask=mem_mask, residual_connection=True)
                 # print(memory.shape, indication_prompt.shape, tgt.shape, prev_hidden.shape)

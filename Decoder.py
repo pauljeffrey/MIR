@@ -352,7 +352,7 @@ class MIRDecoder(nn.Module):
         output = self.embed_layer(output)
         
         if torch.any(torch.isnan(output)):
-            print(output)
+            print("Inside decoder, after embedding layer: ", output)
             
         for ind, mod in enumerate(self.layers):
             output = mod(output, memory, topic, tgt_mask=tgt_mask,
