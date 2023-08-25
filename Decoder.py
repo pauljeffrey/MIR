@@ -144,6 +144,7 @@ class DecoderLayer(nn.Module):
         #print("Got here")
         if self.norm_first:
             x = x + self._sa_block(self.norm1(x), tgt_mask, tgt_key_padding_mask, topic, tgt_is_causal)
+            
             if self.use_cross_attention:
                 prompt, weighted_images = memory[0], memory[1]
                 if self.use_prompt:
@@ -153,6 +154,7 @@ class DecoderLayer(nn.Module):
             x = x + self._ff_block(self.norm3(x))
         else:
             x = self.norm1(x + self._sa_block(x, tgt_mask, tgt_key_padding_mask, topic, tgt_is_causal))
+            
             if self.use_cross_attention:
                 prompt, weighted_images = memory[0], memory[1]
                 if self.use_prompt:
@@ -162,7 +164,10 @@ class DecoderLayer(nn.Module):
                     memory_key_padding_mask = None
                     #print("Image shape; ", memory_mask.shape)
                     x = self.norm2(x + self._mha_block(x, weighted_images, memory_mask, key_padding_mask=memory_key_padding_mask, is_causal=memory_is_causal))
+            
+                
             x = self.norm3(x + self._ff_block(x))
+            
 
         return x
     
@@ -194,6 +199,9 @@ class DecoderLayer(nn.Module):
             topic_key = self.topic_key_fc(topic)
             topic_value = self.topic_value_fc(topic)
             
+            if torch.any(torch.isnan(topic_key)) or torch.any(torch.isnan(topic_value)):
+                print("Topic values inside decoder layers is affected...")
+            
             # print(topic_key.shape)
             # print(topic_value.unsqueeze(1).repeat(1,x.shape[1],1).shape)
             # print("Concatenated: ", torch.cat([x, topic_key.unsqueeze(1).repeat(1,x.shape[1],1)], dim=-1).shape)
@@ -214,11 +222,17 @@ class DecoderLayer(nn.Module):
                             key_padding_mask=key_padding_mask,
                             is_causal=is_causal,
                             need_weights=False)[0]
+            
+        if torch.any(torch.isnan(x)):
+                print("Self attention is affected.. ")
+                
         return self.dropout1(x)
 
     # feed forward block
     def _ff_block(self, x: Tensor) -> Tensor:
         x = self.linear2(self.dropout(self.activation(self.linear1(x))))
+        if torch.any(torch.isnan(x)):
+                print("Feed Forward block is affected..")
         return self.dropout2(x)
     
     # multihead attention block
@@ -262,6 +276,9 @@ class DecoderLayer(nn.Module):
                                     key_padding_mask=key_padding_mask,
                                     is_causal=is_causal,
                                     need_weights=False)[0]
+            
+            if torch.any(torch.isnan(x)):
+                print("Cross attention is affected")
             
         return self.dropout2(x)
     
