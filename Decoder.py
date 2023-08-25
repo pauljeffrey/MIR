@@ -351,7 +351,7 @@ class MIRDecoder(nn.Module):
         output = tgt
         output = self.embed_layer(output)
          
-        for mod in self.layers:
+        for ind, mod in enumerate(self.layers):
             output = mod(output, memory, topic, tgt_mask=tgt_mask,
                          memory_mask=memory_mask,
                          tgt_key_padding_mask=tgt_key_padding_mask,
@@ -359,6 +359,8 @@ class MIRDecoder(nn.Module):
                          tgt_is_causal=tgt_is_causal,
                          memory_is_causal=memory_is_causal) #memory_is_causal=memory_is_causal,use_prompt=self.use_prompt_per_layer[ind]
 
+            if torch.any(torch.isnan(output)):
+                print("Affected Decoder Layer is : ", ind)
         if self.norm is not None:
             output = self.norm(output)
 

@@ -26,9 +26,15 @@ class CustomLoss(nn.Module):
         # print("Outpoutshape: ", y2_pred.shape, y2_true.shape)
         #y2_pred = y2_pred[y2_mask].permute(0,2,1) # shape == (batch_size, n_classes, seq_len)
         #print("output shape: ", y2_pred.shape, y2_true[y2_mask])
-        print(y1_pred, y2_pred)
+        if torch.any(torch.isnan(y1_pred)):
+            print("Y1 pred:", y1_pred)
+            
+        if torch.any(torch.isnan(y2_pred)):
+            print("y2_pred: ", y2_pred)
+        
         sparse_loss = self.cross_entropy(y2_pred[y2_mask], y2_true[y2_mask])
         bce_loss = self.bce(y1_pred[y1_mask], y1_true[y1_mask])
+        
         print("sparse_loss: ", sparse_loss)
         print("stop loss: ", bce_loss)
         #print(bce_loss, sparse_loss)
@@ -49,9 +55,15 @@ class CustomBCELoss(nn.Module):
         label_mask = label_true.ne(-1)
         label_true = label_true.to(torch.float32)
         label_pred  = label_pred.to(torch.float32)
+        
+        if torch.any(torch.isnan(label_pred)):
+            print("label pred: ", label_pred)
+            
         #print(label_pred, label_true)
         label_loss = self.bce(label_pred[label_mask], label_true[label_mask])
-        print("label_loss: ", label_loss)
+        if torch.any(torch.isnan(label_loss)):
+            print("label_loss: ", label_loss)
+            
         return label_loss
 
 
