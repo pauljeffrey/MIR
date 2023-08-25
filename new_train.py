@@ -12,9 +12,9 @@ from torch.utils.data import DataLoader
 from torch.utils.data.dataset import random_split
 from transformers import AdamW, Adafactor, get_linear_schedule_with_warmup
 
-from accelerate import Accelerator
-from accelerate import Accelerator, DistributedType ,DeepSpeedPlugin
-from accelerate.logging import get_logger
+# from accelerate import Accelerator
+# from accelerate import Accelerator, DistributedType ,DeepSpeedPlugin
+# from accelerate.logging import get_logger
 #from accelerate.utils import DummyOptim, DummyScheduler, set_seed
 
 from omegaconf.dictconfig import DictConfig
@@ -316,6 +316,10 @@ def train(cfg: DictConfig):
     #print(device, model.device)
     custom_loss = CustomLoss()
     custom_bce_loss = CustomBCELoss()
+    
+    for name , each in model.named_parameters():
+        if torch.any(torch.isnan(each)):
+            print(name,each)
 
     for epoch in range(cfg.training.num_epochs):
         model.train()
@@ -555,6 +559,8 @@ if __name__ == "__main__":
     # cfg = OmegaConf.load("./conf/config.yaml")
     # #train(cfg)
     # model = load_model(cfg)
+    # is_nan = [(torch.any(torch.isnan(p)), p.name) for p in model.parameters()]
+    # print(is_nan)
     #save_model(model, "pretrained")
     # images = torch.randn((256,3,224,224))
     # prompt = torch.randint(0, 5000, (256, 30))
