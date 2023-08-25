@@ -350,7 +350,10 @@ class MIRDecoder(nn.Module):
         
         output = tgt
         output = self.embed_layer(output)
-         
+        
+        if torch.any(torch.isnan(output)):
+            print(output)
+            
         for ind, mod in enumerate(self.layers):
             output = mod(output, memory, topic, tgt_mask=tgt_mask,
                          memory_mask=memory_mask,
