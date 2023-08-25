@@ -12,10 +12,10 @@ from torch.utils.data import DataLoader
 from torch.utils.data.dataset import random_split
 from transformers import AdamW, Adafactor, get_linear_schedule_with_warmup
 
-# from accelerate import Accelerator
-# from accelerate import Accelerator, DistributedType ,DeepSpeedPlugin
-# from accelerate.logging import get_logger
-#from accelerate.utils import DummyOptim, DummyScheduler, set_seed
+from accelerate import Accelerator
+from accelerate import Accelerator, DistributedType ,DeepSpeedPlugin
+from accelerate.logging import get_logger
+from accelerate.utils import DummyOptim, DummyScheduler, set_seed
 
 from omegaconf.dictconfig import DictConfig
 from omegaconf import OmegaConf
