@@ -361,6 +361,7 @@ class MIRDecoder(nn.Module):
 
             if torch.any(torch.isnan(output)):
                 print("Affected Decoder Layer is : ", ind)
+        
         if self.norm is not None:
             output = self.norm(output)
 
