@@ -319,7 +319,7 @@ def train(cfg: DictConfig):
     
     for name , each in model.named_parameters():
         if torch.any(torch.isnan(each)):
-            print(name,each)
+            print(name, " layer has nan values in it..")
 
     for epoch in range(cfg.training.num_epochs):
         model.train()
