@@ -143,7 +143,7 @@ class DecoderLayer(nn.Module):
         #print("Forward topic shape: ", topic.shape)
         #print("Got here")
         if torch.any(torch.isnan(x)):
-            print("The tgt in the decoder has nan values..")
+            print(f"The tgt {x} in the decoder has nan values..")
             
         if self.norm_first:
             x = x + self._sa_block(self.norm1(x), tgt_mask, tgt_key_padding_mask, topic, tgt_is_causal)
