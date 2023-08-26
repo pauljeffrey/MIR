@@ -344,11 +344,11 @@ def train(cfg: DictConfig):
             #encoder_causal_mask = src_mask(indication_prompt.shape[1])
             
             encoded_images , tags = model.encoder(encoded_images.type(torch.cuda.HalfTensor))
-            if torch.any(torch.isinf(encoded_images)) or torch.any(torch.isnan(encoded_images)):
-                print("Encoded Images is nan")
+            # if torch.any(torch.isinf(encoded_images)) or torch.any(torch.isnan(encoded_images)):
+            #     print("Encoded Images is nan")
             
-            if torch.any(torch.isinf(tags)) or torch.any(torch.isnan(tags)):
-                print("Tags are nan")
+            # if torch.any(torch.isinf(tags)) or torch.any(torch.isnan(tags)):
+            #     print("Tags are nan")
             #print("Encoded Images: ", encoded_images.shape)
             bs , n_channels = encoded_images.shape[0], encoded_images.shape[1]
             
@@ -357,8 +357,8 @@ def train(cfg: DictConfig):
                 
             if model.history_encoder is not None:
                 indication_prompt = model.decoder.embed_layer(indication_prompt)
-                if torch.any(torch.isinf(indication_prompt)) or torch.any(torch.isnan(indication_prompt)):
-                    print("Encoding by decoder embedding layer is nan")
+                # if torch.any(torch.isinf(indication_prompt)) or torch.any(torch.isnan(indication_prompt)):
+                #     print("Encoding by decoder embedding layer is nan")
                     
                 indication_prompt = model.history_encoder(indication_prompt, mask=encoder_pad_mask.type(indication_prompt.dtype))
                 if torch.any(torch.isinf(indication_prompt)) or torch.any(torch.isnan(indication_prompt)):
@@ -377,8 +377,8 @@ def train(cfg: DictConfig):
             #lstm_init = True
             #print(hn.shape, cn.shape)
             #output = model(encoded_images, reports[:, :-1])  # [batch_size, seq_len - 1, vocab_size]
-            if torch.any(torch.isinf(prev_hidden)) or torch.any(torch.isnan(prev_hidden)):
-                    print("Prev hidden, hn, cn is nan")
+            # if torch.any(torch.isinf(prev_hidden)) or torch.any(torch.isnan(prev_hidden)):
+            #         print("Prev hidden, hn, cn is nan")
                     
             for i in range(n_sentences):
                 
@@ -395,8 +395,8 @@ def train(cfg: DictConfig):
                     else:
                         context_vector, att_wts = model.attention(prev_hidden, encoded_images)
 
-                if torch.any(torch.isinf(context_vector)) or torch.any(torch.isnan(context_vector)):
-                    print("Context Vector is nan")
+                # if torch.any(torch.isinf(context_vector)) or torch.any(torch.isnan(context_vector)):
+                #     print("Context Vector is nan")
                     
                 # Generate Topic Vector
                 #print("Context and hidden shape before entering lstm: ", context_vector.shape, prev_hidden.shape)
@@ -412,7 +412,7 @@ def train(cfg: DictConfig):
                     print("Pred_stop_probs is nan")
                 # Decode reports
                 tgt = reports[:,i, :-1]  # Remove last token from reports
-                print("Target indices: ", tgt)
+                #print("Target indices: ", tgt)
                 #print('Target mask: ', tgt.shape)
                 padding_mask = create_padding_mask(tgt).to(device).type(indication_prompt.dtype)
                 #causal_mask1 = create_causal_masks(inputs)
@@ -433,8 +433,8 @@ def train(cfg: DictConfig):
                                     memory_key_padding_mask=None, tgt_mask=None,
                                         tgt_is_causal=False)  # [batch_size, seq_len - 1, d_model]
                 
-                if torch.any(torch.isinf(output)) or torch.any(torch.isnan(output)):
-                    print("Output is affected...")
+                # if torch.any(torch.isinf(output)) or torch.any(torch.isnan(output)):
+                #     print("Output is affected...")
                     
                 # print("output shape: ", output.shape, reports[:, i, 1:].shape)
                 # print("stop prob shape: ", pred_stop_probs.shape, true_stop_probs[:, 0].shape)

@@ -26,17 +26,17 @@ class CustomLoss(nn.Module):
         # print("Outpoutshape: ", y2_pred.shape, y2_true.shape)
         #y2_pred = y2_pred[y2_mask].permute(0,2,1) # shape == (batch_size, n_classes, seq_len)
         #print("output shape: ", y2_pred.shape, y2_true[y2_mask])
-        if torch.any(torch.isnan(y1_pred)):
-            print("Y1 pred is nan")
+        # if torch.any(torch.isnan(y1_pred)):
+        #     print("Y1 pred is nan")
             
-        if torch.any(torch.isnan(y2_pred)):
-            print("y2_pred is nan")
+        # if torch.any(torch.isnan(y2_pred)):
+        #     print("y2_pred is nan")
         
         sparse_loss = self.cross_entropy(y2_pred[y2_mask], y2_true[y2_mask])
         bce_loss = self.bce(y1_pred[y1_mask], y1_true[y1_mask])
         
-        print("sparse_loss: ", sparse_loss)
-        print("stop loss: ", bce_loss)
+        # print("sparse_loss: ", sparse_loss)
+        # print("stop loss: ", bce_loss)
         #print(bce_loss, sparse_loss)
         if eval:
             return bce_loss , sparse_loss
@@ -56,13 +56,13 @@ class CustomBCELoss(nn.Module):
         label_true = label_true.to(torch.float32)
         label_pred  = label_pred.to(torch.float32)
         
-        if torch.any(torch.isnan(label_pred)):
-            print("label pred is nan")
+        # if torch.any(torch.isnan(label_pred)):
+        #     print("label pred is nan")
             
         #print(label_pred, label_true)
         label_loss = self.bce(label_pred[label_mask], label_true[label_mask])
-        if torch.any(torch.isnan(label_loss)):
-            print("label_loss is nan")
+        # if torch.any(torch.isnan(label_loss)):
+        #     print("label_loss is nan")
             
         return label_loss
 

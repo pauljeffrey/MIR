@@ -400,7 +400,7 @@ class MIRDecoder(nn.Module):
         output = tgt
         output = self.embed_layer(output)
         
-        print(output)
+        print("Inside decoder, the embedding output: ", output)
         
         if torch.any(torch.isnan(output)):
             print("Inside decoder, after embedding layer: ", output)
