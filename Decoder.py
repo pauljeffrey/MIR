@@ -142,6 +142,9 @@ class DecoderLayer(nn.Module):
         x = tgt
         #print("Forward topic shape: ", topic.shape)
         #print("Got here")
+        if torch.any(torch.isnan(x)):
+            print("The tgt in the decoder has nan values..")
+            
         if self.norm_first:
             x = x + self._sa_block(self.norm1(x), tgt_mask, tgt_key_padding_mask, topic, tgt_is_causal)
             
@@ -192,6 +195,15 @@ class DecoderLayer(nn.Module):
         q = q.permute(0,2,1,3).reshape(b, seq_l, self.d_model)
         k = k.permute(0,2,1,3).reshape(b, seq_l, self.d_model)
         
+        if torch.any(torch.isnan(q)):
+            print("query contains nan values..")
+            
+        if torch.any(torch.isnan(k)):
+            print("key contains nan values..")
+            
+        if torch.any(torch.isnan(x)):
+            print("x contains nan values..")
+            
         # Apply topic vector to each token
         if self.use_topic:
             # topic.shape  = (batch_size, topic_emb)
@@ -257,7 +269,19 @@ class DecoderLayer(nn.Module):
             # Reshape q, k to normal
             q = q.permute(0,2,1,3).reshape(b, seq_l, self.d_model)
             k = k.permute(0,2,1,3).reshape(b, prompt_seq_l, prompt_d_model)
+            
+            if torch.any(torch.isnan(x)):
+                print("cross attention x contains nan values.")
         
+            if torch.any(torch.isnan(q)):
+                print("cross attention query contains nan values..")
+                
+            if torch.any(torch.isnan(k)):
+                print("cross attention key contains nan values..")
+                
+            if torch.any(torch.isnan(mem)):
+                print("cross attention mem contains nan values..")
+                
             x = self.multihead_attn(q, k, mem,
                                     attn_mask=attn_mask,
                                     key_padding_mask=key_padding_mask,
@@ -267,6 +291,12 @@ class DecoderLayer(nn.Module):
             x= x.reshape(-1, seq_l, self.n_head, int(self.d_model/self.n_head)).permute(0,2,1,3)
             #apply positional rotary embedding:
             x= self.pos_emb.rotate_queries_or_keys(x)
+            
+            if torch.any(torch.isnan(x)):
+                print("cross attention x contains nan values.")
+                
+            if torch.any(torch.isnan(mem)):
+                print("cross attention mem contains nan values..")
         
             # Reshape q to normal
             x = x.permute(0,2,1,3).reshape(b, seq_l, self.d_model)
@@ -277,8 +307,8 @@ class DecoderLayer(nn.Module):
                                     is_causal=is_causal,
                                     need_weights=False)[0]
             
-            if torch.any(torch.isnan(x)):
-                print("Cross attention is affected")
+        if torch.any(torch.isnan(x)):
+            print("Cross attention is affected")
             
         return self.dropout2(x)
     
