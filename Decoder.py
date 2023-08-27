@@ -139,13 +139,13 @@ class DecoderLayer(nn.Module):
         """
         # see Fig. 1 of https://arxiv.org/pdf/2002.04745v1.pdf
         if torch.any(torch.isnan(tgt)):
-            print(f"The tgt {tgt} in the decoder has nan values..")
+            print(f"The targets passed as input to the decoder has nan values..")
         
         x = tgt
         #print("Forward topic shape: ", topic.shape)
         #print("Got here")
         if torch.any(torch.isnan(x)):
-            print(f"The 'x' tgt {x} in the decoder has nan values..")
+            print(f"The input x gotten from targets passed to the decoder has nan values..")
             
         if self.norm_first:
             x = x + self._sa_block(self.norm1(x), tgt_mask, tgt_key_padding_mask, topic, tgt_is_causal)
@@ -400,7 +400,7 @@ class MIRDecoder(nn.Module):
         output = tgt
         output = self.embed_layer(output)
         
-        print("Inside decoder, the embedding output: ", output)
+        print("Inside decoder, the embedding output min and max values: ", torch.min(output) , torch.max(output))
         
         if torch.any(torch.isnan(output)):
             print("Inside decoder, after embedding layer: ", output)

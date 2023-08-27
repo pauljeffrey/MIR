@@ -95,6 +95,26 @@ def load_model(cfg: DictConfig):
         model = load(model, cfg.load_dir)
     return model
 
+def create_optimizer(cfg, model):
+
+    no_decay = ["bias", "LayerNorm.weight"]
+    optimizer_grouped_parameters = [
+        {
+            "params": model.encoder.parameters(),
+            "weight_decay": cfg.training.weight_decay,
+            "lr": 1e-5
+        },
+        {
+            "params": [
+                p
+                for n, p in model.named_parameters()
+                if not n.startswith("encoder")
+            ],
+            "weight_decay": 0.0,
+        },
+    ]
+    return optimizer_grouped_parameters
+
 
 def evaluate(model, accelerator, eval_loader, custom_loss, bce_loss):
     model.eval()
@@ -234,7 +254,7 @@ def train(cfg: DictConfig):
         # or "optimizer" not in accelerator.state.deepspeed_plugin.deepspeed_config
         # else DummyOptim
     )
-    optimizer = optimizer_cls(model.parameters(), lr=cfg.training.learning_rate)
+    optimizer = optimizer_cls(create_optimizer(cfg, model), lr=cfg.training.learning_rate)
 
 
     # if (
@@ -555,11 +575,17 @@ def train(cfg: DictConfig):
 
 
 if __name__ == "__main__":
-    cfg = OmegaConf.load("/kaggle/working/MIR/conf/config.yaml")
+    cfg = OmegaConf.load("/kaggle/working/MIR/conf/config.yaml") #
     train(cfg)
-    # cfg = OmegaConf.load("./conf/config.yaml")
+    #cfg = OmegaConf.load("./conf/config.yaml")
     # #train(cfg)
-    # model = load_model(cfg)
+    #model = load_model(cfg)
+    #for name, each in model.named_children:
+    # for name, each in model.decoder.named_parameters():
+    #     print(name)
+    #     print("Minimum value: ", torch.min(each))
+    #     print("Maximum value: ", torch.max(each))
+    #     print()
     # is_nan = [(torch.any(torch.isnan(p)), p.name) for p in model.parameters()]
     # print(is_nan)
     #save_model(model, "pretrained")
