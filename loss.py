@@ -37,7 +37,7 @@ class CustomLoss(nn.Module):
         
         # print("sparse_loss: ", sparse_loss)
         # print("stop loss: ", bce_loss)
-        #print(bce_loss, sparse_loss)
+        print(bce_loss, sparse_loss)
         if eval:
             return bce_loss , sparse_loss
         else:
@@ -61,6 +61,7 @@ class CustomBCELoss(nn.Module):
             
         #print(label_pred, label_true)
         label_loss = self.bce(label_pred[label_mask], label_true[label_mask])
+        print(label_loss)
         # if torch.any(torch.isnan(label_loss)):
         #     print("label_loss is nan")
             
