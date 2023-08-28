@@ -58,7 +58,7 @@ training:
 
 architecture:
   #encoder:
-  model_name: "convnext"
+  model_name: "densenet121"
   pretrained: true
   hidden_layer_size: 256 # Number of units in the hidden layer of the MLP
   classes: 210
