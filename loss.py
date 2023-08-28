@@ -35,8 +35,8 @@ class CustomLoss(nn.Module):
         sparse_loss = self.cross_entropy(y2_pred[y2_mask], y2_true[y2_mask])
         print( "sparse loss: ", sparse_loss)
         
-        print("stop_Loss original and predcited: ", y1_true, y1_pred)
-        print("targets original and predicted: ", y2_true, y2_pred)
+        print("stop_Loss original and predcited: ",y1_pred)
+        print("targets original and predicted: ", y2_pred)
         bce_loss = 0 # self.bce(y1_pred[y1_mask], y1_true[y1_mask])
         
         # print("sparse_loss: ", sparse_loss)
