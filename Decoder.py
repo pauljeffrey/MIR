@@ -221,6 +221,8 @@ class DecoderLayer(nn.Module):
             topic_value = self.topic_value_fc(topic)
             
             if torch.any(torch.isnan(topic_key)) or torch.any(torch.isnan(topic_value)):
+                topic_key = torch.nan_to_num(topic_key)
+                topic_value = torch.nan_to_num(topic_value)
                 print("Topic values inside decoder layers is affected...")
             
             # print(topic_key.shape)

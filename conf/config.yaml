@@ -38,7 +38,7 @@ tokenizer:
 training:
   seed: 15
   shuffle: true
-  learning_rate: 5e-4
+  learning_rate: 1e-4
   weight_decay: 0.0
   num_epochs: 50
   max_train_steps: 10000
@@ -60,7 +60,7 @@ architecture:
   #encoder:
   model_name: "densenet201"
   pretrained: true
-  hidden_layer_size: 512 # Number of units in the hidden layer of the MLP
+  hidden_layer_size: 256 # Number of units in the hidden layer of the MLP
   classes: 210
   add_encoder: true
   # state_path:
@@ -95,7 +95,7 @@ architecture:
   #sent_lstm:
   #hidden_layer_size: 128 # Number of units for the hidden layer of the MLP
   hidden_dim: 768
-  lstm_layers: 5 #Num of lstm layers
+  lstm_layers: 4 #Num of lstm layers
   #features_dim: 2048 # visual features dim (not number of channels)
   enforce_info: false
   
