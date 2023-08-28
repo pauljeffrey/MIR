@@ -16,11 +16,12 @@ class CustomLoss(nn.Module):
     def forward(self,y1_true, y2_true, y1_pred, y2_pred,  eval=False): #with_logits=False,
         # if with_logits:
         #     y2_pred = y2_pred.softmax(dim=2)
-        print("sparse shapes: ", y2_pred.shape, y2_true.shape)
+        #print("sparse shapes: ", y2_pred.shape, y2_true.shape)
         
         if torch.all(y1_true.eq(0)):
             bce_loss = self.bce(y1_pred, y1_true) * 0
-            sparse_loss = self.cross_entropy(y2_pred, y2_true) * 0
+            bs, sen_length, vocab = y2_pred.shape
+            sparse_loss = self.cross_entropy(y2_pred.view(bs*sen_length, vocab), y2_true.view(bs*sen_length)) * 0
             
             
         
