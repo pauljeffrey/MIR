@@ -41,15 +41,15 @@ training:
   learning_rate: 3e-4
   weight_decay: 0.0
   num_epochs: 50
-  max_train_steps: 400000
-  gradient_accumulation_steps: 2
+  max_train_steps: 10000
+  gradient_accumulation_steps: 4
   lr_scheduler: "cosine" # ["linear", "cosine", "cosine_with_restarts", "polynomial", "constant", "constant_with_warmup"]
-  lr_warmup_steps: 200
+  lr_warmup_steps: 50
   eval_every: 8
   save_every: 32
   img_size: (224,224)
-  train_batch_size: 6
-  eval_batch_size: 6
+  train_batch_size: 16
+  eval_batch_size: 32
 
   checkpoint:
     resume_from_checkpoint: 0 # integer representing which checkpoint to load from, or <= 0 to not
@@ -58,7 +58,7 @@ training:
 
 architecture:
   #encoder:
-  model_name: "densenet201"
+  model_name: "convnext"
   pretrained: true
   hidden_layer_size: 256 # Number of units in the hidden layer of the MLP
   classes: 210
@@ -101,11 +101,11 @@ architecture:
   
 
   #decoder:
-  dec_num_layers: 8
+  dec_num_layers: 10
   vocab_size: 5666 
-  use_topic_per_layer: [false, false, false,true, true, true,true, false]
-  use_cross_att_per_layer: [false, false, false, false, true, false, true, false]
-  use_prompt_per_layer: [false, false, false, false , false, true, false, false]
+  use_topic_per_layer: [false, false, false, false, true, true, true,true, false, false]
+  use_cross_att_per_layer: [false, false, false, false, true, false, true, false, true, false]
+  use_prompt_per_layer: [false, false, false, false , false, true, false, true, false, false]
   d_model: 768
   nhead: 12
   #mem_dim: 2048 # visual features dim (not number of channels)

@@ -23,39 +23,79 @@ class VisualFeatureExtractor(nn.Module):
             modules = list(resnet.children())[:-2]
             model = nn.Sequential(*modules)
             out_features = resnet.fc.in_features
-            func = torch.nn.AdaptiveAvgPool2d(kernel_size=7, stride=1, padding=0)
+            func = torch.nn.AdaptiveAvgPool2d((1,1))
         elif self.model_name == 'densenet201':
-            densenet =models.densenet201(pretrained=self.pretrained)  #models.densenet201(pretrained=self.pretrained)) #IMAGENET1K_V2"#weights=DenseNet201_Weights.DEFAULT) #
+            densenet =models.densenet201(weights="IMAGENET1K_V1")  #models.densenet201(pretrained=self.pretrained)) #IMAGENET1K_V2"#weights=DenseNet201_Weights.DEFAULT) #
             #print("Densenet classifier in features: ", densenet.classifier.in_features)
             #print("Densenet classififer out features: ", densenet.classifier.out_features)
             modules = list(densenet.features)
             model = nn.Sequential(*modules)
             func = torch.nn.AdaptiveAvgPool2d((1,1))
             out_features = densenet.classifier.in_features
-            #print(out_features)
+      
+        elif self.model_name == 'convnext_l':
+            densenet =models.convnext_base(weights="IMAGENET1K_V1")  #models.densenet201(pretrained=self.pretrained)) #IMAGENET1K_V2"#weights=DenseNet201_Weights.DEFAULT) #
+            #print("Densenet classifier in features: ", densenet.classifier.in_features)
+            #print("Densenet classififer out features: ", densenet.classifier.out_features)
+            modules = list(densenet.features)
+            model = nn.Sequential(*modules)
+            func = torch.nn.AdaptiveAvgPool2d((1,1))
+            out_features = densenet.classifier.in_features
+            #print(out_features)            
+            
+        elif self.model_name == 'convnext_t':
+            densenet =models.ConvNeXt_Tiny_Weights(weights="IMAGENET1K_V1")  #models.densenet201(pretrained=self.pretrained)) #IMAGENET1K_V2"#weights=DenseNet201_Weights.DEFAULT) #
+            #print("Densenet classifier in features: ", densenet.classifier.in_features)
+            #print("Densenet classififer out features: ", densenet.classifier.out_features)
+            modules = list(densenet.features)
+            model = nn.Sequential(*modules)
+            func = torch.nn.AdaptiveAvgPool2d((1,1))
+            out_features = densenet.classifier.in_features
+            
+        elif self.model_name == 'convnext_s':
+            densenet =models.convnext_small(weights="IMAGENET1K_V1")  #models.densenet201(pretrained=self.pretrained)) #IMAGENET1K_V2"#weights=DenseNet201_Weights.DEFAULT) #
+            #print("Densenet classifier in features: ", densenet.classifier.in_features)
+            #print("Densenet classififer out features: ", densenet.classifier.out_features)
+            modules = list(densenet.features)
+            model = nn.Sequential(*modules)
+            func = torch.nn.AdaptiveAvgPool2d((1,1))
+            out_features = densenet.classifier.in_features
+            
+        elif self.model_name == 'convnext_b':
+            densenet =models.convnext_base(weights="IMAGENET1K_V1")  #models.densenet201(pretrained=self.pretrained)) #IMAGENET1K_V2"#weights=DenseNet201_Weights.DEFAULT) #
+            #print("Densenet classifier in features: ", densenet.classifier.in_features)
+            #print("Densenet classififer out features: ", densenet.classifier.out_features)
+            modules = list(densenet.features)
+            model = nn.Sequential(*modules)
+            func = torch.nn.AdaptiveAvgPool2d((1,1))
+            out_features = densenet.classifier.in_features
+        
         elif self.model_name == 'densenet121':
-            densenet = models.densenet121(pretrained=self.pretrained)
+            densenet = models.densenet121(weights="IMAGENET1K_V1")
             modules = list(densenet.features)
             model = nn.Sequential(*modules)
-            func = torch.nn.AdaptiveAvgPool2d(kernel_size=7, stride=1, padding=0)
+            func = torch.nn.AdaptiveAvgPool2d((1,1))
             out_features = densenet.classifier.in_features
+            
         elif self.model_name == 'inception_v3':
-            densenet = models.inception_v3(pretrained=self.pretrained)
+            densenet = models.inception_v3(weights="IMAGENET1K_V1")
             modules = list(densenet.features)
             model = nn.Sequential(*modules)
-            func = torch.nn.AdaptiveAvgPool2d(kernel_size=7, stride=1, padding=0)
+            func = torch.nn.AdaptiveAvgPool2d((1,1))
             out_features = densenet.classifier.in_features
+            
         elif self.model_name == 'vgg19':
-            densenet = models.vgg19(pretrained=self.pretrained)
+            densenet = models.vgg19(weights="IMAGENET1K_V1")
             modules = list(densenet.features)
             model = nn.Sequential(*modules)
-            func = torch.nn.AdaptiveAvgPool2d((10,10))
+            func = torch.nn.AdaptiveAvgPool2d((1,1))
             out_features = densenet.classifier.in_features
+            
         else:
-            densenet = models.vgg16(pretrained=self.pretrained)
+            densenet = models.vgg16(weights="IMAGENET1K_V1")
             modules = list(densenet.features)
             model = nn.Sequential(*modules)
-            func = torch.nn.AdaptiveAvgPool2d(kernel_size=7, stride=1, padding=0)
+            func = torch.nn.AdaptiveAvgPool2d((1,1))
             out_features = densenet.classifier.in_features
             
         linear = nn.Linear(in_features=out_features, out_features=out_features)

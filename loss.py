@@ -16,32 +16,19 @@ class CustomLoss(nn.Module):
     def forward(self,y1_true, y2_true, y1_pred, y2_pred,  eval=False): #with_logits=False,
         # if with_logits:
         #     y2_pred = y2_pred.softmax(dim=2)
-        y1_mask = y1_true.ne(0)
+        if torch.all(y1_true.eq(0)):
+            bce_loss = self.bce(y1_pred, y1_true) * 0
+        
+        else:
+            y1_mask = y1_true.ne(0)
+            bce_loss = self.bce(y1_pred[y1_mask], y1_true[y1_mask])
+              
+        # Calculate sparse cross entropy
         y2_mask = y2_true.ne(0)
-        
-        #Set y2 label to long and y label to float, leave the pred in float32
-        # print(y1_true.dtype, y2_true.dtype, y1_pred.dtype, y2_pred.dtype)
-        # print("masks shape: ", y1_mask.shape, y2_mask.shape)
-        # print("Outpoutshape: ", y1_pred.shape, y1_true.shape)
-        # print("Outpoutshape: ", y2_pred.shape, y2_true.shape)
-        #y2_pred = y2_pred[y2_mask].permute(0,2,1) # shape == (batch_size, n_classes, seq_len)
-        #print("output shape: ", y2_pred.shape, y2_true[y2_mask])
-        # if torch.any(torch.isnan(y1_pred)):
-        #     print("Y1 pred is nan")
-            
-        # if torch.any(torch.isnan(y2_pred)):
-        #     print("y2_pred is nan")
-        
         sparse_loss = self.cross_entropy(y2_pred[y2_mask], y2_true[y2_mask])
-        print( "sparse loss: ", sparse_loss)
         
-        print("stop_Loss original and predcited: ",y1_pred)
-        print("targets original and predicted: ", y2_pred)
-        bce_loss = 0 # self.bce(y1_pred[y1_mask], y1_true[y1_mask])
+        print(bce_loss, sparse_loss)
         
-        # print("sparse_loss: ", sparse_loss)
-        # print("stop loss: ", bce_loss)
-        #print(bce_loss, sparse_loss)
         if eval:
             return bce_loss , sparse_loss
         else:
@@ -56,19 +43,18 @@ class CustomBCELoss(nn.Module):
         
     
     def forward(self,label_true, label_pred):
-        label_mask = label_true.ne(-1)
+        
         label_true = label_true.to(torch.float32)
         label_pred  = label_pred.to(torch.float32)
         
-        # if torch.any(torch.isnan(label_pred)):
-        #     print("label pred is nan")
+        if torch.all(label_true.eq(-1)):
+            label_loss = self.bce(label_pred, label_true) * 0
+        else:
+            label_mask = label_true.ne(-1)
+            label_loss = self.bce(label_pred[label_mask], label_true[label_mask])
             
-        #print(label_pred, label_true)
-        label_loss = self.bce(label_pred[label_mask], label_true[label_mask])
         print(label_loss)
-        # if torch.any(torch.isnan(label_loss)):
-        #     print("label_loss is nan")
-            
+        
         return label_loss
 
 
@@ -93,12 +79,14 @@ if __name__ == "__main__":
     print(input.shape, target.shape)
     
     # Example of target with class probabilities
-    input2 = torch.randn(10, 1)#.softmax(dim=1)
-    target2 = torch.randint(-1,1, (10,1), dtype=torch.float)
+    input2 = torch.randn(10, 1).softmax(dim=0)
+    #target2 = torch.randint(-1,1, (10,1), dtype=torch.float)
+    target2 = torch.zeros((10,1), dtype=torch.float)
 
     # loss = nn.CrossEntropyLoss()
     # print(loss(input, target))
     
     c_loss = CustomLoss()
+    #print("stop prob: ", input2)
     output = c_loss( target2, target, input2, input)
     print(output)

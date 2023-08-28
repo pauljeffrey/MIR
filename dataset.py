@@ -230,7 +230,9 @@ class ChestXrayDataSet2(Dataset):
         sample = self.data[index]
         image_name = sample["image"]
         image = Image.open(os.path.join(self.image_dir, image_name)).convert('RGB')
+        print("Image shape: ", image.shape)
         label = torch.tensor([int(each) for each in sample["labels"]])
+        
         if sample["type"] == "original":
             
             indication = sample["indication"]
@@ -241,7 +243,7 @@ class ChestXrayDataSet2(Dataset):
             else:
                 indication = "<ind>" + add_noise(indication.split("<ind>")[1]) + "<ind>"
         else:
-            #label = torch.tensor([-1 for i in range(len(sample["labels"]))])
+            #label = torch.ones((len(sample["labels"]))) * -1
             indication = sample["indication"]
             indication = indication.split("<prompt>")[0] + "<prompt>" + add_noise(indication.split("<prompt>")[1]) + "<prompt>"
             indication = "<ind>" + add_noise(indication.split("<ind>")[1]) + "<ind>" + indication.split("<ind>")[-1]
