@@ -149,10 +149,10 @@ class DecoderLayer(nn.Module):
         if torch.any(torch.isnan(x)):
             print(f"The input x gotten from targets passed to the decoder has nan values..")
             
-        print("min max of indication: ", torch.min(memory[0]), torch.max(memory[0]))
-        print("min max of indication: ", torch.min(memory[1]), torch.max(memory[1]))
-        print("min max of tgt: ", torch.min(x), torch.max(x))
-        print("min max of topic: ", torch.min(topic), torch.max(topic))
+        # print("min max of indication: ", torch.min(memory[0]), torch.max(memory[0]))
+        # print("min max of indication: ", torch.min(memory[1]), torch.max(memory[1]))
+        # print("min max of tgt: ", torch.min(x), torch.max(x))
+        # print("min max of topic: ", torch.min(topic), torch.max(topic))
         
         if self.norm_first:
             x = x + self._sa_block(self.norm1(x), tgt_mask, tgt_key_padding_mask, topic, tgt_is_causal)
