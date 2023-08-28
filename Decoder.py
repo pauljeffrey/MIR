@@ -138,6 +138,8 @@ class DecoderLayer(nn.Module):
             see the docs in Transformer class.
         """
         # see Fig. 1 of https://arxiv.org/pdf/2002.04745v1.pdf
+        
+        print( tgt_mask, memory_mask, tgt_key_padding_mask, memory_key_padding_mask)
         if torch.any(torch.isnan(tgt)):
             print(f"The targets passed as input to the decoder has nan values..")
         
@@ -147,6 +149,11 @@ class DecoderLayer(nn.Module):
         if torch.any(torch.isnan(x)):
             print(f"The input x gotten from targets passed to the decoder has nan values..")
             
+        print("min max of indication: ", torch.min(memory[0]), torch.max(memory[0]))
+        print("min max of indication: ", torch.min(memory[1]), torch.max(memory[1]))
+        print("min max of tgt: ", torch.min(x), torch.max(x))
+        print("min max of topic: ", torch.min(topic), torch.max(topic))
+        
         if self.norm_first:
             x = x + self._sa_block(self.norm1(x), tgt_mask, tgt_key_padding_mask, topic, tgt_is_causal)
             

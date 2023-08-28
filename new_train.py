@@ -364,8 +364,8 @@ def train(cfg: DictConfig):
             #encoder_causal_mask = src_mask(indication_prompt.shape[1])
             
             encoded_images , tags = model.encoder(encoded_images)#.type(torch.cuda.HalfTensor))
-            # if torch.any(torch.isinf(encoded_images)) or torch.any(torch.isnan(encoded_images)):
-            #     print("Encoded Images is nan")
+            if torch.any(torch.isinf(encoded_images)) or torch.any(torch.isnan(encoded_images)):
+                print("Encoded Images is nan")
             
             # if torch.any(torch.isinf(tags)) or torch.any(torch.isnan(tags)):
             #     print("Tags are nan")
@@ -380,7 +380,7 @@ def train(cfg: DictConfig):
                 # if torch.any(torch.isinf(indication_prompt)) or torch.any(torch.isnan(indication_prompt)):
                 #     print("Encoding by decoder embedding layer is nan")
                     
-                indication_prompt = model.history_encoder(indication_prompt, mask=encoder_pad_mask.type(indication_prompt.dtype))
+                indication_prompt = model.history_encoder(indication_prompt, mask=None) #encoder_pad_mask.type(indication_prompt.dtype))
                 if torch.any(torch.isinf(indication_prompt)) or torch.any(torch.isnan(indication_prompt)):
                     print("Encoding by History encoder is nan")  
 
@@ -397,8 +397,8 @@ def train(cfg: DictConfig):
             #lstm_init = True
             #print(hn.shape, cn.shape)
             #output = model(encoded_images, reports[:, :-1])  # [batch_size, seq_len - 1, vocab_size]
-            # if torch.any(torch.isinf(prev_hidden)) or torch.any(torch.isnan(prev_hidden)):
-            #         print("Prev hidden, hn, cn is nan")
+            if torch.any(torch.isinf(prev_hidden)) or torch.any(torch.isnan(prev_hidden)):
+                    print("Initial Prev hidden, hn, cn is nan")
                     
             for i in range(n_sentences):
                 
@@ -441,7 +441,7 @@ def train(cfg: DictConfig):
                 memory = encoded_images * att_wts # [batch_size, seq_len, d_model]
                 #memory_mask = None
                 if torch.any(torch.isinf(memory)) or torch.any(torch.isnan(memory)):
-                    print("Memory is affected..")
+                    print("Memory is affected contains nan values..")
                     
                 if torch.any(torch.isnan(encoder_pad_mask)) or torch.any(torch.isnan(padding_mask)) or torch.any(torch.isnan(tgt_mask)):
                     print("Padding mask contains nan values...")
