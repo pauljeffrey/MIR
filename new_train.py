@@ -273,7 +273,7 @@ def train(cfg: DictConfig):
         transforms.RandomVerticalFlip(0.45),
         transforms.RandomHorizontalFlip(0.45),
         transforms.RandomRotation((0,5)),
-        transforms.v2.RandomResize((200, 250)),
+        #transforms.v2.RandomResize((200, 250)), v2.RandomResize
         transforms.GaussianBlur(kernel_size=(5, 9), sigma=(0.1, 5)),
         transforms.ColorJitter(brightness= (0.5, 1.5) , contrast=1.0),
         transforms.Pad(30),
