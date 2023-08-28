@@ -5,7 +5,7 @@ import numpy as np
 
 def src_mask(sz):
     mask = (torch.triu(torch.ones(sz, sz)) == 1).transpose(0, 1)
-    mask = mask.float().masked_fill(mask == 0, float('-inf')).masked_fill(mask == 1, float(0.0))
+    mask = mask.float().masked_fill(mask == 0, float('-1e8')).masked_fill(mask == 1, float(0.0))
     return mask
 
 
@@ -19,7 +19,7 @@ def create_masks(inputs):
     # Combine padding and causal masks
     masks = padding_mask & causal_mask
     
-    masks = masks.float().masked_fill(masks == 0, float('-inf')).masked_fill(masks == 1, float(0.0))
+    masks = masks.float().masked_fill(masks == 0, float('-1e8')).masked_fill(masks == 1, float(0.0))
     return masks
 
 
