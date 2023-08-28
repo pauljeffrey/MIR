@@ -367,7 +367,7 @@ class MIRDecoder(nn.Module):
         
 
 
-    def forward(self, tgt: Tensor, topic: Tensor, memory: Tensor, tgt_mask: Optional[Tensor] = None,
+    def forward(self, tgt: Tensor, topic: Tensor=None, memory: Tensor=None, tgt_mask: Optional[Tensor] = None,
                 memory_mask: Optional[Tensor] = None, tgt_key_padding_mask: Optional[Tensor] = None,
                 memory_key_padding_mask: Optional[Tensor] = None, tgt_is_causal: bool = True,
                 memory_is_causal: bool = False) -> Tensor:

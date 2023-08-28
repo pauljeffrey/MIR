@@ -449,9 +449,9 @@ def train(cfg: DictConfig):
                 #memory = model.prompt_attention(memory, indication_prompt, key_padding_mask=mem_mask, residual_connection=True)
                 # print(memory.shape, indication_prompt.shape, tgt.shape, prev_hidden.shape)
                 # print(encoder_pad_mask.shape)
-                output = model.decoder(tgt, prev_hidden, (indication_prompt, memory), tgt_key_padding_mask= None,
+                output = model.decoder(tgt, prev_hidden, None, tgt_key_padding_mask= None,
                                     memory_key_padding_mask=None, tgt_mask=None,
-                                        tgt_is_causal=False)  # [batch_size, seq_len - 1, d_model]
+                                        tgt_is_causal=False)  # [batch_size, seq_len - 1, d_model] (indication_prompt, memory)
                 
                 # if torch.any(torch.isinf(output)) or torch.any(torch.isnan(output)):
                 #     print("Output is affected...")
