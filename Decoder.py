@@ -139,7 +139,7 @@ class DecoderLayer(nn.Module):
         """
         # see Fig. 1 of https://arxiv.org/pdf/2002.04745v1.pdf
         
-        print( tgt_mask, memory_mask, tgt_key_padding_mask, memory_key_padding_mask)
+        #print( tgt_mask, memory_mask, tgt_key_padding_mask, memory_key_padding_mask)
         if torch.any(torch.isnan(tgt)):
             print(f"The targets passed as input to the decoder has nan values..")
         
