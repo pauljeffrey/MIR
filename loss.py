@@ -33,8 +33,8 @@ class CustomLoss(nn.Module):
             y2_mask = y2_true.ne(0)
             sparse_loss = self.cross_entropy(y2_pred[y2_mask], y2_true[y2_mask])
         
-        print("Bce loss: ", bce_loss)
-        print("sparse loss: ", sparse_loss)
+        # print("Bce loss: ", bce_loss)
+        # print("sparse loss: ", sparse_loss)
         
         if eval:
             return bce_loss , sparse_loss
@@ -60,7 +60,7 @@ class CustomBCELoss(nn.Module):
             label_mask = label_true.ne(-1)
             label_loss = self.bce(label_pred[label_mask], label_true[label_mask])
             
-        print("label loss: ", label_loss)
+        # print("label loss: ", label_loss)
         
         return label_loss
 

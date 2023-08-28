@@ -38,15 +38,15 @@ tokenizer:
 training:
   seed: 15
   shuffle: true
-  learning_rate: 3e-4
+  learning_rate: 5e-4
   weight_decay: 0.0
   num_epochs: 50
   max_train_steps: 10000
-  gradient_accumulation_steps: 2
+  gradient_accumulation_steps: 4
   lr_scheduler: "cosine" # ["linear", "cosine", "cosine_with_restarts", "polynomial", "constant", "constant_with_warmup"]
   lr_warmup_steps: 50
-  eval_every: 50
-  save_every: 80
+  eval_every: 2
+  save_every: 50
   img_size: (224,224)
   train_batch_size: 16
   eval_batch_size: 32
@@ -60,7 +60,7 @@ architecture:
   #encoder:
   model_name: "densenet201"
   pretrained: true
-  hidden_layer_size: 256 # Number of units in the hidden layer of the MLP
+  hidden_layer_size: 512 # Number of units in the hidden layer of the MLP
   classes: 210
   add_encoder: true
   # state_path:
@@ -95,7 +95,7 @@ architecture:
   #sent_lstm:
   #hidden_layer_size: 128 # Number of units for the hidden layer of the MLP
   hidden_dim: 768
-  lstm_layers: 4 #Num of lstm layers
+  lstm_layers: 5 #Num of lstm layers
   #features_dim: 2048 # visual features dim (not number of channels)
   enforce_info: false
   
@@ -104,7 +104,7 @@ architecture:
   dec_num_layers: 10
   vocab_size: 5666 
   use_topic_per_layer: [false, false, false, false, true, true, true,true, false, false]
-  use_cross_att_per_layer: [false, false, false, false, true, false, true, false, true, false]
+  use_cross_att_per_layer: [false, false, false, false, false, true, true, true, true, false]
   use_prompt_per_layer: [false, false, false, false , false, true, false, true, false, false]
   d_model: 768
   nhead: 12
