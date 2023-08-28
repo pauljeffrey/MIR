@@ -401,7 +401,7 @@ def train(cfg: DictConfig):
                     print("Initial Prev hidden, hn, cn is nan")
                     
             for i in range(n_sentences):
-                
+                print(f"This loop is for the number {i} sentence.")
                 if model.co_attention:
                     if model.history_encoder is not None:
                         #print("Encoded Images before attentino: ", encoded_images.shape)
