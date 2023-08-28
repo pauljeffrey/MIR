@@ -31,6 +31,7 @@ class CustomLoss(nn.Module):
         else:
             # Calculate sparse cross entropy
             y2_mask = y2_true.ne(0)
+            print(y2_pred)
             sparse_loss = self.cross_entropy(y2_pred[y2_mask], y2_true[y2_mask])
         
         # print("Bce loss: ", bce_loss)
