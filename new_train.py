@@ -269,14 +269,14 @@ def train(cfg: DictConfig):
 
     transform = transforms.Compose(
     [
-        transforms.Resize((224,224)), 
         transforms.RandomVerticalFlip(0.45),
         transforms.RandomHorizontalFlip(0.45),
         transforms.RandomRotation((0,5)),
         #transforms.v2.RandomResize((200, 250)), v2.RandomResize
-        transforms.GaussianBlur(kernel_size=(5, 9), sigma=(0.1, 5)),
+        #transforms.GaussianBlur(kernel_size=(5, 9), sigma=(0.1, 5)),
         transforms.ColorJitter(brightness= (0.5, 1.5) , contrast=1.0),
         transforms.Pad(30),
+        transforms.Resize((224,224)), 
         transforms.ToTensor(),
     ]
 )
