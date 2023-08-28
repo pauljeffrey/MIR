@@ -18,14 +18,16 @@ class CustomLoss(nn.Module):
         #     y2_pred = y2_pred.softmax(dim=2)
         if torch.all(y1_true.eq(0)):
             bce_loss = self.bce(y1_pred, y1_true) * 0
+            sparse_loss = self.cross_entropy(y2_pred, y2_true) * 0
+            
         
         else:
             y1_mask = y1_true.ne(0)
             bce_loss = self.bce(y1_pred[y1_mask], y1_true[y1_mask])
               
-        # Calculate sparse cross entropy
-        y2_mask = y2_true.ne(0)
-        sparse_loss = self.cross_entropy(y2_pred[y2_mask], y2_true[y2_mask])
+            # Calculate sparse cross entropy
+            y2_mask = y2_true.ne(0)
+            sparse_loss = self.cross_entropy(y2_pred[y2_mask], y2_true[y2_mask])
         
         print("Bce loss: ", bce_loss)
         print("sparse loss: ", sparse_loss)
