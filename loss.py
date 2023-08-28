@@ -21,7 +21,7 @@ class CustomLoss(nn.Module):
         if torch.all(y1_true.eq(0)):
             bce_loss = self.bce(y1_pred, y1_true) * 0
             bs, sen_length, vocab = y2_pred.shape
-            sparse_loss = self.cross_entropy(y2_pred.view(bs*sen_length, vocab), y2_true.view(bs*sen_length)) * 0
+            sparse_loss = self.cross_entropy(y2_pred.reshape(bs*sen_length, vocab), y2_true.reshape(bs*sen_length)) * 0
             
             
         
