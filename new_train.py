@@ -365,7 +365,7 @@ def train(cfg: DictConfig):
             #print("Mem shape: ", indication_prompt.shape, "mask shape: ", encoder_pad_mask.shape)
             #encoder_causal_mask = src_mask(indication_prompt.shape[1])
             
-            encoded_images , tags = model.encoder(encoded_images)#.type(torch.cuda.HalfTensor))
+            encoded_images , tags = model.encoder(encoded_images.type(torch.cuda.HalfTensor))
             if torch.any(torch.isinf(encoded_images)) or torch.any(torch.isnan(encoded_images)):
                 print("Encoded Images is nan")
             
