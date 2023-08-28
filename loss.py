@@ -36,11 +36,12 @@ class CustomLoss(nn.Module):
         print(sparse_loss)
         
         print("stop_Loss original and predcited: ", y1_true, y1_pred)
+        print("targets original and predicted: ", y2_true, y2_pred)
         bce_loss = 0 # self.bce(y1_pred[y1_mask], y1_true[y1_mask])
         
         # print("sparse_loss: ", sparse_loss)
         # print("stop loss: ", bce_loss)
-        print(bce_loss, sparse_loss)
+        #print(bce_loss, sparse_loss)
         if eval:
             return bce_loss , sparse_loss
         else:
