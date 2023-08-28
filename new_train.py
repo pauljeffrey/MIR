@@ -380,7 +380,7 @@ def train(cfg: DictConfig):
                 # if torch.any(torch.isinf(indication_prompt)) or torch.any(torch.isnan(indication_prompt)):
                 #     print("Encoding by decoder embedding layer is nan")
                     
-                indication_prompt = model.history_encoder(indication_prompt, mask=None) #encoder_pad_mask.type(indication_prompt.dtype))
+                indication_prompt = model.history_encoder(indication_prompt, mask=encoder_pad_mask.type(indication_prompt.dtype))
                 if torch.any(torch.isinf(indication_prompt)) or torch.any(torch.isnan(indication_prompt)):
                     print("Encoding by History encoder is nan")  
 
