@@ -34,7 +34,7 @@ class VisualFeatureExtractor(nn.Module):
             out_features = densenet.classifier.in_features
       
         elif self.model_name == 'convnext_l':
-            densenet =models.convnext_base(weights="IMAGENET1K_V1")  #models.densenet201(pretrained=self.pretrained)) #IMAGENET1K_V2"#weights=DenseNet201_Weights.DEFAULT) #
+            densenet =models.convnext_base(value = models.ConvNeXt_Large_Weights.IMAGENET1K_V1)  #models.densenet201(pretrained=self.pretrained)) #IMAGENET1K_V2"#weights=DenseNet201_Weights.DEFAULT) #
             #print("Densenet classifier in features: ", densenet.classifier.in_features)
             #print("Densenet classififer out features: ", densenet.classifier.out_features)
             modules = list(densenet.features)
@@ -44,7 +44,7 @@ class VisualFeatureExtractor(nn.Module):
             #print(out_features)            
             
         elif self.model_name == 'convnext_t':
-            densenet =models.ConvNeXt_Tiny_Weights(weights="IMAGENET1K_V1")  #models.densenet201(pretrained=self.pretrained)) #IMAGENET1K_V2"#weights=DenseNet201_Weights.DEFAULT) #
+            densenet =models.ConvNeXt_Tiny_Weights(value=models.ConvNeXt_Tiny_Weights.DEFAULT)  #models.densenet201(pretrained=self.pretrained)) #IMAGENET1K_V2"#weights=DenseNet201_Weights.DEFAULT) #
             #print("Densenet classifier in features: ", densenet.classifier.in_features)
             #print("Densenet classififer out features: ", densenet.classifier.out_features)
             modules = list(densenet.features)
@@ -53,7 +53,7 @@ class VisualFeatureExtractor(nn.Module):
             out_features = densenet.classifier.in_features
             
         elif self.model_name == 'convnext_s':
-            densenet =models.convnext_small(weights="IMAGENET1K_V1")  #models.densenet201(pretrained=self.pretrained)) #IMAGENET1K_V2"#weights=DenseNet201_Weights.DEFAULT) #
+            densenet =models.convnext_small(value=models.ConvNeXt_Small_Weights.IMAGENET1K_V1)  #models.densenet201(pretrained=self.pretrained)) #IMAGENET1K_V2"#weights=DenseNet201_Weights.DEFAULT) #
             #print("Densenet classifier in features: ", densenet.classifier.in_features)
             #print("Densenet classififer out features: ", densenet.classifier.out_features)
             modules = list(densenet.features)
@@ -62,7 +62,7 @@ class VisualFeatureExtractor(nn.Module):
             out_features = densenet.classifier.in_features
             
         elif self.model_name == 'convnext_b':
-            densenet =models.convnext_base(weights="IMAGENET1K_V1")  #models.densenet201(pretrained=self.pretrained)) #IMAGENET1K_V2"#weights=DenseNet201_Weights.DEFAULT) #
+            densenet =models.convnext_base(value= models.ConvNeXt_Base_Weights.IMAGENET1K_V1)  #models.densenet201(pretrained=self.pretrained)) #IMAGENET1K_V2"#weights=DenseNet201_Weights.DEFAULT) #
             #print("Densenet classifier in features: ", densenet.classifier.in_features)
             #print("Densenet classififer out features: ", densenet.classifier.out_features)
             modules = list(densenet.features)
