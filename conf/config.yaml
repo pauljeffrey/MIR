@@ -104,8 +104,8 @@ architecture:
   dec_num_layers: 3
   vocab_size: 5666 
   use_topic_per_layer: [false,false, false] #[false, false, false,true, true, true,true, false]
-  use_cross_att_per_layer: [false, false, true] #[false, false, false, false, true, false, true, false]
-  use_prompt_per_layer: [ false, false, false,] #[false, false, false, false , false, true, false, false]
+  use_cross_att_per_layer: [true, true, false] #[false, false, false, false, true, false, true, false]
+  use_prompt_per_layer: [ true, true, false] #[false, false, false, false , false, true, false, false]
   d_model: 768
   nhead: 12
   #mem_dim: 2048 # visual features dim (not number of channels)
