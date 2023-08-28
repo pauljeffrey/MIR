@@ -42,11 +42,11 @@ training:
   weight_decay: 0.0
   num_epochs: 50
   max_train_steps: 10000
-  gradient_accumulation_steps: 4
+  gradient_accumulation_steps: 2
   lr_scheduler: "cosine" # ["linear", "cosine", "cosine_with_restarts", "polynomial", "constant", "constant_with_warmup"]
   lr_warmup_steps: 50
-  eval_every: 16
-  save_every: 32
+  eval_every: 50
+  save_every: 80
   img_size: (224,224)
   train_batch_size: 16
   eval_batch_size: 32
