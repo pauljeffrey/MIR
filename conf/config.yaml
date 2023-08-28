@@ -68,7 +68,7 @@ architecture:
   #   mlc: null
 
   #history_encoder:
-  history_encoder_num_layers: 6
+  history_encoder_num_layers: 8
   history_encoder_n_heads: 12
   history_encoder_dim_feedforward: 2048
   #history_encoder_dmodel: 256 
