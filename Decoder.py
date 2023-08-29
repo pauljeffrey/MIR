@@ -48,7 +48,7 @@ class DecoderLayer(nn.Module):
         self.use_cross_attention = use_cross_attention
         self.use_topic = use_topic
         
-        key_value_emb_size = d_model + topic_units
+        key_value_emb_size = d_model + 768 #topic_units
         
         self.pos_emb  = pos_emb
         self.n_head = nhead
@@ -217,13 +217,13 @@ class DecoderLayer(nn.Module):
         if self.use_topic:
             # topic.shape  = (batch_size, topic_emb)
     
-            topic_key = self.topic_key_fc(topic)
-            topic_value = self.topic_value_fc(topic)
+            # topic_key = self.topic_key_fc(topic)
+            # topic_value = self.topic_value_fc(topic)
             
-            if torch.any(torch.isnan(topic_key)) or torch.any(torch.isnan(topic_value)):
-                topic_key = torch.nan_to_num(topic_key)
-                topic_value = torch.nan_to_num(topic_value)
-                print("Topic values inside decoder layers is affected...")
+            # if torch.any(torch.isnan(topic_key)) or torch.any(torch.isnan(topic_value)):
+            #     topic_key = torch.nan_to_num(topic_key)
+            #     topic_value = torch.nan_to_num(topic_value)
+            #     print("Topic values inside decoder layers is affected...")
             
             # print(topic_key.shape)
             # print(topic_value.unsqueeze(1).repeat(1,x.shape[1],1).shape)
