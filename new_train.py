@@ -525,7 +525,7 @@ def train(cfg: DictConfig):
                 
                 loss += custom_loss(true_stop_probs[:,i].type(indication_prompt.dtype), reports[:, i, 1:], pred_stop_probs,  output)  # Ignore <sos> token
 
-            loss += custom_bce_loss( tags, labels)
+            #loss += custom_bce_loss( tags, labels)
             
             train_losses.append(
                     accelerator.gather(loss.repeat(cfg.training.train_batch_size))
