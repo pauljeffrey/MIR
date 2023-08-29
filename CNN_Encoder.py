@@ -123,6 +123,7 @@ class MLC(nn.Module):
                  ):
         super(MLC, self).__init__()
         self.linear = nn.Linear(in_features=fc_in_features, out_features=hidden_layer_size)
+        print("fc_in_features: ", fc_in_features)
         self.classifier = nn.Linear(in_features=hidden_layer_size, out_features=classes)        
         #self.softmax = nn.Softmax()
         self.sigmoid =nn.Sigmoid()
@@ -134,7 +135,9 @@ class MLC(nn.Module):
 
     def forward(self, avg_features):
         avg_features = self.linear(avg_features)
-        tags = self.sigmoid(self.classifier(avg_features))
+        print("average features : ", avg_features.shape)
+        output = self.classifier(avg_features)
+        tags = self.sigmoid(output)
         #semantic_features = self.embed(torch.topk(tags, self.k)[1])
         return tags #, semantic_features
 
