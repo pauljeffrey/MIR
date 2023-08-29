@@ -32,7 +32,7 @@ def create_padding_mask(inputs):
         
     else:
         mask = (inputs == 0)#.unsqueeze(1).unsqueeze(2)
-    mask = mask.float().masked_fill(mask == 1, float('-1e8'))#.masked_fill(mask == 1, float(0.0))
+    #mask = mask.float().masked_fill(mask == 1, float('-1e8'))#.masked_fill(mask == 1, float(0.0))
     return mask
 
 
@@ -63,6 +63,6 @@ if __name__ == '__main__':
     print(out[1][0], out[0][0])
     print(out[1].shape, out[0].shape) # attention output weights
     # print(src_mask(5).dtype)
-    # print(mask.dtype)
+    print(mask)
     
     
