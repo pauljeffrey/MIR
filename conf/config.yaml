@@ -111,7 +111,7 @@ architecture:
   #mem_dim: 2048 # visual features dim (not number of channels)
   dim_feedforward: 2048
   #topic_emb:  512 # must be the same as hidden_size for lstm 
-  topic_units:  256 # Number of units for the topic's linear transform network in each layer
+  topic_units:  768 #256 # Number of units for the topic's linear transform network in each layer
   dropout: 0.1
   activation: gelu
   layer_norm_eps: 1e-5

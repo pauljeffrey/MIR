@@ -48,7 +48,7 @@ class DecoderLayer(nn.Module):
         self.use_cross_attention = use_cross_attention
         self.use_topic = use_topic
         
-        key_value_emb_size = d_model + 768 #topic_units
+        key_value_emb_size = d_model + topic_units
         
         self.pos_emb  = pos_emb
         self.n_head = nhead
