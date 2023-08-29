@@ -537,7 +537,9 @@ def train(cfg: DictConfig):
             if cfg.tracking:
                 total_loss += loss.detach().float()
                 
+            print("Loss before division by gradient accumulation: ", loss)
             loss = loss / cfg.training.gradient_accumulation_steps
+            
             print("Loss before backward: ", loss)
             accelerator.backward(loss)
             
