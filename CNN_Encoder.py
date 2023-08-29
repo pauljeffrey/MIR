@@ -138,7 +138,7 @@ class MLC(nn.Module):
         print("average features : ", avg_features.shape, torch.min(avg_features), torch.max(avg_features))
         if torch.any(torch.isnan(avg_features)):
             print("avg features is nan")
-        output = self.classifier(avg_features)
+        output = torch.nan_to_num(self.classifier(avg_features))
         print("output after classifying average: ", output.shape, torch.min(output), torch.max(output))
         if torch.any(torch.isnan(output)):
             print("average features is nan..")
