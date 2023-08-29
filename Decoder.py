@@ -232,8 +232,8 @@ class DecoderLayer(nn.Module):
             #print(k.shape, topic_key.repeat(1,x.shape[1],1).shape)
             #print("Use topic", attn_mask.shape, is_causal)
             x = self.self_attn(q, 
-                               torch.cat([k, topic_key.repeat(1,x.shape[1],1)], dim=-1), 
-                               torch.cat([x, topic_value.repeat(1,x.shape[1],1)], dim=-1),
+                               torch.cat([k, topic.repeat(1,x.shape[1],1)], dim=-1), 
+                               torch.cat([x, topic.repeat(1,x.shape[1],1)], dim=-1),
                             attn_mask=attn_mask,
                             key_padding_mask=key_padding_mask,
                             is_causal=is_causal,
