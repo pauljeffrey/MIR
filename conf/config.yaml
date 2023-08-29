@@ -68,7 +68,7 @@ architecture:
   #   mlc: null
 
   #history_encoder:
-  history_encoder_num_layers: 8
+  history_encoder_num_layers: 6
   history_encoder_n_heads: 12
   history_encoder_dim_feedforward: 2048
   #history_encoder_dmodel: 256 
@@ -101,11 +101,11 @@ architecture:
   
 
   #decoder:
-  dec_num_layers: 10
+  dec_num_layers: 6
   vocab_size: 5666 
-  use_topic_per_layer: [false, false, false, false, true, true, true,true, false, false]
-  use_cross_att_per_layer: [false, false, false, false, false, true, true, true, true, false]
-  use_prompt_per_layer: [false, false, false, false , false, true, false, true, false, false]
+  use_topic_per_layer: [true, true, true,true, false, false] #false, false, false, false
+  use_cross_att_per_layer: [ false, true, true, true, true, false] #false, false, false, false,
+  use_prompt_per_layer: [ false, true, false, true, false, false] #false, false, false, false ,ring
   d_model: 768
   nhead: 12
   #mem_dim: 2048 # visual features dim (not number of channels)
@@ -116,7 +116,7 @@ architecture:
   activation: gelu
   layer_norm_eps: 1e-5
   batch_first: true
-  norm_first: false
+  norm_first: true
   device: "cuda" # previously None
   dtype: null
   norm: null

@@ -406,7 +406,7 @@ def train(cfg: DictConfig):
                     print("Initial Prev hidden, hn, cn is nan")
                     
             for i in range(n_sentences):
-                #print(f"This loop is for the number {i} sentence.")
+                print(f"This loop is for the number {i} sentence.")
                 
                 for name , each in model.named_parameters():
                     if torch.any(torch.isnan(each)):

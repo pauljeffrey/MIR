@@ -23,6 +23,7 @@ class CustomLoss(nn.Module):
         
         else:
             y1_mask = y1_true.ne(-1)
+            print(y1_pred)
             bce_loss = self.bce(y1_pred[y1_mask], y1_true[y1_mask])
               
         if torch.all(y2_true.eq(0)):
