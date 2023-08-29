@@ -269,6 +269,7 @@ def evaluate(model, accelerator, eval_loader, custom_loss, bce_loss):
 
 #@hydra.main(version_base=None, config_path="conf", config_name="config")
 def train(cfg: DictConfig):
+    torch.autograd.set_detect_anomaly(True)
     logger = get_logger(__name__)
     logging.basicConfig(
         format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
@@ -549,8 +550,9 @@ def train(cfg: DictConfig):
             #     completed_steps += 1
                 
             # continue
-                
+            
             if step % cfg.training.eval_every == 0:
+                model.eval()   
                 eval_loss, eval_bce_loss, perplexity, label_loss = evaluate(model, accelerator, eval_loader, custom_loss, custom_bce_loss)
                 logger.info(f"Epoch {epoch}, Step {step} : train_loss: {train_loss} perplexity: {perplexity} sparse_loss: {eval_loss}  \
                     stop_loss {eval_bce_loss} label_loss: {label_loss} total_eval_loss {eval_loss + eval_bce_loss + label_loss}" )
@@ -611,24 +613,24 @@ def train(cfg: DictConfig):
             if completed_steps >= cfg.training.max_train_steps:
                 break
             
-        eval_loss, eval_bce_loss, perplexity, label_loss = evaluate(model,accelerator,eval_loader, custom_loss, custom_bce_loss)
-        model.train()
-        logger.info(f"Epoch {epoch}, Step {step} : train_loss: {train_loss} perplexity: {perplexity} sparse_loss: {eval_loss}  \
-                    stop_loss {eval_bce_loss} label_loss: {label_loss} total_eval_loss {eval_loss + eval_bce_loss + label_loss}" )
-        print(f"Epoch {epoch}, Step {step} : train_loss: {train_loss} perplexity: {perplexity} sparse_loss: {eval_loss}  \
-                    stop_loss {eval_bce_loss} label_loss: {label_loss} total_eval_loss {eval_loss + eval_bce_loss + label_loss}" )
+    #     eval_loss, eval_bce_loss, perplexity, label_loss = evaluate(model,accelerator,eval_loader, custom_loss, custom_bce_loss)
+    #     model.train()
+    #     logger.info(f"Epoch {epoch}, Step {step} : train_loss: {train_loss} perplexity: {perplexity} sparse_loss: {eval_loss}  \
+    #                 stop_loss {eval_bce_loss} label_loss: {label_loss} total_eval_loss {eval_loss + eval_bce_loss + label_loss}" )
+    #     print(f"Epoch {epoch}, Step {step} : train_loss: {train_loss} perplexity: {perplexity} sparse_loss: {eval_loss}  \
+    #                 stop_loss {eval_bce_loss} label_loss: {label_loss} total_eval_loss {eval_loss + eval_bce_loss + label_loss}" )
         
-    print('Saving the model using the best weights checkpoint in the current output directory')
-    if cfg.output_dir is not None:
-        accelerator.wait_for_everyone()
-        unwrapped_model = accelerator.unwrap_model(model)
+    # print('Saving the model using the best weights checkpoint in the current output directory')
+    # if cfg.output_dir is not None:
+    #     accelerator.wait_for_everyone()
+    #     unwrapped_model = accelerator.unwrap_model(model)
 
-        output_dir = os.path.join(os.path.abspath(cfg.output_dir), "final")
+    #     output_dir = os.path.join(os.path.abspath(cfg.output_dir), "final")
         
-        if not os.path.exists(output_dir):
-            os.mkdir(output_dir)
+    #     if not os.path.exists(output_dir):
+    #         os.mkdir(output_dir)
                             
-        save_model(unwrapped_model, output_dir)
+    #     save_model(unwrapped_model, output_dir)
         # unwrapped_model.save_pretrained(
         #     os.path.join(os.path.abspath(cfg.output_dir),"final"),
         #     is_main_process=accelerator.is_main_process,
