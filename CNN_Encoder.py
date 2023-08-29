@@ -127,7 +127,7 @@ class MLC(nn.Module):
         self.classifier = nn.Linear(in_features=hidden_layer_size, out_features=classes)        
         #self.softmax = nn.Softmax()
         self.sigmoid =nn.Sigmoid()
-        self.__init_weight()
+        #self.__init_weight()
 
     def __init_weight(self):
         self.classifier.weight.data.uniform_(-0.1, 0.1)
