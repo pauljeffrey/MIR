@@ -32,7 +32,7 @@ def create_padding_mask(inputs):
         
     else:
         mask = (inputs == 0)#.unsqueeze(1).unsqueeze(2)
-    #mask = mask.float().masked_fill(mask == 1, float('-1e8'))#.masked_fill(mask == 1, float(0.0))
+    mask = mask.float().masked_fill(mask == 1, float('-1e8'))#.masked_fill(mask == 1, float(0.0))
     return mask
 
 
