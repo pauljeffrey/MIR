@@ -95,7 +95,7 @@ architecture:
   #sent_lstm:
   #hidden_layer_size: 128 # Number of units for the hidden layer of the MLP
   hidden_dim: 768
-  lstm_layers: 4 #Num of lstm layers
+  lstm_layers: 5 #Num of lstm layers
   #features_dim: 2048 # visual features dim (not number of channels)
   enforce_info: false
   
