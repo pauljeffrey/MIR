@@ -417,9 +417,11 @@ def train(cfg: DictConfig):
             #encoder_causal_mask = src_mask(indication_prompt.shape[1])
             
             encoded_images , tags = model.encoder(encoded_images)#.type(torch.cuda.HalfTensor))
+            
             for name , each in model.encoder.named_parameters():
                 if torch.any(torch.isnan(each)):
                     print("After Image processing: ", name, " layer has nan values in it..")
+                    
             if torch.any(torch.isinf(encoded_images)) or torch.any(torch.isnan(encoded_images)):
                 print("Encoded Images is nan")
             
