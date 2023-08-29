@@ -531,14 +531,16 @@ def train(cfg: DictConfig):
             loss = loss / cfg.training.gradient_accumulation_steps
             accelerator.backward(loss)
             
-            continue
+            #continue
             
-    #         if step  % cfg.training.gradient_accumulation_steps == 0 or step == len(train_loader) - 1:
-    #             optimizer.step()
-    #             lr_scheduler.step()
-    #             optimizer.zero_grad()
-    #             progress_bar.update(1)
-    #             completed_steps += 1
+            if step  % cfg.training.gradient_accumulation_steps == 0 or step == len(train_loader) - 1:
+                optimizer.step()
+                lr_scheduler.step()
+                optimizer.zero_grad()
+                progress_bar.update(1)
+                completed_steps += 1
+                
+            continue
                 
     #         if step % cfg.training.eval_every == 0:
     #             eval_loss, eval_bce_loss, perplexity, label_loss = evaluate(model, accelerator, eval_loader, custom_loss, custom_bce_loss)
