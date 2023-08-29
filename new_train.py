@@ -538,6 +538,7 @@ def train(cfg: DictConfig):
                 total_loss += loss.detach().float()
                 
             loss = loss / cfg.training.gradient_accumulation_steps
+            print("Loss before backward: ", loss)
             accelerator.backward(loss)
             
             #continue
