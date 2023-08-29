@@ -321,8 +321,8 @@ def train(cfg: DictConfig):
         transforms.RandomRotation((0,5)),
         #transforms.v2.RandomResize((200, 250)), v2.RandomResize
         #transforms.GaussianBlur(kernel_size=(5, 9), sigma=(0.1, 5)),
-        transforms.ColorJitter(brightness= (0.5, 1.5) , contrast=1.0),
-        transforms.Pad(30),
+        # transforms.ColorJitter(brightness= (0.5, 1.0) , contrast=1.0),
+        # transforms.Pad(30),
         transforms.Resize((224,224)), 
         transforms.ToTensor(),
     ]
@@ -401,6 +401,10 @@ def train(cfg: DictConfig):
             # encoded_images = encoded_images.to(device)
             # reports = reports.to(device)
             # true_stop_probs = true_stop_probs.to(device)
+            print("Max and Min values of raw images: ", torch.max(encoded_images), torch.min(encoded_images))
+            if torch.any(torch.isnan(encoded_images)):
+                print("Raw images are nan..")
+                
             print(f"Step: {step} \n\n")
             loss = 0            
             n_sentences  = reports.shape[1]
