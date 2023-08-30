@@ -20,7 +20,7 @@ class CustomLoss(nn.Module):
         
         if torch.all(y1_true.eq(-1)):
             bce_loss = self.bce(y1_pred, y1_true) * 0    
-            print("Bce loss for last sentence: ", y1_pred)
+            #print("Bce loss for last sentence: ", y1_pred)
         else:
             y1_mask = y1_true.ne(-1)
             print("Bce loss: ", y1_pred)
@@ -30,13 +30,13 @@ class CustomLoss(nn.Module):
         if torch.all(y2_true.eq(0)):
             bs, sen_length, vocab = y2_pred.shape
             sparse_loss = self.cross_entropy(y2_pred.reshape(bs*sen_length, vocab), y2_true.reshape(bs*sen_length)) * 0
-            print("Sparse loss for last sentence: ", sparse_loss)
+            #print("Sparse loss for last sentence: ", sparse_loss)
         else:
             # Calculate sparse cross entropy
             y2_mask = y2_true.ne(0)
             if torch.any(torch.isnan(y2_pred)):
                 print("Sparse predictions : ", y2_pred)
-            print("shape of sparse output: ", y2_pred.shape)
+            #print("shape of sparse output: ", y2_pred.shape)
             sparse_loss = self.cross_entropy(y2_pred[y2_mask], y2_true[y2_mask])
             print("Sparse loss: ", sparse_loss)
         

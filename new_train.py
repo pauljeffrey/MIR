@@ -117,7 +117,7 @@ def create_optimizer(cfg, model):
     return optimizer_grouped_parameters
 
 
-def evaluate(model, accelerator, eval_loader, custom_loss, bce_loss):
+def evaluate(model, accelerator, eval_loader, custom_loss): #, bce_loss
     model.eval()
     device = accelerator.device
     #loss = 0
@@ -125,9 +125,9 @@ def evaluate(model, accelerator, eval_loader, custom_loss, bce_loss):
     with torch.no_grad():
         eval_losses = []
         eval_stop_losses = []
-        eval_bce_losses = []
+        #eval_bce_losses = []
         
-        for _ , (encoded_images,indication_prompt, labels, true_stop_probs, reports) in enumerate(eval_loader):        
+        for _ , (encoded_images,indication_prompt, true_stop_probs, reports) in enumerate(eval_loader):   #labels,      
             #n_sentences  = reports.shape[1]
             
             n_sentences  = reports.shape[1]
@@ -139,7 +139,7 @@ def evaluate(model, accelerator, eval_loader, custom_loss, bce_loss):
             #print("Mem shape: ", indication_prompt.shape, "mask shape: ", encoder_pad_mask.shape)
             #encoder_causal_mask = src_mask(indication_prompt.shape[1])
             
-            encoded_images , tags = model.encoder(encoded_images)#.type(torch.cuda.HalfTensor))
+            encoded_images  = model.encoder(encoded_images)#.type(torch.cuda.HalfTensor))  , tags
             
             if torch.any(torch.isinf(encoded_images)) or torch.any(torch.isnan(encoded_images)):
                 print("Encoded Images is nan")
@@ -149,8 +149,8 @@ def evaluate(model, accelerator, eval_loader, custom_loss, bce_loss):
             #print("Encoded Images: ", encoded_images.shape)
             bs , n_channels = encoded_images.shape[0], encoded_images.shape[1]
             
-            if model.co_attention:
-                semantic_features = model.semantic_features_extractor(tags)
+            # if model.co_attention:
+            #     semantic_features = model.semantic_features_extractor(tags)
                 
             if model.history_encoder is not None:
                 indication_prompt = model.decoder.embed_layer(indication_prompt)
@@ -184,18 +184,19 @@ def evaluate(model, accelerator, eval_loader, custom_loss, bce_loss):
                     if torch.any(torch.isnan(each)):
                         print(name, " layer has nan values in it..")
                     
-                if model.co_attention:
-                    if model.history_encoder is not None:
-                        #print("Encoded Images before attentino: ", encoded_images.shape)
-                        context_vector, att_wts , _  = model.attention( prev_hidden, encoded_images, semantic_features, indication_prompt)
-                    else:
-                        context_vector, att_wts , _  = model.attention( prev_hidden, encoded_images, semantic_features)
+                # if model.co_attention:
+                #     if model.history_encoder is not None:
+                #         #print("Encoded Images before attentino: ", encoded_images.shape)
+                #         context_vector, att_wts , _  = model.attention( prev_hidden, encoded_images, semantic_features, indication_prompt)
+                #     else:
+                #         context_vector, att_wts , _  = model.attention( prev_hidden, encoded_images, semantic_features)
+                # else:
+                
+                # Attend to encoded_images
+                if model.history_encoder is not None:
+                    context_vector, att_wts = model.attention(prev_hidden, encoded_images, indication_prompt)                          
                 else:
-                    # Attend to encoded_images
-                    if model.history_encoder is not None:
-                        context_vector, att_wts = model.attention(prev_hidden, encoded_images, indication_prompt)                          
-                    else:
-                        context_vector, att_wts = model.attention(prev_hidden, encoded_images)
+                    context_vector, att_wts = model.attention(prev_hidden, encoded_images)
 
                 # if torch.any(torch.isinf(context_vector)) or torch.any(torch.isnan(context_vector)):
                 #     print("Context Vector is nan")
@@ -248,21 +249,21 @@ def evaluate(model, accelerator, eval_loader, custom_loss, bce_loss):
                 eval_losses.append(accelerator.gather(sparse_loss).detach().cpu())
                 
 
-            binary_loss = bce_loss(tags, labels)
-            eval_bce_losses.append(accelerator.gather(binary_loss).detach().cpu())
+            #binary_loss = bce_loss(tags, labels)
+            #eval_bce_losses.append(accelerator.gather(binary_loss).detach().cpu())
             
 
         try:
             eval_loss = torch.mean(torch.cat(eval_losses))
             eval_stop_loss = torch.mean(torch.cat(eval_stop_losses))
-            eval_bce_loss = torch.mean(torch.cat(eval_bce_losses))
+            #eval_bce_loss = torch.mean(torch.cat(eval_bce_losses))
             perplexity = math.exp(eval_loss)
             
             
         except OverflowError:
             perplexity = float("inf")
                     
-    return eval_loss , eval_stop_loss, perplexity, 0 #eval_bce_loss
+    return eval_loss , eval_stop_loss, perplexity #eval_bce_loss
 
 
 
@@ -385,7 +386,7 @@ def train(cfg: DictConfig):
     device = accelerator.device
     #print(device, model.device)
     custom_loss = CustomLoss()
-    custom_bce_loss = CustomBCELoss()
+    #custom_bce_loss = CustomBCELoss()
     
     for name , each in model.named_parameters():
         if torch.any(torch.isnan(each)):
@@ -398,7 +399,7 @@ def train(cfg: DictConfig):
         #     total_loss = 0
         train_losses = []
         
-        for step, (encoded_images,indication_prompt, labels,true_stop_probs, reports) in enumerate(train_loader):
+        for step, (encoded_images,indication_prompt, true_stop_probs, reports) in enumerate(train_loader): #labels,
             # encoded_images = encoded_images.to(device)
             # reports = reports.to(device)
             # true_stop_probs = true_stop_probs.to(device)
@@ -417,7 +418,7 @@ def train(cfg: DictConfig):
             #print("Mem shape: ", indication_prompt.shape, "mask shape: ", encoder_pad_mask.shape)
             #encoder_causal_mask = src_mask(indication_prompt.shape[1])
             
-            encoded_images , tags = model.encoder(encoded_images)#.type(torch.cuda.HalfTensor))
+            encoded_images  = model.encoder(encoded_images)#.type(torch.cuda.HalfTensor))
             
             for name , each in model.encoder.named_parameters():
                 if torch.any(torch.isnan(each)):
@@ -431,8 +432,8 @@ def train(cfg: DictConfig):
             #print("Encoded Images: ", encoded_images.shape)
             bs , n_channels = encoded_images.shape[0], encoded_images.shape[1]
             
-            if model.co_attention:
-                semantic_features = model.semantic_features_extractor(tags)
+            # if model.co_attention:
+            #     semantic_features = model.semantic_features_extractor(tags)
                 
             if model.history_encoder is not None:
                 indication_prompt = model.decoder.embed_layer(indication_prompt)
@@ -466,18 +467,20 @@ def train(cfg: DictConfig):
                     if torch.any(torch.isnan(each)):
                         print(name, " layer has nan values in it..")
                     
-                if model.co_attention:
-                    if model.history_encoder is not None:
-                        #print("Encoded Images before attentino: ", encoded_images.shape)
-                        context_vector, att_wts , _  = model.attention( prev_hidden, encoded_images, semantic_features, indication_prompt)
-                    else:
-                        context_vector, att_wts , _  = model.attention( prev_hidden, encoded_images, semantic_features)
+                # if model.co_attention:
+                #     if model.history_encoder is not None:
+                #         #print("Encoded Images before attentino: ", encoded_images.shape)
+                #         context_vector, att_wts , _  = model.attention( prev_hidden, encoded_images, semantic_features, indication_prompt)
+                #     else:
+                #         context_vector, att_wts , _  = model.attention( prev_hidden, encoded_images, semantic_features)
+                # else:
+                
+                
+                # Attend to encoded_images
+                if model.history_encoder is not None:
+                    context_vector, att_wts = model.attention(prev_hidden, encoded_images, indication_prompt)                          
                 else:
-                    # Attend to encoded_images
-                    if model.history_encoder is not None:
-                        context_vector, att_wts = model.attention(prev_hidden, encoded_images, indication_prompt)                          
-                    else:
-                        context_vector, att_wts = model.attention(prev_hidden, encoded_images)
+                    context_vector, att_wts = model.attention(prev_hidden, encoded_images)
 
                 # if torch.any(torch.isinf(context_vector)) or torch.any(torch.isnan(context_vector)):
                 #     print("Context Vector is nan")
@@ -523,7 +526,7 @@ def train(cfg: DictConfig):
                 # print("output shape: ", output.shape, reports[:, i, 1:].shape)
                 # print("stop prob shape: ", pred_stop_probs.shape, true_stop_probs[:, 0].shape)
                 
-                loss += (custom_loss(true_stop_probs[:,i].type(indication_prompt.dtype), reports[:, i, 1:], pred_stop_probs,  output) + custom_bce_loss( tags, labels)/n_sentences) # Ignore <sos> token
+                loss += custom_loss(true_stop_probs[:,i].type(indication_prompt.dtype), reports[:, i, 1:], pred_stop_probs,  output)  # Ignore <sos> token
 
             #loss += custom_bce_loss( tags, labels)
             
@@ -537,10 +540,10 @@ def train(cfg: DictConfig):
             if cfg.tracking:
                 total_loss += loss.detach().float()
                 
-            print("Loss before division by gradient accumulation: ", loss)
-            loss = loss / cfg.training.gradient_accumulation_steps
+            # print("Loss before division by gradient accumulation: ", loss)
+            # loss = loss / cfg.training.gradient_accumulation_steps
             
-            print("Loss before backward: ", loss)
+            # print("Loss before backward: ", loss)
             accelerator.backward(loss)
             
             #continue
@@ -556,12 +559,13 @@ def train(cfg: DictConfig):
             
             if step % cfg.training.eval_every == 0:
                 model.eval()   
-                eval_loss, eval_bce_loss, perplexity, label_loss = evaluate(model, accelerator, eval_loader, custom_loss, custom_bce_loss)
+                eval_loss, eval_bce_loss, perplexity = evaluate(model, accelerator, eval_loader, custom_loss) #custom_bce_loss
                 logger.info(f"Epoch {epoch}, Step {step} : train_loss: {train_loss} perplexity: {perplexity} sparse_loss: {eval_loss}  \
-                    stop_loss {eval_bce_loss} label_loss: {label_loss} total_eval_loss {eval_loss + eval_bce_loss + label_loss}" )
+                    stop_loss {eval_bce_loss} total_eval_loss {eval_loss + eval_bce_loss }" ) #label_loss: {label_loss} 
                 
                 print(f"Epoch {epoch}, Step {step} : train_loss: {train_loss} perplexity: {perplexity} sparse_loss: {eval_loss}  \
-                    stop_loss {eval_bce_loss} label_loss: {label_loss} total_eval_loss {eval_loss + eval_bce_loss + label_loss}" )
+                    stop_loss {eval_bce_loss} total_eval_loss {eval_loss + eval_bce_loss}" ) #label_loss: {label_loss} 
+                
                 model.train()
                 
                 # Tracks the best checkpoint and best metric
@@ -616,12 +620,12 @@ def train(cfg: DictConfig):
             if completed_steps >= cfg.training.max_train_steps:
                 break
             
-        eval_loss, eval_bce_loss, perplexity, label_loss = evaluate(model,accelerator,eval_loader, custom_loss, custom_bce_loss)
+        eval_loss, eval_bce_loss, perplexity = evaluate(model,accelerator,eval_loader, custom_loss) #, custom_bce_loss
         model.train()
         logger.info(f"Epoch {epoch}, Step {step} : train_loss: {train_loss} perplexity: {perplexity} sparse_loss: {eval_loss}  \
-                    stop_loss {eval_bce_loss} label_loss: {label_loss} total_eval_loss {eval_loss + eval_bce_loss + label_loss}" )
+                    stop_loss {eval_bce_loss}  total_eval_loss {eval_loss + eval_bce_loss}" ) #label_loss: {label_loss}
         print(f"Epoch {epoch}, Step {step} : train_loss: {train_loss} perplexity: {perplexity} sparse_loss: {eval_loss}  \
-                    stop_loss {eval_bce_loss} label_loss: {label_loss} total_eval_loss {eval_loss + eval_bce_loss + label_loss}" )
+                    stop_loss {eval_bce_loss} total_eval_loss {eval_loss + eval_bce_loss}" )
         
     print('Saving the model using the best weights checkpoint in the current output directory')
     if cfg.output_dir is not None:
