@@ -1,5 +1,5 @@
 output_dir: "train"
-load_dir: null 
+load_dir: "final"
 
 dataset:
   name: null
@@ -25,6 +25,7 @@ model:
   config_name: null
   build_model: true
   from_trained: false
+  from_checkpoint: false
 
 tokenizer:
   name: '/kaggle/working/MIR/tokenizers/wordpiece_tokenizer8000.json'
@@ -41,15 +42,15 @@ training:
   learning_rate: 1e-4
   weight_decay: 0.0
   num_epochs: 50
-  max_train_steps: 10000
+  max_train_steps: 40000
   gradient_accumulation_steps: 4
   lr_scheduler: "cosine" # ["linear", "cosine", "cosine_with_restarts", "polynomial", "constant", "constant_with_warmup"]
   lr_warmup_steps: 30
-  eval_every: 6
+  eval_every: 2
   save_every: 50
   img_size: (224,224)
-  train_batch_size: 32
-  eval_batch_size: 48
+  train_batch_size: 24
+  eval_batch_size: 32
 
   checkpoint:
     resume_from_checkpoint: 0 # integer representing which checkpoint to load from, or <= 0 to not
@@ -117,7 +118,7 @@ architecture:
   layer_norm_eps: 1e-5
   batch_first: true
   norm_first: true
-  device: "cuda" # previously None
+  device: null # previously None
   dtype: null
   norm: null
   #state_path: null

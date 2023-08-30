@@ -1,7 +1,37 @@
 import torch
 import torch.nn as nn
 import numpy as np
+import os
 
+def load(model, save_dir):
+    successful_loads = 0
+    if model.encoder is not None and os.path.exists(os.path.join(save_dir, "encoder.pt")):
+        model.encoder.load_state_dict(torch.load(os.path.join(save_dir, "encoder.pt")))
+        successful_loads += 1
+        
+    if model.history_encoder is not None and os.path.exists(os.path.join(save_dir, "prompt_encoder.pt")):
+        model.history_encoder.load_state_dict(torch.load(os.path.join(save_dir, "prompt_encoder.pt")))
+        successful_loads += 1
+        
+    if model.semantic_features_extractor is not None and os.path.exists(os.path.join(save_dir, "semantic_features_extractor.pt")):
+        model.semantic_features_extractor.load_state_dict(torch.load(os.path.join(save_dir, "semantic_features_extractor.pt")))
+        successful_loads += 1
+        
+    if os.path.exists(os.path.join(save_dir, "attention.pt")):
+        model.attention.load_state_dict(torch.load(os.path.join(save_dir, "attention.pt")))
+        successful_loads += 1
+        
+    if os.path.exists(os.path.join(save_dir, "sent_lstm.pt")):
+        model.sent_lstm.load_state_dict(torch.load(os.path.join(save_dir, "sent_lstm.pt")))
+        successful_loads += 1
+        
+    if os.path.exists(os.path.join(save_dir, "decoder.pt")):
+        model.decoder.load_state_dict(torch.load(os.path.join(save_dir, "decoder.pt")))
+        successful_loads += 1
+        
+    print(f"Successfully loaded {successful_loads} sub models.")
+    
+    return model
 
 def src_mask(sz, mode="float"):
     mask = (torch.triu(torch.ones(sz, sz)) == 1).transpose(0, 1)

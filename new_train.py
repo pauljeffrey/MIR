@@ -34,67 +34,95 @@ from transformers import (
 
 torch.manual_seed(42)
 
-def save_model(model , save_dir):
-    if not os.path.exists("save_dir"):
-        os.mkdir(save_dir)
+# def save_model(model , save_dir):
+#     if not os.path.exists("save_dir"):
+#         os.mkdir(save_dir)
         
-    path = os.path.abspath(save_dir)
+#     path = os.path.abspath(save_dir)
     
-    # Save each module
-    if model.encoder is not None:
-        torch.save(model.encoder.state_dict(), os.path.join(path, 'encoder.pt'))
+#     # Save each module
+#     if model.encoder is not None:
+#         torch.save(model.encoder.state_dict(), os.path.join(path, 'encoder.pt'))
     
-    if model.history_encoder is not None:
-        torch.save(model.history_encoder.state_dict(), os.path.join(path, "prompt_encoder.pt"))
+#     if model.history_encoder is not None:
+#         torch.save(model.history_encoder.state_dict(), os.path.join(path, "prompt_encoder.pt"))
         
-    if model.semantic_features_extractor is not None:
-        torch.save(model.semantic_features_extractor.state_dict(), os.path.join(path, "semantic_features_extractor.pt"))
+#     if model.semantic_features_extractor is not None:
+#         torch.save(model.semantic_features_extractor.state_dict(), os.path.join(path, "semantic_features_extractor.pt"))
         
-    torch.save(model.attention.state_dict(), os.path.join(path, "attention.pt"))
-    torch.save(model.sent_lstm.state_dict(), os.path.join(path, "sent_lstm.pt"))
-    torch.save(model.decoder.state_dict(), os.path.join(path, "decoder.pt"))
+#     torch.save(model.attention.state_dict(), os.path.join(path, "attention.pt"))
+#     torch.save(model.sent_lstm.state_dict(), os.path.join(path, "sent_lstm.pt"))
+#     torch.save(model.decoder.state_dict(), os.path.join(path, "decoder.pt"))
 
+#     return
+
+def save_model(model, optimizer= None, epoch=None, loss=None, path="./model.tar"):
+    
+    if not os.path.exists(path):
+        os.mkdir(path)
+        
+    if optimizer is not None: 
+        torch.save(
+            {
+                "encoder": model.encoder.state_dict(),
+                "prompt_encoder": model.history_encoder.state_dict(),
+                "attention": model.attention.state_dict(),
+                "sent_lstm": model.sent_lstm.state_dict(),
+                "decoder": model.decoder.state_dict(),
+                "optimizer_state": optimizer.state_dict(),
+                "loss": loss ,
+                "epoch": epoch,
+            }, os.path.join(path, "checkpoint.tar")
+        )
+        
+    else:
+        torch.save(
+            {
+                "encoder": model.encoder.state_dict(),
+                "prompt_encoder": model.history_encoder.state_dict(),
+                "attention": model.attention.state_dict(),
+                "sent_lstm": model.sent_lstm.state_dict(),
+                "decoder": model.decoder.state_dict(),
+            }, os.path.join(path, "checkpoint.tar")
+        )
+        
     return
 
-def load(model, save_dir):
-    successful_loads = 0
-    if model.encoder is not None and os.path.exists(os.path.join(save_dir, "encoder.pt")):
-        model.encoder.load_state_dict(torch.load(os.path.join(save_dir, "encoder.pt")))
-        successful_loads += 1
-        
-    if model.history_encoder is not None and os.path.exists(os.path.join(save_dir, "prompt_encoder.pt")):
-        model.history_encoder.load_state_dict(torch.load(os.path.join(save_dir, "prompt_encoder.pt")))
-        successful_loads += 1
-        
-    if model.semantic_features_extractor is not None and os.path.exists(os.path.join(save_dir, "semantic_features_extractor.pt")):
-        model.semantic_features_extractor.load_state_dict(torch.load(os.path.join(save_dir, "semantic_features_extractor.pt")))
-        successful_loads += 1
-        
-    if os.path.exists(os.path.join(save_dir, "attention.pt")):
-        model.attention.load_state_dict(torch.load(os.path.join(save_dir, "attention.pt")))
-        successful_loads += 1
-        
-    if os.path.exists(os.path.join(save_dir, "sent_lstm.pt")):
-        model.sent_lstm.load_state_dict(torch.load(os.path.join(save_dir, "sent_lstm.pt")))
-        successful_loads += 1
-        
-    if os.path.exists(os.path.join(save_dir, "decoder.pt")):
-        model.decoder.load_state_dict(torch.load(os.path.join(save_dir, "decoder.pt")))
-        successful_loads += 1
-        
-    print(f"Successfully loaded {successful_loads} sub models.")
+def load(model, cfg, from_checkpoint=False):
+    checkpoint = torch.load(os.path.join(cfg.output_dir, cfg.load_dir, "checkpoint.tar"))
+    model.encoder.load_state_dict(checkpoint['encoder'])
+    model.history_encoder.load_state_dict(checkpoint["prompt_encoder"])
+    model.attention.load_state_dict(checkpoint["attention"])
+    model.sent_lstm.load_state_dict(checkpoint["sent_lstm"])
+    model.decoder.load_state_dict(checkpoint["decoder"])
     
-    return model
+    if from_checkpoint:
+        optimizer = torch.optim.AdamW(model.parameters(), lr=cfg.training.learning_rate)
+        optimizer.load_state_dict(checkpoint['optimizer_state'])
+        epoch = checkpoint['epoch']
+        loss = checkpoint['loss']
+        return model, optimizer, epoch, loss
+    else:        
+        return model
 
 #@hydra.main(version_base=None, config_path="conf", config_name="config")
 def load_model(cfg: DictConfig):
     model_params = cfg.architecture
     model = MedicalReportGenerator(**model_params)
     if cfg.model.from_trained:
-        path = os.path.join(os.path.abspath(cfg.output_dir + cfg.load_dir)) # Assumes that all state_dicts are stored in the same directory.
+        path = os.path.join(os.path.abspath(cfg.output_dir), cfg.load_dir) # Assumes that all state_dicts are stored in the same directory.
         print(f"loading all sub model weights from {path}...")
-        model = load(model, cfg.load_dir)
-    return model
+        model = load(model, cfg)
+        return model
+    elif cfg.model.from_checkpoint:
+        path = os.path.join(os.path.abspath(cfg.output_dir ), cfg.load_dir) # Assumes that all state_dicts are stored in the same directory.
+        print(f"loading checkpoint from {path}...")
+        model, optimizer, epoch, loss = load(model, cfg, True)
+        return model, optimizer, epoch, loss
+    else:
+        return model
+        
+    
 
 def create_optimizer(cfg, model):
 
@@ -288,23 +316,28 @@ def train(cfg: DictConfig):
     logger.info(accelerator.state, main_process_only=False)
     logger.info(OmegaConf.to_yaml(cfg))
     
-    model = load_model(cfg)
+    if not cfg.model.from_checkpoint:
+        model = load_model(cfg)
+        epoch = None
+        loss = None
+        # Optimizer
+        # Creates Dummy Optimizer if `optimizer` was specified in the config file else creates Adam Optimizer
+        optimizer_cls = (
+            torch.optim.AdamW #Adafactor #
+            # if accelerator.state.deepspeed_plugin is None
+            # or "optimizer" not in accelerator.state.deepspeed_plugin.deepspeed_config
+            # else DummyOptim
+        )
+        optimizer = optimizer_cls(model.parameters(), lr=cfg.training.learning_rate)
 
-    # Optimizer
-    # Creates Dummy Optimizer if `optimizer` was specified in the config file else creates Adam Optimizer
-    optimizer_cls = (
-        torch.optim.AdamW #Adafactor #
-        # if accelerator.state.deepspeed_plugin is None
-        # or "optimizer" not in accelerator.state.deepspeed_plugin.deepspeed_config
-        # else DummyOptim
-    )
-    optimizer = optimizer_cls(model.parameters(), lr=cfg.training.learning_rate)
 
-
-    # if (
-    #     accelerator.state.deepspeed_plugin is None
-    #     or "scheduler" not in accelerator.state.deepspeed_plugin.deepspeed_config
-    # ):
+        # if (
+        #     accelerator.state.deepspeed_plugin is None
+        #     or "scheduler" not in accelerator.state.deepspeed_plugin.deepspeed_config
+        # ):
+    else:
+        model, optimizer, epoch, loss = load_model(cfg)
+        
     lr_scheduler = get_scheduler(
         name=cfg.training.lr_scheduler,
         optimizer=optimizer,
@@ -337,8 +370,8 @@ def train(cfg: DictConfig):
     # Only show the progress bar once on each machine.
     progress_bar = tqdm(range(cfg.training.max_train_steps), disable=not accelerator.is_local_main_process)
     completed_steps = 0
-    #starting_epoch = 0
-    best_metric = None
+    starting_epoch = epoch if epoch is not None else 0
+    best_metric = loss
     #best_metric_checkpoint = None
     
     # New Code
@@ -392,7 +425,7 @@ def train(cfg: DictConfig):
         if torch.any(torch.isnan(each)):
             print(name, " layer has nan values in it..")
 
-    for epoch in range(cfg.training.num_epochs):
+    for epoch in range(starting_epoch, cfg.training.num_epochs):
         model.train()
                 
         # if cfg.tracking:
@@ -579,7 +612,7 @@ def train(cfg: DictConfig):
                     logger.info(f"New best metric: {best_metric} at epoch {epoch}")
                     logger.info(f"Saving model with best metric: Eval loss {best_metric}...")
 
-                    epoch_dir = "model_with_best_eval"
+                    epoch_dir = f"model_with_best_eval- {best_metric}"
                     if cfg.output_dir is not None:
                         accelerator.wait_for_everyone()
                         unwrapped_model = accelerator.unwrap_model(model)            
@@ -590,7 +623,7 @@ def train(cfg: DictConfig):
                         if not os.path.exists(output_dir):
                             os.mkdir(output_dir)
                             
-                        save_model(unwrapped_model, output_dir)
+                        save_model(unwrapped_model, optimizer=optimizer, epoch=epoch, loss=loss, path=output_dir)
                         # unwrapped_model.save_pretrained(
                         #     output_dir,
                         #     is_main_process=accelerator.is_main_process,
@@ -599,7 +632,7 @@ def train(cfg: DictConfig):
                         # )
                         
             if step % cfg.training.save_every == 0:                 
-                epoch_dir = f"epoch_{epoch}_most_recent"
+                epoch_dir = f"epoch_most_recent"
                 
                 logger.info(f"Saving model in {epoch_dir}..")
                 if cfg.output_dir is not None:
@@ -610,7 +643,7 @@ def train(cfg: DictConfig):
                     if not os.path.exists(output_dir):
                         os.mkdir(output_dir)
                             
-                    save_model(unwrapped_model, output_dir)
+                    save_model(unwrapped_model, optimizer= optimizer, epoch=epoch, loss= loss, path =output_dir)
                     # unwrapped_model.save_pretrained(
                     #     output_dir,
                     #     is_man_process=accelerator.is_main_process,
@@ -638,7 +671,7 @@ def train(cfg: DictConfig):
         if not os.path.exists(output_dir):
             os.mkdir(output_dir)
                             
-        save_model(unwrapped_model, output_dir)
+        save_model(unwrapped_model, path= output_dir)
         # unwrapped_model.save_pretrained(
         #     os.path.join(os.path.abspath(cfg.output_dir),"final"),
         #     is_main_process=accelerator.is_main_process,
@@ -656,114 +689,12 @@ if __name__ == "__main__":
     train(cfg)
     #cfg = OmegaConf.load("./conf/config.yaml")
     # #train(cfg)
-    #model = load_model(cfg)
-    #for name, each in model.named_children:
-    # for name, each in model.decoder.named_parameters():
-    #     print(name)
-    #     print("Minimum value: ", torch.min(each))
-    #     print("Maximum value: ", torch.max(each))
-    #     print()
-    # is_nan = [(torch.any(torch.isnan(p)), p.name) for p in model.parameters()]
-    # print(is_nan)
-    #save_model(model, "pretrained")
-    # images = torch.randn((256,3,224,224))
-    # prompt = torch.randint(0, 5000, (256, 30))
-    # true_labels = torch.randint(0,1, (256, 156))
-    # real_stop_probs = torch.randint(-1,1,(256, 20 ))
-    # true_reports = torch.randint(0,5000, (256, 20, 80))
+    # model = load_model(cfg)
+    #optimizer = torch.optim.AdamW(model.parameters(), lr= cfg.training.learning_rate)
     
-    # custom_bce_loss = CustomBCELoss()
-    # custom_loss = CustomLoss()
-    # batch_size = 8
-    
-    # for ind in range(0, 256, batch_size):
-    #     encoded_images = images[ind: ind+batch_size] 
-    #     indication_prompt = prompt[ind: ind+batch_size]
-    #     labels = true_labels[ind: ind+batch_size]
-    #     true_stop_probs = real_stop_probs[ind: ind+batch_size]
-    #     reports = true_reports[ind: ind+batch_size]
-
-        
-    #     loss = 0            
-    #     n_sentences  = reports.shape[1]
-        
-    #     encoder_pad_mask = create_padding_mask(indication_prompt)
-    #     #encoder_causal_mask = src_mask(indication_prompt.shape[1])
-        
-    #     encoded_images , tags = model.encoder(encoded_images)
-    #     #print("Encoded Images: ", encoded_images.shape)
-    #     bs , n_channels = encoded_images.shape[0], encoded_images.shape[1]
-        
-    #     if model.co_attention:
-    #         semantic_features = model.semantic_features_extractor(tags)
-            
-    #     if model.history_encoder is not None:
-    #         indication_prompt = model.decoder.embed_layer(indication_prompt)
-    #         indication_prompt = model.history_encoder(indication_prompt, mask=encoder_pad_mask)
-                
-
-    #     # # compute mask, confirm the first part.
-    #     # mem_mask = torch.cat([torch.zeros((encoded_images.shape[0], encoded_images.shape[1])), encoder_pad_mask], dim=-1)
-        
-    #     #Initialize states
-    #     if len(encoded_images.shape) > 3:
-    #         encoded_images = encoded_images.reshape(bs, n_channels, -1)
-            
-    #     #print(model.sent_lstm.num_layers)
-        
-    #     prev_hidden, (hn, cn) = model.sent_lstm.init_state(encoded_images,indication_prompt)
-    #     #lstm_init = True
-    #     #print(hn.shape, cn.shape)
-    #     #output = model(encoded_images, reports[:, :-1])  # [batch_size, seq_len - 1, vocab_size]
-    #     for i in range(n_sentences):
-            
-    #         if model.co_attention:
-    #             if model.history_encoder is not None:
-    #                 #print("Encoded Images before attentino: ", encoded_images.shape)
-    #                 context_vector, att_wts , _  = model.attention( prev_hidden, encoded_images, semantic_features, indication_prompt)
-    #             else:
-    #                 context_vector, att_wts , _  = model.attention( prev_hidden, encoded_images, semantic_features)
-    #         else:
-    #             # Attend to encoded_images
-    #             if model.history_encoder is not None:
-    #                 context_vector, att_wts = model.attention(prev_hidden, encoded_images, indication_prompt)                          
-    #             else:
-    #                 context_vector, att_wts = model.attention(prev_hidden, encoded_images)
-
-    #         # Generate Topic Vector
-    #         #print("Context and hidden shape before entering lstm: ", context_vector.shape, prev_hidden.shape)
-    #         prev_hidden, pred_stop_probs, (hn, cn) = model.sent_lstm(context_vector, prev_hidden, (hn, cn))  # [batch_size, d_model]
-    #         #lstm_init= False
-            
-    #         # Decode reports
-    #         tgt = reports[:,i, :-1]  # Remove last token from reports
-    #         padding_mask = create_padding_mask(tgt)
-    #         #causal_mask1 = create_causal_masks(inputs)
-    #         tgt_mask = src_mask(tgt.shape[1])
-            
-    #         memory = encoded_images * att_wts # [batch_size, seq_len, d_model]
-    #         #memory_mask = None
-            
-    #         # Compute attention for visual_features, encoded_prompt
-    #         #memory = model.prompt_attention(memory, indication_prompt, key_padding_mask=mem_mask, residual_connection=True)
-    #         # print(memory.shape, indication_prompt.shape, tgt.shape, prev_hidden.shape)
-    #         # print(encoder_pad_mask.shape)
-    #         output = model.decoder(tgt, prev_hidden, (indication_prompt,memory),tgt_key_padding_mask=padding_mask,
-    #                                memory_key_padding_mask=encoder_pad_mask, tgt_mask=tgt_mask,
-    #                                 tgt_is_causal=True)  # [batch_size, seq_len - 1, d_model]
-            
-    #         loss += custom_loss(true_stop_probs[:,i], reports[:, i, 1:],pred_stop_probs,  output)  # Ignore <sos> token
-
-    #     loss += custom_bce_loss(labels, tags)
-   
-         
-     
-
-        
-    #torch.save(model.state_dict(), "./pretrained")
-    
-    
-   
-        
-
+    # if not os.path.exists(os.path.join(os.path.abspath(os.curdir),"final") ):
+    #     os.mkdir(os.path.join(os.path.abspath(os.curdir),"final") )
+    #save_model(model, optimizer = optimizer,path = os.path.join(os.path.abspath(os.curdir),"final") )
+    # model, optimizer, epoch, loss = load_model(cfg)
+    # print(model, optimizer, epoch, loss)
     
