@@ -231,8 +231,8 @@ def evaluate(model, accelerator, eval_loader, custom_loss, bce_loss):
                 #memory = model.prompt_attention(memory, indication_prompt, key_padding_mask=mem_mask, residual_connection=True)
                 # print(memory.shape, indication_prompt.shape, tgt.shape, prev_hidden.shape)
                 # print(encoder_pad_mask.shape)
-                output = model.decoder(tgt, prev_hidden, (indication_prompt, memory), tgt_key_padding_mask=padding_mask,
-                                    memory_key_padding_mask=encoder_pad_mask, tgt_mask=None,
+                output = model.decoder(tgt, prev_hidden, (indication_prompt, memory), tgt_key_padding_mask=None,
+                                    memory_key_padding_mask=encoder_pad_mask, tgt_mask=tgt_mask,
                                         tgt_is_causal=False)  # [batch_size, seq_len - 1, d_model] 
                 
                 # if torch.any(torch.isinf(output)) or torch.any(torch.isnan(output)):
