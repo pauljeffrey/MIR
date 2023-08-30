@@ -225,7 +225,7 @@ def evaluate(model, accelerator, eval_loader, custom_loss, bce_loss):
                 if torch.any(torch.isinf(memory)) or torch.any(torch.isnan(memory)):
                     print("Memory is affected contains nan values..")
                     
-                if torch.any(torch.isnan(encoder_pad_mask)) or torch.any(torch.isnan(padding_mask)) or torch.any(torch.isnan(tgt_mask)):
+                if torch.any(torch.isnan(encoder_pad_mask)) or torch.any(torch.isnan(tgt_mask)):#torch.any(torch.isnan(padding_mask)) or 
                     print("Padding mask contains nan values...")
                 # Compute attention for visual_features, encoded_prompt
                 #memory = model.prompt_attention(memory, indication_prompt, key_padding_mask=mem_mask, residual_connection=True)
@@ -507,7 +507,7 @@ def train(cfg: DictConfig):
                 if torch.any(torch.isinf(memory)) or torch.any(torch.isnan(memory)):
                     print("Memory is affected contains nan values..")
                     
-                if torch.any(torch.isnan(encoder_pad_mask)) or torch.any(torch.isnan(padding_mask)) or torch.any(torch.isnan(tgt_mask)):
+                if torch.any(torch.isnan(encoder_pad_mask)) or  torch.any(torch.isnan(tgt_mask)):#torch.any(torch.isnan(padding_mask)) or
                     print("Padding mask contains nan values...")
                 # Compute attention for visual_features, encoded_prompt
                 #memory = model.prompt_attention(memory, indication_prompt, key_padding_mask=mem_mask, residual_connection=True)

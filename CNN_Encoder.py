@@ -135,13 +135,13 @@ class MLC(nn.Module):
 
     def forward(self, avg_features):
         avg_features = self.linear(avg_features)
-        print("average features : ", avg_features.shape, torch.min(avg_features), torch.max(avg_features))
-        if torch.any(torch.isnan(avg_features)) or torch.any(torch.isinf(avg_features)):
-            print("avg features is nan")
+        # print("average features : ", avg_features.shape, torch.min(avg_features), torch.max(avg_features))
+        # if torch.any(torch.isnan(avg_features)) or torch.any(torch.isinf(avg_features)):
+        #     print("avg features is nan")
         output = torch.nan_to_num(self.classifier(avg_features))
-        print("output after classifying average: ", output.shape, torch.min(output), torch.max(output))
-        if torch.any(torch.isnan(output)) or torch.any(torch.isinf(output)):
-            print("average features is nan..")
+        # print("output after classifying average: ", output.shape, torch.min(output), torch.max(output))
+        # if torch.any(torch.isnan(output)) or torch.any(torch.isinf(output)):
+        #     print("average features is nan..")
         tags = self.sigmoid(output)
         #semantic_features = self.embed(torch.topk(tags, self.k)[1])
         return tags #, semantic_features
