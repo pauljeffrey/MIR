@@ -3,9 +3,11 @@ import torch.nn as nn
 import numpy as np
 
 
-def src_mask(sz):
+def src_mask(sz, mode="float"):
     mask = (torch.triu(torch.ones(sz, sz)) == 1).transpose(0, 1)
-    mask = mask.float().masked_fill(mask == 0, float('-1e8')).masked_fill(mask == 1, float(0.0))
+    
+    if mode == "float":
+        mask = mask.float().masked_fill(mask == 0, float('-1e8')).masked_fill(mask == 1, float(0.0)) 
     return mask
 
 
@@ -14,7 +16,7 @@ def create_masks(inputs):
     padding_mask = torch.tensor((inputs != 0)).unsqueeze(1).unsqueeze(2)
     
     # Create causal mask
-    causal_mask = src_mask(inputs.shape[1])
+    causal_mask = src_mask(inputs.shape[1], "bool")
     #print(torch.triu(torch.full((seq_len, seq_len), float('-inf')), diagonal=1))
     # Combine padding and causal masks
     masks = padding_mask & causal_mask
@@ -32,7 +34,7 @@ def create_padding_mask(inputs):
         
     else:
         mask = (inputs == 0)#.unsqueeze(1).unsqueeze(2)
-    mask = mask.float().masked_fill(mask == 1, float('-1e8'))#.masked_fill(mask == 1, float(0.0))
+    #mask = mask.float().masked_fill(mask == 1, float('-1e8'))#.masked_fill(mask == 1, float(0.0))
     return mask
 
 
@@ -62,10 +64,10 @@ if __name__ == '__main__':
     out = attn(q, q, q, key_padding_mask= mask, attn_mask=src_mask(10))#, 
     #print(torch.min(out[1][0]), torch.max(out[1][0]))
     print(out[1][0], out[0][0])
-    out = attn(q, q, q, key_padding_mask= None, attn_mask=masks)#, 
-    #print(torch.min(out[1][0]), torch.max(out[1][0]))
-    print("Output of create_masks: ")
-    print(out[1][0], out[0][0])
+    # out = attn(q, q, q, key_padding_mask= None, attn_mask=masks)#, 
+    # #print(torch.min(out[1][0]), torch.max(out[1][0]))
+    # print("Output of create_masks: ")
+    # print(out[1][0], out[0][0])
     #print(out[1].shape, out[0].shape) # attention output weights
     # print(src_mask(5).dtype)
     print(mask)
