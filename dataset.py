@@ -113,10 +113,10 @@ def collate_fn(data):
 
 
 def collate_fn2(data): #, history_word_num=60
-    images, indication, labels, captions, sentence_num, word_num = zip(*data)
+    images, indication, captions, sentence_num, word_num = zip(*data)  #labels, 
     images = torch.stack(images, 0)
     #print(labels.shape)
-    labels = torch.stack(labels, 0).type(torch.LongTensor)
+    #labels = torch.stack(labels, 0).type(torch.LongTensor)
     max_prompt_length = max([len(each) for each in indication])
     max_word_num = max(word_num)
     max_sentence_num = max(sentence_num)
@@ -146,7 +146,7 @@ def collate_fn2(data): #, history_word_num=60
     
     #print(type(prompt), type(label), type(target), type(prob))
     
-    return  images, indication_prompts , labels, probs, targets #images, 
+    return  images, indication_prompts , probs, targets #images,  labels,
 
 
 def get_loader(image_dir,
@@ -211,7 +211,7 @@ class ChestXrayDataSet2(Dataset):
         image_name = sample["image"]
         image = Image.open(os.path.join(self.image_dir, image_name)).convert('RGB')
         #print("Image shape: ", image.size)
-        label = torch.tensor([int(each) for each in sample["labels"]])
+        #label = torch.tensor([int(each) for each in sample["labels"]])
         
         if sample["type"] == "original":
             
@@ -267,7 +267,7 @@ class ChestXrayDataSet2(Dataset):
         if len(indication_prompt) > self.encoder_n_max:
             indication_prompt = indication_prompt[:self.encoder_n_max -2] + self.tokenizer.encode('<prompt>').ids
         
-        return  image, indication_prompt, label, target, sentence_num, word_num  #image_name,
+        return  image, indication_prompt, target, sentence_num, word_num  #image_name,label,
 
     def __len__(self):
         return len(self.data)
