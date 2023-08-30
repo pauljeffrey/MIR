@@ -593,6 +593,7 @@ def train(cfg: DictConfig):
             
             if step % cfg.training.eval_every == 0:
                 model.eval()   
+                print("Evaluating model...")
                 eval_loss, eval_bce_loss, perplexity = evaluate(model, accelerator, eval_loader, custom_loss) #custom_bce_loss
                 logger.info(f"Epoch {epoch}, Step {step} : train_loss: {train_loss} perplexity: {perplexity} sparse_loss: {eval_loss}  \
                     stop_loss {eval_bce_loss} total_eval_loss {eval_loss + eval_bce_loss }" ) #label_loss: {label_loss} 
