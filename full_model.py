@@ -16,7 +16,7 @@ class MedicalReportGenerator(nn.Module):
         super(MedicalReportGenerator, self).__init__()
         # Image Encoder
         if add_encoder:
-            self.encoder = Encoder(model_name, pretrained, hidden_layer_size, classes, model_dict)  
+            self.encoder = VisualFeatureExtractor(model_name) #, pretrained, hidden_layer_size, classes, model_dict)  
         else:
             self.encoder = None      
          
