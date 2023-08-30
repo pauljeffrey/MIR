@@ -24,7 +24,7 @@ class CustomLoss(nn.Module):
         else:
             y1_mask = y1_true.ne(-1)
             #print("Bce loss: ", y1_pred)
-            print("Shape of lstm output: ", y1_pred.shape)
+            #print("Shape of lstm output: ", y1_pred.shape)
             bce_loss = self.bce(y1_pred[y1_mask], y1_true[y1_mask])
             print("Bce_loss: ", bce_loss)
               
