@@ -34,7 +34,7 @@ def create_padding_mask(inputs):
         
     else:
         mask = (inputs == 0)#.unsqueeze(1).unsqueeze(2)
-    #mask = mask.float().masked_fill(mask == 1, float('-1e8'))#.masked_fill(mask == 1, float(0.0))
+    mask = mask.float().masked_fill(mask == 1, float('-1e8'))#.masked_fill(mask == 1, float(0.0))
     return mask
 
 
@@ -61,7 +61,7 @@ if __name__ == '__main__':
     #     mask = mask.float().masked_fill(mask == 0, float('-inf')).masked_fill(mask == 1, float(0.0))
     #     return mask
     
-    out = attn(q, q, q, key_padding_mask= mask, attn_mask=src_mask(10))#, 
+    out = attn(q, q, q, key_padding_mask= None, attn_mask=src_mask(10))#, 
     #print(torch.min(out[1][0]), torch.max(out[1][0]))
     print(out[1][0], out[0][0])
     # out = attn(q, q, q, key_padding_mask= None, attn_mask=masks)#, 
