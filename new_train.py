@@ -407,7 +407,7 @@ def train(cfg: DictConfig):
             if torch.any(torch.isnan(encoded_images)):
                 print("Raw images are nan..")
                 
-            print("True_stop_probs: ", true_stop_probs)
+            #print("True_stop_probs: ", true_stop_probs)
             #print(f"Step: {step} \n\n")
             loss = 0            
             n_sentences  = reports.shape[1]
