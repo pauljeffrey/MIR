@@ -149,7 +149,7 @@ def evaluate(model, accelerator, eval_loader, custom_loss): #, bce_loss
     model.eval()
     device = accelerator.device
     #loss = 0
-    
+    print("\n In the evaluation function")
     with torch.no_grad():
         eval_losses = []
         eval_stop_losses = []
@@ -290,6 +290,8 @@ def evaluate(model, accelerator, eval_loader, custom_loss): #, bce_loss
             
         except OverflowError:
             perplexity = float("inf")
+        
+        print(eval_loss, eval_stop_loss, perplexity)
                     
     return eval_loss , eval_stop_loss, perplexity #eval_bce_loss
 
@@ -433,7 +435,7 @@ def train(cfg: DictConfig):
         train_losses = []
         
         for step, (encoded_images,indication_prompt, true_stop_probs, reports) in enumerate(train_loader): #labels,
-            print(f"Step {step}")
+            print(f"\nStep {step}")
             # encoded_images = encoded_images.to(device)
             # reports = reports.to(device)
             # true_stop_probs = true_stop_probs.to(device)
@@ -594,7 +596,7 @@ def train(cfg: DictConfig):
             
             if step % cfg.training.eval_every == 0:
                 model.eval()   
-                print("Evaluating model...")
+                print("\nEvaluating model...")
                 eval_loss, eval_bce_loss, perplexity = evaluate(model, accelerator, eval_loader, custom_loss) #custom_bce_loss
                 logger.info(f"Epoch {epoch}, Step {step} : train_loss: {train_loss} perplexity: {perplexity} sparse_loss: {eval_loss}  \
                     stop_loss {eval_bce_loss} total_eval_loss {eval_loss + eval_bce_loss }" ) #label_loss: {label_loss} 
