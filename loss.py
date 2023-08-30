@@ -23,9 +23,10 @@ class CustomLoss(nn.Module):
             #print("Bce loss for last sentence: ", y1_pred)
         else:
             y1_mask = y1_true.ne(-1)
-            print("Bce loss: ", y1_pred)
+            #print("Bce loss: ", y1_pred)
             print("Shape of lstm output: ", y1_pred.shape)
             bce_loss = self.bce(y1_pred[y1_mask], y1_true[y1_mask])
+            print("Bce_loss: ", bce_loss)
               
         if torch.all(y2_true.eq(0)):
             bs, sen_length, vocab = y2_pred.shape
