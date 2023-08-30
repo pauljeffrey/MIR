@@ -81,9 +81,9 @@ class DecoderLayer(nn.Module):
         self.dropout3 = Dropout(dropout)
 
         #Implementation of the topic key and value Linear layers
-        if use_topic:
-            self.topic_key_fc = Linear(topic_emb, topic_units, **factory_kwargs)
-            self.topic_value_fc = Linear(topic_emb, topic_units, **factory_kwargs)
+        # if use_topic:
+        #     self.topic_key_fc = Linear(topic_emb, topic_units, **factory_kwargs)
+        #     self.topic_value_fc = Linear(topic_emb, topic_units, **factory_kwargs)
         
         # Legacy string support for activation function.
         if isinstance(activation, str):

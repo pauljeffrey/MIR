@@ -206,26 +206,6 @@ class ChestXrayDataSet2(Dataset):
         self.n_max = n_max
         self.encoder_n_max = encoder_n_max
 
-    # def __load_label_list(self, file_list):
-    #     labels = {}
-    #     filename_list = []
-    #     with open(file_list, 'r') as f:
-    #         for line in f:
-    #             items = line.split()
-    #             image_name = items[0]
-    #             self.num_labels = items[1:]
-    #             image_name = '{}.png'.format(image_name)
-    #             labels[image_name] = [int(i) for i in items[1:]]
-    #             #label = [int(i) for i in label]                
-    #             filename_list.append(image_name)
-    #             #labels.append(label)
-    #     self.data = [each for each in self.data if '{}.png'.format(each["image"]) in filename_list]
-        
-    #     for i in range(20):
-    #         self.data = random.sample(self.data, len(self.data))
-            
-    #     return filename_list, labels
-
     def __getitem__(self, index):
         sample = self.data[index]
         image_name = sample["image"]

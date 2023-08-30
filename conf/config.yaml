@@ -48,8 +48,8 @@ training:
   eval_every: 2
   save_every: 50
   img_size: (224,224)
-  train_batch_size: 16
-  eval_batch_size: 32
+  train_batch_size: 24
+  eval_batch_size: 48
 
   checkpoint:
     resume_from_checkpoint: 0 # integer representing which checkpoint to load from, or <= 0 to not
@@ -85,7 +85,7 @@ architecture:
   #state_path: null
 
   #attention:
-  co_attention: false
+  co_attention: true
   features_dim: 49 # visual features dim
   #hidden_dim: 512 # must be the same for hidden size of lstm in sentence lstm
   att_units: 512 # Number of linear units for the attention network

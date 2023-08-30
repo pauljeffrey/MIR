@@ -216,7 +216,7 @@ def evaluate(model, accelerator, eval_loader, custom_loss, bce_loss):
                 tgt = reports[:,i, :-1]  # Remove last token from reports
                 #print("Target indices: ", tgt)
                 #print('Target mask: ', tgt.shape)
-                padding_mask = create_padding_mask(tgt).to(device).type(indication_prompt.dtype)
+                #padding_mask = create_padding_mask(tgt).to(device).type(indication_prompt.dtype)
                 #causal_mask1 = create_causal_masks(inputs)
                 tgt_mask = src_mask(tgt.shape[1]).to(device).type(indication_prompt.dtype)
                 
@@ -231,7 +231,7 @@ def evaluate(model, accelerator, eval_loader, custom_loss, bce_loss):
                 #memory = model.prompt_attention(memory, indication_prompt, key_padding_mask=mem_mask, residual_connection=True)
                 # print(memory.shape, indication_prompt.shape, tgt.shape, prev_hidden.shape)
                 # print(encoder_pad_mask.shape)
-                output = model.decoder(tgt, prev_hidden, (indication_prompt, memory), tgt_key_padding_mask=padding_mask,
+                output = model.decoder(tgt, prev_hidden, (indication_prompt, memory), tgt_key_padding_mask=None,
                                     memory_key_padding_mask=encoder_pad_mask, tgt_mask=tgt_mask,
                                         tgt_is_causal=False)  # [batch_size, seq_len - 1, d_model] 
                 
@@ -317,13 +317,13 @@ def train(cfg: DictConfig):
 
     transform = transforms.Compose(
     [
-        transforms.RandomVerticalFlip(0.45),
-        transforms.RandomHorizontalFlip(0.45),
+        # transforms.RandomVerticalFlip(0.45),
+        # transforms.RandomHorizontalFlip(0.45),
         transforms.RandomRotation((0,5)),
         #transforms.v2.RandomResize((200, 250)), v2.RandomResize
-        #transforms.GaussianBlur(kernel_size=(5, 9), sigma=(0.1, 5)),
-        # transforms.ColorJitter(brightness= (0.5, 1.0) , contrast=1.0),
-        # transforms.Pad(30),
+        transforms.GaussianBlur(kernel_size=(5, 9), sigma=(0.1, 5)),
+        transforms.ColorJitter(brightness= (0.5, 1.0) , contrast=1.0),
+        transforms.Pad(30),
         transforms.Resize((224,224)), 
         transforms.ToTensor(),
     ]
@@ -498,7 +498,7 @@ def train(cfg: DictConfig):
                 tgt = reports[:,i, :-1]  # Remove last token from reports
                 #print("Target indices: ", tgt)
                 #print('Target mask: ', tgt.shape)
-                padding_mask = create_padding_mask(tgt).to(device).type(indication_prompt.dtype)
+                #padding_mask = create_padding_mask(tgt).to(device).type(indication_prompt.dtype)
                 #causal_mask1 = create_causal_masks(inputs)
                 tgt_mask = src_mask(tgt.shape[1]).to(device).type(indication_prompt.dtype)
                 
@@ -513,7 +513,7 @@ def train(cfg: DictConfig):
                 #memory = model.prompt_attention(memory, indication_prompt, key_padding_mask=mem_mask, residual_connection=True)
                 # print(memory.shape, indication_prompt.shape, tgt.shape, prev_hidden.shape)
                 # print(encoder_pad_mask.shape)
-                output = model.decoder(tgt, prev_hidden, (indication_prompt, memory), tgt_key_padding_mask= padding_mask,
+                output = model.decoder(tgt, prev_hidden, (indication_prompt, memory), tgt_key_padding_mask= None,
                                     memory_key_padding_mask=encoder_pad_mask, tgt_mask=tgt_mask,
                                         tgt_is_causal=False)  # [batch_size, seq_len - 1, d_model] 
                 
@@ -523,7 +523,7 @@ def train(cfg: DictConfig):
                 # print("output shape: ", output.shape, reports[:, i, 1:].shape)
                 # print("stop prob shape: ", pred_stop_probs.shape, true_stop_probs[:, 0].shape)
                 
-                loss += custom_loss(true_stop_probs[:,i].type(indication_prompt.dtype), reports[:, i, 1:], pred_stop_probs,  output)  # Ignore <sos> token
+                loss += (custom_loss(true_stop_probs[:,i].type(indication_prompt.dtype), reports[:, i, 1:], pred_stop_probs,  output) + custom_bce_loss( tags, labels)/n_sentences) # Ignore <sos> token
 
             #loss += custom_bce_loss( tags, labels)
             
