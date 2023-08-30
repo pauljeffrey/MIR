@@ -276,6 +276,8 @@ def evaluate(model, accelerator, eval_loader, custom_loss): #, bce_loss
                 eval_stop_losses.append(accelerator.gather(stop_loss).detach().cpu())
                 eval_losses.append(accelerator.gather(sparse_loss).detach().cpu())
                 
+            print("loss : ", stop_loss, sparse_loss)
+            print("Loss list: ",eval_stop_losses, eval_losses)
 
             #binary_loss = bce_loss(tags, labels)
             #eval_bce_losses.append(accelerator.gather(binary_loss).detach().cpu())
@@ -286,6 +288,7 @@ def evaluate(model, accelerator, eval_loader, custom_loss): #, bce_loss
             eval_stop_loss = torch.mean(torch.cat(eval_stop_losses))
             #eval_bce_loss = torch.mean(torch.cat(eval_bce_losses))
             perplexity = math.exp(eval_loss)
+            print("Try : ", eval_loss, eval_stop_loss)
             
             
         except OverflowError:
