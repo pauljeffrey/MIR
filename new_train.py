@@ -612,7 +612,7 @@ def train(cfg: DictConfig):
                     logger.info(f"New best metric: {best_metric} at epoch {epoch}")
                     logger.info(f"Saving model with best metric: Eval loss {best_metric}...")
 
-                    epoch_dir = f"model_with_best_eval- {best_metric}"
+                    epoch_dir = f"model_with_best_eval"
                     if cfg.output_dir is not None:
                         accelerator.wait_for_everyone()
                         unwrapped_model = accelerator.unwrap_model(model)            
