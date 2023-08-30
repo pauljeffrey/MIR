@@ -407,7 +407,8 @@ def train(cfg: DictConfig):
             if torch.any(torch.isnan(encoded_images)):
                 print("Raw images are nan..")
                 
-            print(f"Step: {step} \n\n")
+            print("True_stop_probs: ", true_stop_probs)
+            #print(f"Step: {step} \n\n")
             loss = 0            
             n_sentences  = reports.shape[1]
             # print('Length of sentences: ', n_sentences)
@@ -461,7 +462,7 @@ def train(cfg: DictConfig):
                     print("Initial Prev hidden, hn, cn is nan")
                     
             for i in range(n_sentences):
-                print(f"This loop is for the number {i} sentence.")
+                #print(f"This loop is for the number {i} sentence.")
                 
                 for name , each in model.named_parameters():
                     if torch.any(torch.isnan(each)):
