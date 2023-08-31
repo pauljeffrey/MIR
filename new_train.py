@@ -276,25 +276,25 @@ def evaluate(model, accelerator, eval_loader, custom_loss): #, bce_loss
                 eval_stop_losses.append(accelerator.gather(stop_loss).detach().cpu().item())
                 eval_losses.append(accelerator.gather(sparse_loss).detach().cpu().item())
                 
-            print("loss : ", stop_loss, sparse_loss)
-            print("Loss list: ",eval_stop_losses, eval_losses)
+            # print("loss : ", stop_loss, sparse_loss)
+            # print("Loss list: ",eval_stop_losses, eval_losses)
 
             #binary_loss = bce_loss(tags, labels)
             #eval_bce_losses.append(accelerator.gather(binary_loss).detach().cpu())
             
 
         try:
-            eval_loss = sum(eval_losses)/ len(eval_losses)
-            eval_stop_loss = sum(eval_stop_losses) / len(eval_stop_losses)
+            eval_loss = torch.mean(torch.Tensor(eval_losses))
+            eval_stop_loss = torch.mean(torch.Tensor(eval_stop_losses))
             #eval_bce_loss = torch.mean(torch.cat(eval_bce_losses))
-            perplexity = math.exp(eval_loss)
-            print("Try : ", eval_loss, eval_stop_loss)
+            perplexity = math.exp(eval_loss.item())
+            #print("Try : ", eval_loss, eval_stop_loss)
             
             
         except OverflowError:
             perplexity = float("inf")
         
-        print(eval_loss, eval_stop_loss, perplexity)
+        #print(eval_loss, eval_stop_loss, perplexity)
                     
     return eval_loss , eval_stop_loss, perplexity #eval_bce_loss
 
@@ -638,7 +638,7 @@ def train(cfg: DictConfig):
                         #     state_dict=accelerator.get_state_dict(model),
                         # )
                 
-            print("Back to training...")        
+            #print("Back to training...")        
             if step % cfg.training.save_every == 0:                 
                 epoch_dir = f"epoch_most_recent"
                 
