@@ -455,6 +455,7 @@ def train(cfg: DictConfig):
             # print("True probs: ",true_stop_probs)
             
             encoder_pad_mask = create_padding_mask(indication_prompt).type(torch.cuda.HalfTensor).to(device)
+            print(encoder_pad_mask)
             #print("Mem shape: ", indication_prompt.shape, "mask shape: ", encoder_pad_mask.shape)
             #encoder_causal_mask = src_mask(indication_prompt.shape[1])
             
