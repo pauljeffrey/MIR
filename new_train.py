@@ -149,7 +149,7 @@ def evaluate(model, accelerator, eval_loader, custom_loss): #, bce_loss
     model.eval()
     device = accelerator.device
     #loss = 0
-    #print("\n In the evaluation function")
+    print("\n In the evaluation function")
     with torch.no_grad():
         eval_losses = []
         eval_stop_losses = []
@@ -311,7 +311,7 @@ def train(cfg: DictConfig):
         level=logging.INFO,
     )
 
-    deepspeed_plugin = DeepSpeedPlugin(zero_stage=3, gradient_accumulation_steps=cfg.training.gradient_accumulation_steps, gradient_clipping=1.0)
+    deepspeed_plugin = DeepSpeedPlugin(zero_stage=2, gradient_accumulation_steps=cfg.training.gradient_accumulation_steps, gradient_clipping=1.0)
     accelerator = Accelerator( mixed_precision='fp16', deepspeed_plugin =deepspeed_plugin) #,
     
     accelerator.wait_for_everyone()
@@ -438,7 +438,7 @@ def train(cfg: DictConfig):
         train_losses = []
         
         for step, (encoded_images,indication_prompt, true_stop_probs, reports) in enumerate(train_loader): #labels,
-            #print(f"\nStep {step}")
+            print(f"\nStep {step}")
             # encoded_images = encoded_images.to(device)
             # reports = reports.to(device)
             # true_stop_probs = true_stop_probs.to(device)
