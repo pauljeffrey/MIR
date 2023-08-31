@@ -193,10 +193,10 @@ class ChestXrayDataSet2(Dataset):
         self.image_dir = image_dir
         if caption_json.endswith("val.json"):
             with open(caption_json, 'r') as f:
-                self.data = random.sample(json.load(f), 4000)
+                self.data = random.sample(json.load(f), 100)
         else:
             with open(caption_json, 'r') as f:
-                self.data  = json.load(f)
+                self.data  = json.load(f)[:500]
             
         #self.file_names, self.labels = self.__load_label_list(file_list)
         if use_tokenizer_fast:
