@@ -32,6 +32,7 @@ class SentLSTM(nn.Module):
         self.num_layers = num_layers
         #self.enforce_info = enforce_info            
     
+    
         
         
     def init_state(self, visual_features, encoded_info):

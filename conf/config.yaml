@@ -10,13 +10,13 @@ dataset:
 
   train:
     image_dir: "/kaggle/input/chest-xrays-indiana-university/images/images_normalized"
-    caption_json: "/kaggle/input/custom/train.json"
+    caption_json: "/kaggle/input/custom1/train.json"
     #history_json: null
     #file_list: null
 
   eval:
     image_dir: "/kaggle/input/chest-xrays-indiana-university/images/images_normalized"
-    caption_json: "/kaggle/input/custom/val.json"
+    caption_json: "/kaggle/input/custom1/val.json"
     #history_json: null
     #file_list: null
 
@@ -45,12 +45,12 @@ training:
   max_train_steps: 40000
   gradient_accumulation_steps: 4
   lr_scheduler: "cosine" # ["linear", "cosine", "cosine_with_restarts", "polynomial", "constant", "constant_with_warmup"]
-  lr_warmup_steps: 50
-  eval_every: 2
+  lr_warmup_steps: 70
+  eval_every: 10
   save_every: 30
   img_size: (224,224)
-  train_batch_size: 10 #50
-  eval_batch_size: 10 #120
+  train_batch_size: 50
+  eval_batch_size: 100
 
   checkpoint:
     resume_from_checkpoint: 0 # integer representing which checkpoint to load from, or <= 0 to not
@@ -118,7 +118,7 @@ architecture:
   layer_norm_eps: 1e-5
   batch_first: true
   norm_first: true
-  device: null # previously None
+  device: 'cuda' # previously None
   dtype: null
   norm: null
   #state_path: null
