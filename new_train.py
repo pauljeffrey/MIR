@@ -284,10 +284,10 @@ def evaluate(model, accelerator, eval_loader, custom_loss): #, bce_loss
             
 
         try:
-            eval_loss = torch.mean(torch.Tensor(eval_losses))
-            eval_stop_loss = torch.mean(torch.Tensor(eval_stop_losses))
+            eval_loss = sum(eval_losses)/ len(eval_losses)
+            eval_stop_loss = sum(eval_stop_losses) / len(eval_stop_losses)
             #eval_bce_loss = torch.mean(torch.cat(eval_bce_losses))
-            perplexity = math.exp(eval_loss.item())
+            perplexity = math.exp(eval_loss)
             print("Try : ", eval_loss, eval_stop_loss)
             
             
