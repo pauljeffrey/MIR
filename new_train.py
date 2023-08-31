@@ -149,7 +149,7 @@ def evaluate(model, accelerator, eval_loader, custom_loss): #, bce_loss
     model.eval()
     device = accelerator.device
     #loss = 0
-    print("\n In the evaluation function")
+    #print("\n In the evaluation function")
     with torch.no_grad():
         eval_losses = []
         eval_stop_losses = []
@@ -167,7 +167,7 @@ def evaluate(model, accelerator, eval_loader, custom_loss): #, bce_loss
             #print("Mem shape: ", indication_prompt.shape, "mask shape: ", encoder_pad_mask.shape)
             #encoder_causal_mask = src_mask(indication_prompt.shape[1])
             
-            encoded_images  = model.encoder(encoded_images)#.type(torch.cuda.HalfTensor))  , tags
+            encoded_images  = model.encoder(encoded_images.type(torch.cuda.HalfTensor))  , tags
             
             if torch.any(torch.isinf(encoded_images)) or torch.any(torch.isnan(encoded_images)):
                 print("Encoded Images is nan")
@@ -311,8 +311,8 @@ def train(cfg: DictConfig):
         level=logging.INFO,
     )
 
-    deepspeed_plugin = DeepSpeedPlugin(zero_stage=2, gradient_accumulation_steps=cfg.training.gradient_accumulation_steps, gradient_clipping=1.0)
-    accelerator = Accelerator( deepspeed_plugin =deepspeed_plugin) #mixed_precision='fp16',
+    deepspeed_plugin = DeepSpeedPlugin(zero_stage=3, gradient_accumulation_steps=cfg.training.gradient_accumulation_steps, gradient_clipping=1.0)
+    accelerator = Accelerator( mixed_precision='fp16', deepspeed_plugin =deepspeed_plugin) #,
     
     accelerator.wait_for_everyone()
     device= accelerator.device
@@ -438,7 +438,7 @@ def train(cfg: DictConfig):
         train_losses = []
         
         for step, (encoded_images,indication_prompt, true_stop_probs, reports) in enumerate(train_loader): #labels,
-            print(f"\nStep {step}")
+            #print(f"\nStep {step}")
             # encoded_images = encoded_images.to(device)
             # reports = reports.to(device)
             # true_stop_probs = true_stop_probs.to(device)
@@ -458,7 +458,7 @@ def train(cfg: DictConfig):
             #print("Mem shape: ", indication_prompt.shape, "mask shape: ", encoder_pad_mask.shape)
             #encoder_causal_mask = src_mask(indication_prompt.shape[1])
             
-            encoded_images  = model.encoder(encoded_images)#.type(torch.cuda.HalfTensor))
+            encoded_images  = model.encoder(encoded_images.type(torch.cuda.HalfTensor))
             
             for name , each in model.encoder.named_parameters():
                 if torch.any(torch.isnan(each)):
@@ -599,7 +599,7 @@ def train(cfg: DictConfig):
             
             if step % cfg.training.eval_every == 0:
                 model.eval()   
-                print("\nEvaluating model...")
+                #print("\nEvaluating model...")
                 eval_loss, eval_bce_loss, perplexity = evaluate(model, accelerator, eval_loader, custom_loss) #custom_bce_loss
                 logger.info(f"Epoch {epoch}, Step {step} : train_loss: {train_loss} perplexity: {perplexity} sparse_loss: {eval_loss}  \
                     stop_loss {eval_bce_loss} total_eval_loss {eval_loss + eval_bce_loss }" ) #label_loss: {label_loss} 

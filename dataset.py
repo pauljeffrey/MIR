@@ -191,8 +191,12 @@ class ChestXrayDataSet2(Dataset):
                  use_tokenizer_fast =True):
         
         self.image_dir = image_dir
-        with open(caption_json, 'r') as f:
-            self.data  = json.load(f)[:100]
+        if caption_json.startswith("val"):
+            with open(caption_json, 'r') as f:
+                self.data = random.sample(json.load(f), 1500)
+        else:
+            with open(caption_json, 'r') as f:
+                self.data  = json.load(f)
             
         #self.file_names, self.labels = self.__load_label_list(file_list)
         if use_tokenizer_fast:
@@ -377,21 +381,24 @@ if __name__ == '__main__':
     # with open(vocab_path, 'rb') as f:
     #     vocab = pickle.load(f)
 
-    data_loader = get_loader2(image_dir="jeefff",
+    # data_loader = get_loader2(image_dir="jeefff",
                               
-                             caption_json="./data/full_data/train.json",
-                             tokenizer_name= "./tokenizers/wordpiece_tokenizer8000.json",
-                             transform=None,
-                             batch_size=8,
-                             use_tokenizer_fast=False,
-                             shuffle=True)
+    #                          caption_json="./data/full_data/train.json",
+    #                          tokenizer_name= "./tokenizers/wordpiece_tokenizer8000.json",
+    #                          transform=None,
+    #                          batch_size=8,
+    #                          use_tokenizer_fast=False,
+    #                          shuffle=True)
 
-    for i, (prompt, label,  prob, target) in enumerate(data_loader):
+    # for i, (prompt, label,  prob, target) in enumerate(data_loader):
         
-        print(prompt.shape)
-        print(label.shape)
-        print(target.shape)
-        print(prob.shape)
-        print(prob)
-        print(type(prompt), type(label), type(target), type(prob))
-        break
+    #     print(prompt.shape)
+    #     print(label.shape)
+    #     print(target.shape)
+    #     print(prob.shape)
+    #     print(prob)
+    #     print(type(prompt), type(label), type(target), type(prob))
+    #     break
+    
+    with open("./data/full_data/val.json", "r") as f:
+        print(len(json.load(f)))
