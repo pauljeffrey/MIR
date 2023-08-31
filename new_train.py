@@ -155,7 +155,7 @@ def evaluate(model, accelerator, eval_loader, custom_loss): #, bce_loss
         eval_stop_losses = []
         #eval_bce_losses = []
         
-        for _ , (encoded_images,indication_prompt, true_stop_probs, reports) in enumerate(eval_loader):   #labels,      
+        for _ , (encoded_images, indication_prompt, true_stop_probs, reports) in enumerate(eval_loader):   #labels,      
             #n_sentences  = reports.shape[1]
             
             n_sentences  = reports.shape[1]
@@ -167,7 +167,7 @@ def evaluate(model, accelerator, eval_loader, custom_loss): #, bce_loss
             #print("Mem shape: ", indication_prompt.shape, "mask shape: ", encoder_pad_mask.shape)
             #encoder_causal_mask = src_mask(indication_prompt.shape[1])
             
-            encoded_images  = model.encoder(encoded_images.type(torch.cuda.HalfTensor))  , tags
+            encoded_images  = model.encoder(encoded_images)#.type(torch.cuda.HalfTensor)) # , tags
             
             if torch.any(torch.isinf(encoded_images)) or torch.any(torch.isnan(encoded_images)):
                 print("Encoded Images is nan")
@@ -312,7 +312,7 @@ def train(cfg: DictConfig):
     )
 
     deepspeed_plugin = DeepSpeedPlugin(zero_stage=2, gradient_accumulation_steps=cfg.training.gradient_accumulation_steps, gradient_clipping=1.0)
-    accelerator = Accelerator( mixed_precision='fp16', deepspeed_plugin =deepspeed_plugin) #,
+    accelerator = Accelerator( deepspeed_plugin =deepspeed_plugin) #, mixed_precision='fp16', 
     
     accelerator.wait_for_everyone()
     device= accelerator.device
@@ -454,11 +454,11 @@ def train(cfg: DictConfig):
             # print("Inputs shape: ", encoded_images.shape, indication_prompt.shape, labels.shape, true_stop_probs.shape, reports.shape)
             # print("True probs: ",true_stop_probs)
             
-            encoder_pad_mask = create_padding_mask(indication_prompt).type(torch.cuda.HalfTensor).to(device)
+            encoder_pad_mask = create_padding_mask(indication_prompt).to(device)
             #print("Mem shape: ", indication_prompt.shape, "mask shape: ", encoder_pad_mask.shape)
             #encoder_causal_mask = src_mask(indication_prompt.shape[1])
             
-            encoded_images  = model.encoder(encoded_images.type(torch.cuda.HalfTensor))
+            encoded_images  = model.encoder(encoded_images)#.type(torch.cuda.HalfTensor))
             
             for name , each in model.encoder.named_parameters():
                 if torch.any(torch.isnan(each)):
