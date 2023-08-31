@@ -276,8 +276,8 @@ def evaluate(model, accelerator, eval_loader, custom_loss): #, bce_loss
                 eval_stop_losses.append(accelerator.gather(stop_loss).detach().cpu().item())
                 eval_losses.append(accelerator.gather(sparse_loss).detach().cpu().item())
                 
-            # print("loss : ", stop_loss, sparse_loss)
-            # print("Loss list: ",eval_stop_losses, eval_losses)
+            print("loss : ", stop_loss, sparse_loss)
+            print("Loss list: ",eval_stop_losses, eval_losses)
 
             #binary_loss = bce_loss(tags, labels)
             #eval_bce_losses.append(accelerator.gather(binary_loss).detach().cpu())
@@ -294,7 +294,7 @@ def evaluate(model, accelerator, eval_loader, custom_loss): #, bce_loss
         except OverflowError:
             perplexity = float("inf")
         
-        #print(eval_loss, eval_stop_loss, perplexity)
+        print(eval_loss, eval_stop_loss, perplexity)
                     
     return eval_loss , eval_stop_loss, perplexity #eval_bce_loss
 
