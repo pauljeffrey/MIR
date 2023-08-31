@@ -37,7 +37,7 @@ def src_mask(sz, mode="float"):
     mask = (torch.triu(torch.ones(sz, sz)) == 1).transpose(0, 1)
     
     if mode == "float":
-        mask = mask.float().masked_fill(mask == 0, float('-1e8')).masked_fill(mask == 1, float(0.0)) 
+        mask = mask.float().masked_fill(mask == 0, float('-inf')).masked_fill(mask == 1, float(0.0)) 
     return mask
 
 
@@ -51,7 +51,7 @@ def create_masks(inputs):
     # Combine padding and causal masks
     masks = padding_mask & causal_mask
     
-    masks = masks.float().masked_fill(masks == 0, float('-1e8')).masked_fill(masks == 1, float(0.0))
+    masks = masks.float().masked_fill(masks == 0, float('-inf')).masked_fill(masks == 1, float(0.0))
     return masks
 
 
@@ -64,7 +64,7 @@ def create_padding_mask(inputs):
         
     else:
         mask = (inputs == 0)#.unsqueeze(1).unsqueeze(2)
-    mask = mask.float().masked_fill(mask == 1, float('-1e8'))#.masked_fill(mask == 1, float(0.0))
+    mask = mask.float().masked_fill(mask == 1, float('-inf'))#.masked_fill(mask == 1, float(0.0))
     return mask
 
 
@@ -99,7 +99,7 @@ if __name__ == '__main__':
     # print("Output of create_masks: ")
     # print(out[1][0], out[0][0])
     #print(out[1].shape, out[0].shape) # attention output weights
-    # print(src_mask(5).dtype)
-    print(mask)
+    # print(src_mask(5, "bool"))
+    # print(mask)
     
     
