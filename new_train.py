@@ -273,8 +273,8 @@ def evaluate(model, accelerator, eval_loader, custom_loss): #, bce_loss
                 #loss += custom_loss(true_stop_probs[:,i].type(indication_prompt.dtype), reports[:, i, 1:], pred_stop_probs,  output, eval=True)  # Ignore <sos> token
                 stop_loss, sparse_loss = custom_loss(true_stop_probs[:,i].type(indication_prompt.dtype), reports[:, i, 1:],pred_stop_probs,  output, eval=True)  # Ignore <sos> token
                 
-                eval_stop_losses.append(accelerator.gather(stop_loss).detach().cpu())
-                eval_losses.append(accelerator.gather(sparse_loss).detach().cpu())
+                eval_stop_losses.append(accelerator.gather(stop_loss).detach().cpu().item())
+                eval_losses.append(accelerator.gather(sparse_loss).detach().cpu().item())
                 
             print("loss : ", stop_loss, sparse_loss)
             print("Loss list: ",eval_stop_losses, eval_losses)
@@ -284,8 +284,8 @@ def evaluate(model, accelerator, eval_loader, custom_loss): #, bce_loss
             
 
         try:
-            eval_loss = torch.mean(eval_losses)
-            eval_stop_loss = torch.mean(eval_stop_losses)
+            eval_loss = torch.mean(torch.cat(eval_losses))
+            eval_stop_loss = torch.mean(torch.cat(eval_stop_losses))
             #eval_bce_loss = torch.mean(torch.cat(eval_bce_losses))
             perplexity = math.exp(eval_loss)
             print("Try : ", eval_loss, eval_stop_loss)
