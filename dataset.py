@@ -192,7 +192,7 @@ class ChestXrayDataSet2(Dataset):
         
         self.image_dir = image_dir
         with open(caption_json, 'r') as f:
-            self.data  = json.load(f)
+            self.data  = json.load(f)[:100]
             
         #self.file_names, self.labels = self.__load_label_list(file_list)
         if use_tokenizer_fast:

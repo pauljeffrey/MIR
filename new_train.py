@@ -637,7 +637,8 @@ def train(cfg: DictConfig):
                         #     save_function=accelerator.save,
                         #     state_dict=accelerator.get_state_dict(model),
                         # )
-                        
+                
+            print("Back to training...")        
             if step % cfg.training.save_every == 0:                 
                 epoch_dir = f"epoch_most_recent"
                 
