@@ -196,7 +196,7 @@ class ChestXrayDataSet2(Dataset):
                 self.data = random.sample(json.load(f), 100)
         else:
             with open(caption_json, 'r') as f:
-                self.data  = json.load(f)[:100]
+                self.data  = json.load(f)[:500]
             
         #self.file_names, self.labels = self.__load_label_list(file_list)
         if use_tokenizer_fast:
