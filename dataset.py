@@ -193,7 +193,7 @@ class ChestXrayDataSet2(Dataset):
         self.image_dir = image_dir
         if caption_json.endswith("val.json"):
             with open(caption_json, 'r') as f:
-                self.data = random.sample(json.load(f), 500)
+                self.data = random.sample(json.load(f), 3000)
         else:
             with open(caption_json, 'r') as f:
                 self.data  = json.load(f)

@@ -360,9 +360,9 @@ def train(cfg: DictConfig):
         # transforms.RandomHorizontalFlip(0.45),
         transforms.RandomRotation((0,5)),
         #transforms.v2.RandomResize((200, 250)), v2.RandomResize
-        transforms.GaussianBlur(kernel_size=(5, 9), sigma=(0.1, 5)),
-        transforms.ColorJitter(brightness= (0.5, 1.0) , contrast=1.0),
-        transforms.Pad(30),
+        transforms.GaussianBlur(kernel_size=(5, 9), sigma=(0.1, 2.0)),
+        transforms.ColorJitter(brightness= (0.5, 1.5) , contrast=1.0),
+        transforms.Pad(20),
         transforms.Resize((224,224)), 
         transforms.ToTensor(),
     ]
@@ -601,10 +601,10 @@ def train(cfg: DictConfig):
                 model.eval()   
                 #print("\nEvaluating model...")
                 eval_loss, eval_bce_loss, perplexity = evaluate(model, accelerator, eval_loader, custom_loss) #custom_bce_loss
-                logger.info(f"Epoch {epoch}, Step {step} : train_loss: {train_loss} perplexity: {perplexity} sparse_loss: {eval_loss}  \
+                logger.info(f"\nEpoch {epoch}, Step {step} : train_loss: {train_loss} perplexity: {perplexity} sparse_loss: {eval_loss}  \
                     stop_loss {eval_bce_loss} total_eval_loss {eval_loss + eval_bce_loss }" ) #label_loss: {label_loss} 
                 
-                print(f"Epoch {epoch}, Step {step} : train_loss: {train_loss} perplexity: {perplexity} sparse_loss: {eval_loss}  \
+                print(f"\nEpoch {epoch}, Step {step} : train_loss: {train_loss} perplexity: {perplexity} sparse_loss: {eval_loss}  \
                     stop_loss {eval_bce_loss} total_eval_loss {eval_loss + eval_bce_loss}" ) #label_loss: {label_loss} 
                 
                 model.train()
@@ -664,9 +664,9 @@ def train(cfg: DictConfig):
             
         eval_loss, eval_bce_loss, perplexity = evaluate(model,accelerator,eval_loader, custom_loss) #, custom_bce_loss
         model.train()
-        logger.info(f"Epoch {epoch}, Step {step} : train_loss: {train_loss} perplexity: {perplexity} sparse_loss: {eval_loss}  \
+        logger.info(f"\nEpoch {epoch}, Step {step} : train_loss: {train_loss} perplexity: {perplexity} sparse_loss: {eval_loss}  \
                     stop_loss {eval_bce_loss}  total_eval_loss {eval_loss + eval_bce_loss}" ) #label_loss: {label_loss}
-        print(f"Epoch {epoch}, Step {step} : train_loss: {train_loss} perplexity: {perplexity} sparse_loss: {eval_loss}  \
+        print(f"\nEpoch {epoch}, Step {step} : train_loss: {train_loss} perplexity: {perplexity} sparse_loss: {eval_loss}  \
                     stop_loss {eval_bce_loss} total_eval_loss {eval_loss + eval_bce_loss}" )
         
     print('Saving the model using the best weights checkpoint in the current output directory')

@@ -10,13 +10,13 @@ dataset:
 
   train:
     image_dir: "/kaggle/input/chest-xrays-indiana-university/images/images_normalized"
-    caption_json: "/kaggle/input/custom/train.json"
+    caption_json: "/kaggle/input/custom1/train.json"
     #history_json: null
     #file_list: null
 
   eval:
     image_dir: "/kaggle/input/chest-xrays-indiana-university/images/images_normalized"
-    caption_json: "/kaggle/input/custom/val.json"
+    caption_json: "/kaggle/input/custom1/val.json"
     #history_json: null
     #file_list: null
 
@@ -40,17 +40,17 @@ training:
   seed: 15
   shuffle: true
   learning_rate: 1e-4
-  weight_decay: 0.0
+  weight_decay: 0.1
   num_epochs: 50
   max_train_steps: 40000
   gradient_accumulation_steps: 4
   lr_scheduler: "cosine" # ["linear", "cosine", "cosine_with_restarts", "polynomial", "constant", "constant_with_warmup"]
-  lr_warmup_steps: 40
-  eval_every: 1
-  save_every: 50
+  lr_warmup_steps: 50
+  eval_every: 2
+  save_every: 30
   img_size: (224,224)
-  train_batch_size: 50
-  eval_batch_size: 120
+  train_batch_size: 10 #50
+  eval_batch_size: 10 #120
 
   checkpoint:
     resume_from_checkpoint: 0 # integer representing which checkpoint to load from, or <= 0 to not
@@ -69,7 +69,7 @@ architecture:
   #   mlc: null
 
   #history_encoder:
-  history_encoder_num_layers: 6
+  history_encoder_num_layers: 8
   history_encoder_n_heads: 12
   history_encoder_dim_feedforward: 2048
   #history_encoder_dmodel: 256 

@@ -78,7 +78,7 @@ if __name__ == '__main__':
     # # print()
     
     # print(inputs)
-    masks = create_masks(inputs)
+    #masks = create_masks(inputs)
     
     q = torch.randn( 3,10, 10) # source sequence length 3, batch size 1, embedding size 10
     w= torch.randn(1,3)
@@ -93,13 +93,13 @@ if __name__ == '__main__':
     
     out = attn(q, q, q, key_padding_mask= None, attn_mask=src_mask(10))#, 
     #print(torch.min(out[1][0]), torch.max(out[1][0]))
-    print(out[1][0], out[0][0])
-    # out = attn(q, q, q, key_padding_mask= None, attn_mask=masks)#, 
-    # #print(torch.min(out[1][0]), torch.max(out[1][0]))
+    print(out[1][0])#, out[0][0])
+    out = attn(q, q, q, key_padding_mask= mask, attn_mask=None, is_causal=False)#, 
+    print(out[1][0])#(), torch.max(out[1][0]))
     # print("Output of create_masks: ")
     # print(out[1][0], out[0][0])
     #print(out[1].shape, out[0].shape) # attention output weights
     # print(src_mask(5, "bool"))
-    # print(mask)
+    print(mask)
     
     
