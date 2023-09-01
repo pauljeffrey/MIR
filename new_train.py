@@ -438,7 +438,7 @@ def train(cfg: DictConfig):
         # if cfg.tracking:
         #     total_loss = 0
         train_losses = []
-        
+        #check = True
         for step, (encoded_images,indication_prompt, true_stop_probs, reports) in enumerate(train_loader): #labels,
             #print(f"\nStep {step}")
             # encoded_images = encoded_images.to(device)
@@ -446,6 +446,8 @@ def train(cfg: DictConfig):
             # true_stop_probs = true_stop_probs.to(device)
             #print("Max and Min values of raw images: ", torch.max(encoded_images), torch.min(encoded_images))
             if step <= 216:
+                if step % 50 == 0:
+                    print(f"On step {step}, Skipping to step {216}..")
                 continue
             else:
                 print(f"Resuming training from step {step}...")
