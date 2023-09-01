@@ -303,6 +303,7 @@ def evaluate(model, accelerator, eval_loader, custom_loss): #, bce_loss
 
 #@hydra.main(version_base=None, config_path="conf", config_name="config")
 def train(cfg: DictConfig):
+    torch.manual_seed(42)
     torch.autograd.set_detect_anomaly(True)
     logger = get_logger(__name__)
     logging.basicConfig(
@@ -431,6 +432,7 @@ def train(cfg: DictConfig):
             print(name, " layer has nan values in it..")
 
     for epoch in range(starting_epoch, cfg.training.num_epochs):
+        
         model.train()
                 
         # if cfg.tracking:
@@ -443,6 +445,11 @@ def train(cfg: DictConfig):
             # reports = reports.to(device)
             # true_stop_probs = true_stop_probs.to(device)
             #print("Max and Min values of raw images: ", torch.max(encoded_images), torch.min(encoded_images))
+            if step <= 216:
+                continue
+            else:
+                print(f"Resuming training from step {step}...")
+            
             if torch.any(torch.isnan(encoded_images)):
                 print("Raw images are nan..")
                 

@@ -39,18 +39,18 @@ tokenizer:
 training:
   seed: 15
   shuffle: true
-  learning_rate: 1e-4
+  learning_rate: 3e-4
   weight_decay: 0.1
   num_epochs: 50
   max_train_steps: 30000
-  gradient_accumulation_steps: 20
+  gradient_accumulation_steps: 30
   lr_scheduler: "cosine" # ["linear", "cosine", "cosine_with_restarts", "polynomial", "constant", "constant_with_warmup"]
-  lr_warmup_steps: 50
-  eval_every: 24
+  lr_warmup_steps: 100
+  eval_every: 64
   save_every: 32
   img_size: (224,224)
-  train_batch_size: 24
-  eval_batch_size: 32
+  train_batch_size: 20
+  eval_batch_size: 28
 
   checkpoint:
     resume_from_checkpoint: 0 # integer representing which checkpoint to load from, or <= 0 to not
