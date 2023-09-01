@@ -432,6 +432,7 @@ def train(cfg: DictConfig):
             print(name, " layer has nan values in it..")
             
     for i in range(216):
+        print(f"Batch {i}")
         next(iter(train_loader))
 
     for epoch in range(starting_epoch, cfg.training.num_epochs):
