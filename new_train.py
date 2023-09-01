@@ -430,6 +430,9 @@ def train(cfg: DictConfig):
     for name , each in model.named_parameters():
         if torch.any(torch.isnan(each)):
             print(name, " layer has nan values in it..")
+            
+    for i in range(216):
+        next(iter(train_loader))
 
     for epoch in range(starting_epoch, cfg.training.num_epochs):
         
@@ -445,12 +448,12 @@ def train(cfg: DictConfig):
             # reports = reports.to(device)
             # true_stop_probs = true_stop_probs.to(device)
             #print("Max and Min values of raw images: ", torch.max(encoded_images), torch.min(encoded_images))
-            if step <= 216:
-                if step % 50 == 0:
-                    print(f"On step {step}, Skipping to step {216}..")
-                continue
-            else:
-                print(f"Resuming training from step {step}...")
+            # if step <= 216:
+            #     if step % 50 == 0:
+            #         print(f"On step {step}, Skipping to step {216}..")
+            #     continue
+            # else:
+            #     print(f"Resuming training from step {step}...")
             
             if torch.any(torch.isnan(encoded_images)):
                 print("Raw images are nan..")
