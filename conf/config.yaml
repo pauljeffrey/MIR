@@ -43,7 +43,7 @@ training:
   weight_decay: 0.1
   num_epochs: 50
   max_train_steps: 30000
-  gradient_accumulation_steps: 6
+  gradient_accumulation_steps: 20
   lr_scheduler: "cosine" # ["linear", "cosine", "cosine_with_restarts", "polynomial", "constant", "constant_with_warmup"]
   lr_warmup_steps: 50
   eval_every: 24
