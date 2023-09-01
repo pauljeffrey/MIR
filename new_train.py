@@ -111,12 +111,12 @@ def load_model(cfg: DictConfig):
     model = MedicalReportGenerator(**model_params)
     if cfg.model.from_trained:
         path = os.path.join(os.path.abspath(cfg.output_dir), cfg.load_dir) # Assumes that all state_dicts are stored in the same directory.
-        print(f"loading all sub model weights from {path}...")
+        print(f"\nLoading all sub model weights from {path}...")
         model = load(model, cfg)
         return model
     elif cfg.model.from_checkpoint:
         path = os.path.join(os.path.abspath(cfg.output_dir ), cfg.load_dir) # Assumes that all state_dicts are stored in the same directory.
-        print(f"loading checkpoint from {path}...")
+        print(f"\nLoading checkpoint from {path}...")
         model, optimizer, epoch, loss = load(model, cfg, True)
         return model, optimizer, epoch, loss
     else:
