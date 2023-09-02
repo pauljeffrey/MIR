@@ -184,8 +184,8 @@ class ChestXrayDataSet2(Dataset):
                  image_dir,
                  caption_json,
                  tokenizer_name,
-                 s_max=15,
-                 n_max=40,
+                 s_max=10,
+                 n_max=30,
                  encoder_n_max=60,
                  transforms=None,
                  use_tokenizer_fast =True):
