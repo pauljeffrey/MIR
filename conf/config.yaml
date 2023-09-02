@@ -1,4 +1,4 @@
-output_dir: "train"
+output_dir: "/kaggle/input/" #"train"
 load_dir: "model_with_best_eval"
 
 dataset:
