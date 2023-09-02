@@ -469,7 +469,7 @@ def train(cfg: DictConfig):
             #print("Mem shape: ", indication_prompt.shape, "mask shape: ", encoder_pad_mask.shape)
             #encoder_causal_mask = src_mask(indication_prompt.shape[1])
             
-            encoded_images  = model.encoder(encoded_images)#.type(torch.cuda.HalfTensor))
+            encoded_images  = model.encoder(encoded_images.type(model.dtype))#.type(torch.cuda.HalfTensor))
             
             for name , each in model.encoder.named_parameters():
                 if torch.any(torch.isnan(each)):
