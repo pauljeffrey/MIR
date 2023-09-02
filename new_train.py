@@ -313,7 +313,7 @@ def train(cfg: DictConfig):
     )
 
     deepspeed_plugin = DeepSpeedPlugin(zero_stage=2, gradient_accumulation_steps=cfg.training.gradient_accumulation_steps, gradient_clipping=1.0)
-    accelerator = Accelerator( mixed_precision='fp16', deepspeed_plugin =deepspeed_plugin) #,  
+    accelerator = Accelerator(  deepspeed_plugin =deepspeed_plugin) #,  mixed_precision='fp16',
     
     accelerator.wait_for_everyone()
     device= accelerator.device
@@ -449,8 +449,8 @@ def train(cfg: DictConfig):
             # reports = reports.to(device)
             # true_stop_probs = true_stop_probs.to(device)
             #print("Max and Min values of raw images: ", torch.max(encoded_images), torch.min(encoded_images))
-            # if step <= 216:
-            #     if step % 50 == 0:
+            # if step <= 449:
+            #     if step % 100 == 0:
             #         print(f"On step {step}, Skipping to step {216}..")
             #     continue
             
@@ -469,7 +469,7 @@ def train(cfg: DictConfig):
             #print("Mem shape: ", indication_prompt.shape, "mask shape: ", encoder_pad_mask.shape)
             #encoder_causal_mask = src_mask(indication_prompt.shape[1])
             
-            encoded_images  = model.encoder(encoded_images.type(model.encoder.weight.dtype))#.type(torch.cuda.HalfTensor))
+            encoded_images  = model.encoder(encoded_images)#.type(torch.cuda.HalfTensor))
             
             for name , each in model.encoder.named_parameters():
                 if torch.any(torch.isnan(each)):
