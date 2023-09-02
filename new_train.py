@@ -449,10 +449,10 @@ def train(cfg: DictConfig):
             # reports = reports.to(device)
             # true_stop_probs = true_stop_probs.to(device)
             #print("Max and Min values of raw images: ", torch.max(encoded_images), torch.min(encoded_images))
-            if step <= 449:
-                if step % 100 == 0:
-                    print(f"On step {step}, Skipping to step {216}..")
-                continue
+            # if step <= 449:
+            #     if step % 100 == 0:
+            #         print(f"On step {step}, Skipping to step {216}..")
+            #     continue
             
             # if torch.any(torch.isnan(encoded_images)):
             #     print("Raw images are nan..")
