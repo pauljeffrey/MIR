@@ -273,8 +273,8 @@ class DecoderLayer(nn.Module):
             if torch.any(torch.isnan(x)):
                 print("cross attention x contains nan values.")
         
-            if torch.any(torch.isnan(q)):
-                print("cross attention query contains nan values..")
+            # if torch.any(torch.isnan(q)):
+            #     print("cross attention query contains nan values..")
                 
             if torch.any(torch.isnan(k)):
                 print("cross attention key contains nan values..")
