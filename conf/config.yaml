@@ -49,8 +49,8 @@ training:
   eval_every: 2048
   save_every: 32
   img_size: (224,224)
-  train_batch_size: 1
-  eval_batch_size: 1
+  train_batch_size: 2
+  eval_batch_size: 2
 
   checkpoint:
     resume_from_checkpoint: 0 # integer representing which checkpoint to load from, or <= 0 to not

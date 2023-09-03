@@ -220,17 +220,6 @@ class DecoderLayer(nn.Module):
             # topic_key = self.topic_key_fc(topic)
             # topic_value = self.topic_value_fc(topic)
             
-            # if torch.any(torch.isnan(topic_key)) or torch.any(torch.isnan(topic_value)):
-            #     topic_key = torch.nan_to_num(topic_key)
-            #     topic_value = torch.nan_to_num(topic_value)
-            #     print("Topic values inside decoder layers is affected...")
-            
-            # print(topic_key.shape)
-            # print(topic_value.unsqueeze(1).repeat(1,x.shape[1],1).shape)
-            # print("Concatenated: ", torch.cat([x, topic_key.unsqueeze(1).repeat(1,x.shape[1],1)], dim=-1).shape)
-            #print("Use Topic: ",x.shape, topic_key.shape, topic_value.shape)
-            #print(k.shape, topic_key.repeat(1,x.shape[1],1).shape)
-            #print("Use topic", attn_mask.shape, is_causal)
             x = self.self_attn(q, 
                                torch.cat([k, topic.repeat(1,x.shape[1],1)], dim=-1), 
                                torch.cat([x, topic.repeat(1,x.shape[1],1)], dim=-1),
@@ -240,7 +229,7 @@ class DecoderLayer(nn.Module):
                             need_weights=False)[0]
         else:
             #print("Don't use topic", attn_mask, is_causal)
-            x = self.self_attn(x, x, x,
+            x = self.self_attn(q, k, x,
                             attn_mask=attn_mask,
                             key_padding_mask=key_padding_mask,
                             is_causal=is_causal,
@@ -269,16 +258,16 @@ class DecoderLayer(nn.Module):
             #print(prompt_seq_l, prompt_d_model, self.n_head)
             assert prompt_d_model % self.n_head == 0
             
-            q= x.reshape(-1, seq_l, self.n_head, int(self.d_model/self.n_head)).permute(0,2,1,3)
+            x= x.reshape(-1, seq_l, self.n_head, int(self.d_model/self.n_head)).permute(0,2,1,3)
             k = mem.reshape(-1, prompt_seq_l, self.n_head, int(prompt_d_model/self.n_head)).permute(0,2,1,3)
             
             #apply positional rotary embedding:
             #print(k.shape, q.shape)
-            q = self.pos_emb.rotate_queries_or_keys(q)
+            x = self.pos_emb.rotate_queries_or_keys(x)
             k = self.pos_emb.rotate_queries_or_keys(k)
             
             # Reshape q, k to normal
-            q = q.permute(0,2,1,3).reshape(b, seq_l, self.d_model)
+            x = x.permute(0,2,1,3).reshape(b, seq_l, self.d_model)
             k = k.permute(0,2,1,3).reshape(b, prompt_seq_l, prompt_d_model)
             
             if torch.any(torch.isnan(x)):
@@ -293,7 +282,7 @@ class DecoderLayer(nn.Module):
             if torch.any(torch.isnan(mem)):
                 print("cross attention mem contains nan values..")
                 
-            x = self.multihead_attn(q, k, mem,
+            x = self.multihead_attn(x, k, mem,
                                     attn_mask=attn_mask,
                                     key_padding_mask=key_padding_mask,
                                     is_causal=is_causal,

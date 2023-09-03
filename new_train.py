@@ -619,6 +619,7 @@ def train(cfg: DictConfig):
                     stop_loss {eval_bce_loss} total_eval_loss {eval_loss + eval_bce_loss}" ) #label_loss: {label_loss} 
                 
                 model.train()
+                train_losses = []
                 
                 # Tracks the best checkpoint and best metric
                 mean_loss = (train_loss + eval_loss)/2
