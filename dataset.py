@@ -115,7 +115,7 @@ def collate_fn(data):
 def collate_fn2(data): #, history_word_num=60
     images, indication, captions, sentence_num, word_num = zip(*data)  #labels, 
     images = torch.stack(images, 0)
-    print("In the collate_fn...")
+    #print("In the collate_fn...")
     #print(labels.shape)
     #labels = torch.stack(labels, 0).type(torch.LongTensor)
     max_prompt_length = max([len(each) for each in indication])
@@ -214,7 +214,8 @@ class ChestXrayDataSet2(Dataset):
     def __getitem__(self, index):
         sample = self.data[index]
         image_name = sample["image"]
-        print("In the dataset function...")
+        if index > 1200:  
+            print("In the dataset function...")
         image = Image.open(os.path.join(self.image_dir, image_name)).convert('RGB')
         #print("Image shape: ", image.size)
         #label = torch.tensor([int(each) for each in sample["labels"]])
