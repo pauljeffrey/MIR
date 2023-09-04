@@ -154,10 +154,9 @@ def evaluate(model, accelerator, eval_loader, custom_loss): #, bce_loss
         eval_losses = []
         eval_stop_losses = []
         #eval_bce_losses = []
-        
+        print("In evaluation function ....")
         for _ , (encoded_images, indication_prompt, true_stop_probs, reports) in enumerate(eval_loader):   #labels,      
             #n_sentences  = reports.shape[1]
-            
             n_sentences  = reports.shape[1]
             # print('Length of sentences: ', n_sentences)
             # print("Inputs shape: ", encoded_images.shape, indication_prompt.shape, labels.shape, true_stop_probs.shape, reports.shape)
@@ -357,14 +356,15 @@ def train(cfg: DictConfig):
 
     transform = transforms.Compose(
     [
+        transforms.Resize((224,224), antialias=True), 
         # transforms.RandomVerticalFlip(0.45),
         # transforms.RandomHorizontalFlip(0.45),
         transforms.RandomRotation((0,5)),
         #transforms.v2.RandomResize((200, 250)), v2.RandomResize
-        transforms.GaussianBlur(kernel_size=(5, 9), sigma=(0.1, 2.0)),
-        transforms.ColorJitter(brightness= (0.5, 1.5) , contrast=1.0),
-        transforms.Pad(20),
-        transforms.Resize((224,224)), 
+        transforms.GaussianBlur(kernel_size=(3, 3), sigma=(0.1, 1.2)),
+        transforms.ColorJitter(brightness= (0.5, 1.5) , contrast=(0, 1.0)),
+        #transforms.Pad(20),
+        
         transforms.ToTensor(),
     ]
 )
@@ -582,7 +582,7 @@ def train(cfg: DictConfig):
             #loss += custom_bce_loss( tags, labels)
             
             train_losses.append(
-                    accelerator.gather(loss.repeat(cfg.training.train_batch_size))
+                    accelerator.gather(loss)#.repeat(cfg.training.train_batch_size))
                 )
     
             train_loss = torch.mean(torch.cat(train_losses))  
@@ -619,7 +619,7 @@ def train(cfg: DictConfig):
                     stop_loss {eval_bce_loss} total_eval_loss {eval_loss + eval_bce_loss}" ) #label_loss: {label_loss} 
                 
                 model.train()
-                train_losses = []
+                #train_losses = []
                 
                 # Tracks the best checkpoint and best metric
                 mean_loss = (train_loss + eval_loss)/2

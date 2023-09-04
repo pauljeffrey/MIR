@@ -184,9 +184,9 @@ class ChestXrayDataSet2(Dataset):
                  image_dir,
                  caption_json,
                  tokenizer_name,
-                 s_max=10,
-                 n_max=25,
-                 encoder_n_max=40,
+                 s_max=15,
+                 n_max=40,
+                 encoder_n_max=60,
                  transforms=None,
                  use_tokenizer_fast =True):
         
@@ -236,7 +236,10 @@ class ChestXrayDataSet2(Dataset):
                 
             
         if self.transform is not None:
-            image = self.transform(image)
+            if index % 2 == 0:
+                image = self.transform(image)
+            else:
+                image = self.transform(image)
             
         caption = sample["caption"]
         
@@ -303,7 +306,8 @@ def get_loader2(image_dir,
     data_loader = torch.utils.data.DataLoader(dataset=dataset,
                                               batch_size=batch_size,
                                               shuffle=shuffle,
-                                              collate_fn=collate_fn)
+                                              collate_fn=collate_fn,
+                                              pin_memory=True)
     return data_loader
 
 
