@@ -582,10 +582,10 @@ def train(cfg: DictConfig):
             #loss += custom_bce_loss( tags, labels)
             
             train_losses.append(
-                    accelerator.gather(loss)#.repeat(cfg.training.train_batch_size))
+                    accelerator.gather(loss.repeat(cfg.training.train_batch_size))
                 )
     
-            train_loss = torch.mean(train_losses)
+            train_loss = torch.mean(torch.cat(train_losses))  
                       
             # We keep track of the loss at each epoch
             if cfg.tracking:
