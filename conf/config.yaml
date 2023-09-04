@@ -4,9 +4,9 @@ load_dir: "epoch_most_recent" #"model_with_best_eval" #
 dataset:
   name: null
   tokens:
-    s_max: 10
-    n_max: 25
-    encoder_n_max: 40
+    s_max: 15
+    n_max: 40
+    encoder_n_max: 60
 
   train:
     image_dir: "/kaggle/input/chest-xrays-indiana-university/images/images_normalized"
