@@ -30,6 +30,7 @@ from tqdm.auto import tqdm
 from transformers import (
     get_scheduler,
 )
+import torch.autograd.profiler as profiler
 
 
 torch.manual_seed(42)
@@ -438,7 +439,8 @@ def train(cfg: DictConfig):
     for epoch in range(starting_epoch, cfg.training.num_epochs):
         
         model.train()
-                
+        
+        print("In the training function...")    
         # if cfg.tracking:
         #     total_loss = 0
         train_losses = []
@@ -453,7 +455,7 @@ def train(cfg: DictConfig):
                 if step % 100 == 0:
                     print(f"\nOn step {step}, Skipping to step {216}..")
                 continue
-            
+            print("After dataloader yields samples...")
             # if torch.any(torch.isnan(encoded_images)):
             #     print("Raw images are nan..")
                 
@@ -706,7 +708,11 @@ def train(cfg: DictConfig):
 
 if __name__ == "__main__":
     cfg = OmegaConf.load("/kaggle/working/MIR/conf/config.yaml") #
-    train(cfg)
+    try:
+        with profiler.profile(record_shapes=True, use_cuda=False) as prof:
+            train(cfg)
+    except:
+        print(prof.key_averages().table(sort_by="cpu_time_total", row_limit=10))
     #cfg = OmegaConf.load("./conf/config.yaml")
     # #train(cfg)
     # model = load_model(cfg)
