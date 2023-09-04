@@ -362,8 +362,8 @@ def train(cfg: DictConfig):
         # transforms.RandomHorizontalFlip(0.45),
         transforms.RandomRotation((0,5)),
         #transforms.v2.RandomResize((200, 250)), v2.RandomResize
-        transforms.GaussianBlur(kernel_size=(3, 3), sigma=(0.1, 1.2)),
-        transforms.ColorJitter(brightness= (0.5, 1.5) , contrast=(0, 1.0)),
+        # transforms.GaussianBlur(kernel_size=(3, 3), sigma=(0.1, 1.2)),
+        # transforms.ColorJitter(brightness= (0.5, 1.5) , contrast=(0, 1.0)),
         #transforms.Pad(20),
         
         transforms.ToTensor(),
@@ -455,7 +455,6 @@ def train(cfg: DictConfig):
                 if step % 100 == 0:
                     print(f"\nOn step {step}, Skipping to step {216}..")
                 continue
-            print("After dataloader yields samples...")
             # if torch.any(torch.isnan(encoded_images)):
             #     print("Raw images are nan..")
                 
@@ -470,7 +469,7 @@ def train(cfg: DictConfig):
             encoder_pad_mask = create_padding_mask(indication_prompt).to(device)
             #print("Mem shape: ", indication_prompt.shape, "mask shape: ", encoder_pad_mask.shape)
             #encoder_causal_mask = src_mask(indication_prompt.shape[1])
-            
+            print("After dataloader yields samples...")
             encoded_images  = model.encoder(encoded_images)#.type(torch.cuda.HalfTensor))
             
             for name , each in model.encoder.named_parameters():
