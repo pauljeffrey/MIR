@@ -585,7 +585,7 @@ def train(cfg: DictConfig):
                     accelerator.gather(loss)#.repeat(cfg.training.train_batch_size))
                 )
     
-            train_loss = torch.mean(torch.cat(train_losses))  
+            train_loss = torch.mean(train_losses)
                       
             # We keep track of the loss at each epoch
             if cfg.tracking:
