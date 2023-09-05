@@ -400,7 +400,7 @@ if __name__ == '__main__':
 
     with profile(activities=[ProfilerActivity.CPU], record_shapes=True) as prof:
         with record_function("check"):
-            check()
+            check(train_loader)
 
     print(prof.key_averages().table(sort_by="cpu_memory_usage", row_limit=10))
 
