@@ -381,6 +381,10 @@ if __name__ == '__main__':
             tokenizer_name = cfg.tokenizer.name, transform= transform, batch_size = cfg.training.train_batch_size, s_max= cfg.dataset.tokens.s_max,
             n_max=cfg.dataset.tokens.n_max, encoder_n_max=cfg.dataset.tokens.encoder_n_max, shuffle=cfg.training.shuffle, use_tokenizer_fast=cfg.tokenizer.use_fast, collate_fn=collate_fn2)
     
+    
+    for encoded_images, indication_prompt, true_stop_probs, reports in train_loader:
+        print(encoded_images.shape, indication_prompt.shape, true_stop_probs.shape, reports.shape)
+        
     # vocab_path = '../data/vocab.pkl'
     # image_dir = '../data/images'
     # caption_json = '../data/debugging_captions.json'
