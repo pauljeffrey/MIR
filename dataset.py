@@ -375,6 +375,9 @@ def get_enc_loader(image_dir,
 
 
 if __name__ == '__main__':
+    import torch
+    from torch.profiler import profile, record_function, ProfilerActivity
+
     transform = transforms.Compose(
     [
         transforms.Resize((224,224), antialias=True),        
@@ -395,16 +398,11 @@ if __name__ == '__main__':
                 break
         return 
 
-    pr = cProfile.Profile()
-    pr.enable()
-    check(train_loader)
-    pr.disable()
+    with profile(activities=[ProfilerActivity.CPU], record_shapes=True) as prof:
+        with record_function("check"):
+            check()
 
-    s = io.StringIO()
-    ps = pstats.Stats(pr, stream=s).sort_stats('tottime')
-    ps.print_stats()
-    result = s.getvalue()
-    print(result)
+    print(prof.key_averages().table(sort_by="cpu_memory_usage", row_limit=10))
 
         
     # vocab_path = '../data/vocab.pkl'
