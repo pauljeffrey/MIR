@@ -203,8 +203,8 @@ class ChestXrayDataSet2(Dataset):
         else:
             # with open(caption_json, 'r') as f:
             #     self.data  = json.load(f)
-            self.data = pd.read_json(caption_json)
-            print(self.data.columns)
+            self.data = pd.read_json(caption_json).numpy()
+            #print(self.data.columns)
         #self.file_names, self.labels = self.__load_label_list(file_list)
         if use_tokenizer_fast:
             self.tokenizer = Tokenizer.from_pretrained(tokenizer_name)
@@ -218,17 +218,18 @@ class ChestXrayDataSet2(Dataset):
         self.encoder_n_max = encoder_n_max
 
     def __getitem__(self, index):
-        sample = self.data.iloc[index]
-        image_name = sample["image"]
+        ['image', 'type', 'caption', 'problems', 'indication', 'labels']
+        sample = self.data[index]
+        image_name = sample[0] #sample["image"]
         # if index > 1200:  
         #     print("In the dataset function...")
         # #image = 
         #print("Image shape: ", image.size)
         #label = torch.tensor([int(each) for each in sample["labels"]])
         
-        if sample["type"] == "original":
+        if sample[1] == "original":
             
-            indication = sample["indication"]
+            indication = sample[4] #sample["indication"]
             if "<prompt>" in indication:
                 indication = "<ind>" + add_noise(indication.split("<ind>")[1]) + "<ind>" + indication.split("<ind>")[-1]
                 indication = indication.split("<prompt>")[0] + "<prompt>" + add_noise(indication.split("<prompt>")[1]) + "<prompt>"
@@ -237,7 +238,7 @@ class ChestXrayDataSet2(Dataset):
                 indication = "<ind>" + add_noise(indication.split("<ind>")[1]) + "<ind>"
         else:
             #label = torch.ones((len(sample["labels"]))) * -1
-            indication = sample["indication"]
+            indication = sample[4]  #sample["indication"]
             indication = indication.split("<prompt>")[0] + "<prompt>" + add_noise(indication.split("<prompt>")[1]) + "<prompt>"
             indication = "<ind>" + add_noise(indication.split("<ind>")[1]) + "<ind>" + indication.split("<ind>")[-1]
             if "<prompt>" in indication:
@@ -250,7 +251,7 @@ class ChestXrayDataSet2(Dataset):
             else:
                 image = self.transform(Image.open(os.path.join(self.image_dir, image_name)).convert('RGB'))
             
-        caption = sample["caption"]
+        caption = sample[2] #sample["caption"]
         
         
         target = list()
