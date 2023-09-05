@@ -13,6 +13,10 @@ import numpy as np
 from clean_caption import *
 from omegaconf import OmegaConf
 from torchvision import transforms
+
+import cProfile
+import io
+import pstats
 class ChestXrayDataSet(Dataset):
     def __init__(self,
                  image_dir,
@@ -383,8 +387,25 @@ if __name__ == '__main__':
             n_max=cfg.dataset.tokens.n_max, encoder_n_max=cfg.dataset.tokens.encoder_n_max, shuffle=cfg.training.shuffle, use_tokenizer_fast=cfg.tokenizer.use_fast, collate_fn=collate_fn2)
     
     
-    for encoded_images, indication_prompt, true_stop_probs, reports in train_loader:
-        print(encoded_images.shape, indication_prompt.shape, true_stop_probs.shape, reports.shape)
+    def check(train_loader):
+        for step, encoded_images, indication_prompt, true_stop_probs, reports in enumerate(train_loader):
+            if step <= 1000:
+                print(encoded_images.shape, indication_prompt.shape, true_stop_probs.shape, reports.shape)
+            else:
+                break
+        return 
+
+    pr = cProfile.Profile()
+    pr.enable()
+    check(train_loader)
+    pr.disable()
+
+    s = io.StringIO()
+    ps = pstats.Stats(pr, stream=s).sort_stats('tottime')
+    ps.print_stats()
+    result = s.getvalue()
+    print(result)
+
         
     # vocab_path = '../data/vocab.pkl'
     # image_dir = '../data/images'
