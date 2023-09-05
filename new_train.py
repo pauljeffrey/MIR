@@ -710,6 +710,7 @@ if __name__ == "__main__":
     try:
         with profiler.profile(record_shapes=True, use_cuda=False) as prof:
             train(cfg)
+            print(prof.key_averages().table(sort_by="cpu_time_total", row_limit=10))
     except:
         print(prof.key_averages().table(sort_by="cpu_time_total", row_limit=10))
     #cfg = OmegaConf.load("./conf/config.yaml")
