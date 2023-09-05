@@ -312,7 +312,7 @@ def train(cfg: DictConfig):
         level=logging.INFO,
     )
 
-    deepspeed_plugin = DeepSpeedPlugin(zero_stage=1, gradient_accumulation_steps=cfg.training.gradient_accumulation_steps, gradient_clipping=1.0)
+    deepspeed_plugin = DeepSpeedPlugin(zero_stage=2, gradient_accumulation_steps=cfg.training.gradient_accumulation_steps, gradient_clipping=1.0)
     accelerator = Accelerator(  deepspeed_plugin =deepspeed_plugin) #,  mixed_precision='fp16',
     
     accelerator.wait_for_everyone()
