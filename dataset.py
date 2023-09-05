@@ -217,7 +217,7 @@ class ChestXrayDataSet2(Dataset):
         self.encoder_n_max = encoder_n_max
 
     def __getitem__(self, index):
-        sample = self.data[index]
+        sample = self.data.iloc[index]
         image_name = sample["image"]
         # if index > 1200:  
         #     print("In the dataset function...")
