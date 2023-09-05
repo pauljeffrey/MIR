@@ -165,7 +165,7 @@ def get_loader(image_dir,
                batch_size,
                s_max=10,
                n_max=50,
-               shuffle=True,
+               shuffle=False,
                collate_fn=collate_fn
                ):
     dataset = ChestXrayDataSet(image_dir=image_dir,
