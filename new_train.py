@@ -451,7 +451,7 @@ def train(cfg: DictConfig):
             # reports = reports.to(device)
             # true_stop_probs = true_stop_probs.to(device)
             #print("Max and Min values of raw images: ", torch.max(encoded_images), torch.min(encoded_images))
-            if step <= 500:
+            if step <= 499:
                 if step % 100 == 0:
                     print(f"\nOn step {step}, Skipping to step {500}..")
                 continue
