@@ -214,9 +214,9 @@ class ChestXrayDataSet2(Dataset):
     def __getitem__(self, index):
         sample = self.data[index]
         image_name = sample["image"]
-        if index > 1200:  
-            print("In the dataset function...")
-        #image = 
+        # if index > 1200:  
+        #     print("In the dataset function...")
+        # #image = 
         #print("Image shape: ", image.size)
         #label = torch.tensor([int(each) for each in sample["labels"]])
         
