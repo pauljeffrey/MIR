@@ -11,7 +11,7 @@ from text_preprocessing import *
 import random
 import numpy as np
 from clean_caption import *
-import OmegaConf
+from omegaconf import OmegaConf
 from torchvision import transforms
 class ChestXrayDataSet(Dataset):
     def __init__(self,
