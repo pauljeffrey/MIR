@@ -388,7 +388,7 @@ if __name__ == '__main__':
     
     
     def check(train_loader):
-        for step, encoded_images, indication_prompt, true_stop_probs, reports in enumerate(train_loader):
+        for step, (encoded_images, indication_prompt, true_stop_probs, reports) in enumerate(train_loader):
             if step <= 1000:
                 print(encoded_images.shape, indication_prompt.shape, true_stop_probs.shape, reports.shape)
             else:
