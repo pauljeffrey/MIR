@@ -216,7 +216,7 @@ class ChestXrayDataSet2(Dataset):
         image_name = sample["image"]
         if index > 1200:  
             print("In the dataset function...")
-        image = Image.open(os.path.join(self.image_dir, image_name)).convert('RGB')
+        #image = 
         #print("Image shape: ", image.size)
         #label = torch.tensor([int(each) for each in sample["labels"]])
         
@@ -240,9 +240,9 @@ class ChestXrayDataSet2(Dataset):
             
         if self.transform is not None:
             if index % 2 == 0:
-                image = self.transform(image)
+                image = self.transform(Image.open(os.path.join(self.image_dir, image_name)).convert('RGB'))
             else:
-                image = self.transform(image)
+                image = self.transform(Image.open(os.path.join(self.image_dir, image_name)).convert('RGB'))
             
         caption = sample["caption"]
         
