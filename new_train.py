@@ -360,7 +360,7 @@ def train(cfg: DictConfig):
         transforms.Resize((224,224), antialias=True), 
         # transforms.RandomVerticalFlip(0.45),
         # transforms.RandomHorizontalFlip(0.45),
-        transforms.RandomRotation((0,5)),
+        #transforms.RandomRotation((0,5)),
         #transforms.v2.RandomResize((200, 250)), v2.RandomResize
         # transforms.GaussianBlur(kernel_size=(3, 3), sigma=(0.1, 1.2)),
         # transforms.ColorJitter(brightness= (0.5, 1.5) , contrast=(0, 1.0)),
@@ -451,9 +451,9 @@ def train(cfg: DictConfig):
             # reports = reports.to(device)
             # true_stop_probs = true_stop_probs.to(device)
             #print("Max and Min values of raw images: ", torch.max(encoded_images), torch.min(encoded_images))
-            if step <= 449:
+            if step <= 500:
                 if step % 100 == 0:
-                    print(f"\nOn step {step}, Skipping to step {216}..")
+                    print(f"\nOn step {step}, Skipping to step {500}..")
                 continue
             # if torch.any(torch.isnan(encoded_images)):
             #     print("Raw images are nan..")
