@@ -312,15 +312,15 @@ def train(cfg: DictConfig):
         level=logging.INFO,
     )
 
-    deepspeed_plugin = DeepSpeedPlugin(zero_stage=2, gradient_accumulation_steps=cfg.training.gradient_accumulation_steps, gradient_clipping=1.0)
-    accelerator = Accelerator(  deepspeed_plugin =deepspeed_plugin) #,  mixed_precision='fp16',
+    # deepspeed_plugin = DeepSpeedPlugin(zero_stage=2, gradient_accumulation_steps=cfg.training.gradient_accumulation_steps, gradient_clipping=1.0)
+    # accelerator = Accelerator(  deepspeed_plugin =deepspeed_plugin) #,  mixed_precision='fp16',
     
-    accelerator.wait_for_everyone()
-    device= accelerator.device
+    # accelerator.wait_for_everyone()
+    # device= accelerator.device
     
 
-    logger.info(accelerator.state, main_process_only=False)
-    logger.info(OmegaConf.to_yaml(cfg))
+    # logger.info(accelerator.state, main_process_only=False)
+    # logger.info(OmegaConf.to_yaml(cfg))
     
     if not cfg.model.from_checkpoint:
         model = load_model(cfg)
@@ -337,10 +337,10 @@ def train(cfg: DictConfig):
         optimizer = optimizer_cls(model.parameters(), lr=cfg.training.learning_rate)
 
 
-        # if (
-        #     accelerator.state.deepspeed_plugin is None
-        #     or "scheduler" not in accelerator.state.deepspeed_plugin.deepspeed_config
-        # ):
+    #     # if (
+    #     #     accelerator.state.deepspeed_plugin is None
+    #     #     or "scheduler" not in accelerator.state.deepspeed_plugin.deepspeed_config
+    #     # ):
     else:
         model, optimizer, epoch, loss = load_model(cfg)
         
@@ -370,23 +370,23 @@ def train(cfg: DictConfig):
     ]
 )
     # On TPU, the tie weights in our model have been disconnected, so we need to restore the ties.
-    if accelerator.distributed_type == DistributedType.TPU:
-        model.tie_weights()
+    # if accelerator.distributed_type == DistributedType.TPU:
+    #     model.tie_weights()
 
   
     # Only show the progress bar once on each machine.
     #progress_bar = tqdm(range(cfg.training.max_train_steps), disable=not accelerator.is_local_main_process)
     completed_steps = 0
     starting_epoch = epoch if epoch is not None else 0
-    best_metric = loss
+    #best_metric = loss
     #best_metric_checkpoint = None
     
     # New Code
     # Get gradient accumulation steps from deepspeed config if available
-    if accelerator.state.deepspeed_plugin is not None:
-        cfg.training.gradient_accumulation_steps = accelerator.state.deepspeed_plugin.deepspeed_config[
-            "gradient_accumulation_steps"
-        ]
+    # if accelerator.state.deepspeed_plugin is not None:
+    #     cfg.training.gradient_accumulation_steps = accelerator.state.deepspeed_plugin.deepspeed_config[
+    #         "gradient_accumulation_steps"
+    #     ]
     
     # Create train_loader and eval_loader here
     #if cfg.tokenizer.name is not None:
@@ -409,21 +409,21 @@ def train(cfg: DictConfig):
 
 
     # Prepare everything using our accelerator
-    (
-        model,
-        optimizer,
-        train_loader,
-        eval_loader,
-        lr_scheduler,
-    ) = accelerator.prepare(
-        model, optimizer, train_loader, eval_loader, lr_scheduler
-    )
+    # (
+    #     model,
+    #     optimizer,
+    #     train_loader,
+    #     eval_loader,
+    #     lr_scheduler,
+    # ) = accelerator.prepare(
+    #     model, optimizer, train_loader, eval_loader, lr_scheduler
+    # )
     
     #n_batches = len(train_loader)
     if not os.path.exists(cfg.output_dir):
         os.mkdir(cfg.output_dir)
 
-    device = accelerator.device
+    # device = accelerator.device
     #print(device, model.device)
     custom_loss = CustomLoss()
     #custom_bce_loss = CustomBCELoss()
@@ -437,7 +437,7 @@ def train(cfg: DictConfig):
     #     next(iter(train_loader))
 
     for epoch in range(starting_epoch, cfg.training.num_epochs):        
-        model.train()
+        #model.train()
         
         print("In the training function...")    
         # if cfg.tracking:
