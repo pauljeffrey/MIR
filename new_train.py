@@ -428,16 +428,15 @@ def train(cfg: DictConfig):
     custom_loss = CustomLoss()
     #custom_bce_loss = CustomBCELoss()
     
-    for name , each in model.named_parameters():
-        if torch.any(torch.isnan(each)):
-            print(name, " layer has nan values in it..")
+    # for name , each in model.named_parameters():
+    #     if torch.any(torch.isnan(each)):
+    #         print(name, " layer has nan values in it..")
             
     # for i in range(216):
     #     print(f"Batch {i}")
     #     next(iter(train_loader))
 
-    for epoch in range(starting_epoch, cfg.training.num_epochs):
-        
+    for epoch in range(starting_epoch, cfg.training.num_epochs):        
         model.train()
         
         print("In the training function...")    
