@@ -211,7 +211,7 @@ class ChestXrayDataSet2(Dataset):
             # with open(caption_json, 'r') as f:
             #     self.data  = json.load(f)
             print(pd.read_json(caption_json).values.dtype)
-            self.data = pd.read_json(caption_json).values.dtype(np.string_)
+            self.data = pd.read_json(caption_json).values.astype(np.string_)
             print(self.data.dtype)
             #print(self.data.columns)
         #self.file_names, self.labels = self.__load_label_list(file_list)
