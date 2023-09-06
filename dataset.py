@@ -13,6 +13,7 @@ import numpy as np
 from clean_caption import *
 from omegaconf import OmegaConf
 from torchvision import transforms
+from typing import Union
 
 import cProfile
 import io
@@ -191,6 +192,26 @@ def get_loader(image_dir,
                                               collate_fn=collate_fn)
     return data_loader
 
+def string_to_sequence(s: str, dtype=np.int32) -> np.ndarray:
+    return np.array([ord(c) for c in s], dtype=dtype)
+
+def sequence_to_string(seq: np.ndarray) -> str:
+    return ''.join([chr(c) for c in seq])
+
+def pack_sequences(seqs: Union[np.ndarray, list]) -> (np.ndarray, np.ndarray):
+    values = np.concatenate(seqs, axis=0)
+    offsets = np.cumsum([len(s) for s in seqs])
+    return values, offsets
+
+def unpack_sequence(values: np.ndarray, offsets: np.ndarray, index: int) -> np.ndarray:
+    off1 = offsets[index]
+    if index > 0:
+        off0 = offsets[index - 1]
+    elif index == 0:
+        off0 = 0
+    else:
+        raise ValueError(index)
+    return values[off0:off1]
 
 class ChestXrayDataSet2(Dataset):
     def __init__(self,
@@ -210,10 +231,13 @@ class ChestXrayDataSet2(Dataset):
         else:
             # with open(caption_json, 'r') as f:
             #     self.data  = json.load(f)
-            self.data = pd.read_json(caption_json)[["image", 'type', "caption","indication"]]
+            data = pd.read_json(caption_json)["image"] #, 'type', "caption","indication"
             print(self.data.values.dtype)
             self.data = self.data.values.astype("U")
             print(self.data.dtype)
+            
+            seqs = [string_to_sequence(s) for s in data]
+            self.strings_v, self.strings_o = pack_sequences(seqs)
             #print(self.data.columns)
         #self.file_names, self.labels = self.__load_label_list(file_list)
         if use_tokenizer_fast:
@@ -229,8 +253,10 @@ class ChestXrayDataSet2(Dataset):
 
     def __getitem__(self, index):
         #['image', 'type', 'caption', 'problems', 'indication', 'labels']
-        sample = self.data[index]
-        image_name = sample[0] #sample["image"]
+        #sample = self.data[index]
+        seq = unpack_sequence(self.strings_v, self.strings_o, index)
+        image_name = sequence_to_string(seq)
+        #image_name = sample[0] #sample["image"]
         # if index > 1200:  
         #     print("In the dataset function...")
         # #image = 
