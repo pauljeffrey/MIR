@@ -291,7 +291,7 @@ class ChestXrayDataSet2(Dataset):
         # if len(indication_prompt) > self.encoder_n_max:
         #     indication_prompt = indication_prompt[:self.encoder_n_max -2] + self.tokenizer.encode('<prompt>').ids
         
-        return  image, image_name #indication_prompt, target, sentence_num, word_num  #image_name,label,  image,
+        return  image #indication_prompt, target, sentence_num, word_num  #image_name,label,  image,
 
     def __len__(self):
         return len(self.data)
@@ -323,7 +323,7 @@ def get_loader2(image_dir,
     data_loader = torch.utils.data.DataLoader(dataset=dataset,
                                               batch_size=batch_size,
                                               shuffle=shuffle,
-                                              collate_fn=collate_fn,
+                                              #collate_fn=collate_fn,
                                               num_workers = 0,
                                               pin_memory=True)
     return data_loader
