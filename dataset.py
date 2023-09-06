@@ -210,7 +210,9 @@ class ChestXrayDataSet2(Dataset):
         else:
             # with open(caption_json, 'r') as f:
             #     self.data  = json.load(f)
-            self.data = pd.read_json(caption_json).values
+            print(pd.read_json(caption_json).values.dtype)
+            self.data = pd.read_json(caption_json).values.dtype(np.string_)
+            print(self.data.dtype)
             #print(self.data.columns)
         #self.file_names, self.labels = self.__load_label_list(file_list)
         if use_tokenizer_fast:
