@@ -118,48 +118,48 @@ def collate_fn(data):
 
 
 def collate_fn2(data): #, history_word_num=60
-    indication, captions, sentence_num, word_num = zip(*data)  #labels,  images,
-    #images = torch.stack(images, 0)
+    images = zip(*data)  #labels,  images, indication, captions, sentence_num, word_num
+    images = torch.stack(images, 0)
     #print("In the collate_fn...")
     #print(labels.shape)
     #labels = torch.stack(labels, 0).type(torch.LongTensor)
-    max_prompt_length = max([len(each) for each in indication])
-    max_word_num = max(word_num)
-    max_sentence_num = max(sentence_num)
-    #max_word_num = max(max_word_num)
+    # max_prompt_length = max([len(each) for each in indication])
+    # max_word_num = max(word_num)
+    # max_sentence_num = max(sentence_num)
+    # #max_word_num = max(max_word_num)
 
-    #history_max_word_num = max(history_max_word_num)
+    # #history_max_word_num = max(history_max_word_num)
 
-    indication_prompts = np.zeros((len(indication), max_prompt_length))
+    # indication_prompts = np.zeros((len(indication), max_prompt_length))
     
-    targets = np.zeros((len(captions), max_sentence_num + 1, max_word_num))
-    probs = np.ones((len(captions), max_sentence_num + 1))  * -1
+    # targets = np.zeros((len(captions), max_sentence_num + 1, max_word_num))
+    # probs = np.ones((len(captions), max_sentence_num + 1))  * -1
 
-    for i, caption in enumerate(captions):
-        for j, sentence in enumerate(caption):
-            targets[i, j, :len(sentence)] = sentence
-            # if len(sentence) > 0:
-            probs[i,j] = 0
+    # for i, caption in enumerate(captions):
+    #     for j, sentence in enumerate(caption):
+    #         targets[i, j, :len(sentence)] = sentence
+    #         # if len(sentence) > 0:
+    #         probs[i,j] = 0
             
-        probs[i,len(caption)] = 1
+    #     probs[i,len(caption)] = 1
             
-    for i, tokens in enumerate(indication):
-        indication_prompts[i,:len(tokens)] = tokens
+    # for i, tokens in enumerate(indication):
+    #     indication_prompts[i,:len(tokens)] = tokens
         
-    indication_prompts = torch.tensor(indication_prompts).type(torch.LongTensor)
-    probs = torch.tensor(probs).type(torch.LongTensor)
-    targets = torch.tensor(targets).type(torch.LongTensor)
+    # indication_prompts = torch.tensor(indication_prompts).type(torch.LongTensor)
+    # probs = torch.tensor(probs).type(torch.LongTensor)
+    # targets = torch.tensor(targets).type(torch.LongTensor)
     
-    #print(type(prompt), type(label), type(target), type(prob))
-    del indication 
-    del captions
-    del sentence_num
-    del word_num
-    del max_word_num
-    del max_prompt_length
-    del max_sentence_num
+    # #print(type(prompt), type(label), type(target), type(prob))
+    # del indication 
+    # del captions
+    # del sentence_num
+    # del word_num
+    # del max_word_num
+    # del max_prompt_length
+    # del max_sentence_num
     
-    return  indication_prompts , probs, targets #images,  labels,
+    return  images #indication_prompts , probs, targets #images,  labels,
 
 
 def get_loader(image_dir,
@@ -227,71 +227,71 @@ class ChestXrayDataSet2(Dataset):
     def __getitem__(self, index):
         #['image', 'type', 'caption', 'problems', 'indication', 'labels']
         sample = self.data[index]
-        #image_name = sample[0] #sample["image"]
+        image_name = sample[0] #sample["image"]
         # if index > 1200:  
         #     print("In the dataset function...")
         # #image = 
         #print("Image shape: ", image.size)
         #label = torch.tensor([int(each) for each in sample["labels"]])
         
-        if sample[1] == "original":
+        # if sample[1] == "original":
             
-            indication = sample[4] #sample["indication"]
-            if "<prompt>" in indication:
-                indication = "<ind>" + add_noise(indication.split("<ind>")[1]) + "<ind>" + indication.split("<ind>")[-1]
-                indication = indication.split("<prompt>")[0] + "<prompt>" + add_noise(indication.split("<prompt>")[1]) + "<prompt>"
+        #     indication = sample[4] #sample["indication"]
+        #     if "<prompt>" in indication:
+        #         indication = "<ind>" + add_noise(indication.split("<ind>")[1]) + "<ind>" + indication.split("<ind>")[-1]
+        #         indication = indication.split("<prompt>")[0] + "<prompt>" + add_noise(indication.split("<prompt>")[1]) + "<prompt>"
                 
-            else:
-                indication = "<ind>" + add_noise(indication.split("<ind>")[1]) + "<ind>"
-        else:
-            #label = torch.ones((len(sample["labels"]))) * -1
-            indication = sample[4]  #sample["indication"]
-            indication = indication.split("<prompt>")[0] + "<prompt>" + add_noise(indication.split("<prompt>")[1]) + "<prompt>"
-            indication = "<ind>" + add_noise(indication.split("<ind>")[1]) + "<ind>" + indication.split("<ind>")[-1]
-            if "<prompt>" in indication:
-                indication = rm_indication(indication)
-                
-            
-        # if self.transform is not None:
-        #     if index % 2 == 0:
-        #         image = self.transform(Image.open(os.path.join(self.image_dir, image_name)).convert('RGB'))
         #     else:
-        #         image = self.transform(Image.open(os.path.join(self.image_dir, image_name)).convert('RGB'))
-            
-        caption = sample[2] #sample["caption"]
-        
-        
-        target = list()
-        indication_prompt = list()
-        word_num = 0
-        #max_word_num = 0
-        for i, sentence in enumerate(caption.split('.')):
-            if i >= self.s_max:
-                break
-            
-            if len(sentence) == 0 or (len(sentence) == 1 and sentence in [".",",",";",":","@","/","-","_","%","*"]):
-                continue
-            sentence = self.tokenizer.encode(sentence).ids
-            if len(sentence) > self.n_max:
-                sentence = sentence[:self.n_max]
+        #         indication = "<ind>" + add_noise(indication.split("<ind>")[1]) + "<ind>"
+        # else:
+        #     #label = torch.ones((len(sample["labels"]))) * -1
+        #     indication = sample[4]  #sample["indication"]
+        #     indication = indication.split("<prompt>")[0] + "<prompt>" + add_noise(indication.split("<prompt>")[1]) + "<prompt>"
+        #     indication = "<ind>" + add_noise(indication.split("<ind>")[1]) + "<ind>" + indication.split("<ind>")[-1]
+        #     if "<prompt>" in indication:
+        #         indication = rm_indication(indication)
                 
-            tokens = list()
-            tokens.extend(self.tokenizer.encode('<s>').ids)
-            tokens.extend(sentence)
-            tokens.extend(self.tokenizer.encode('<s>').ids)
-            # if max_word_num < len(tokens):
-            #     max_word_num = len(tokens)
-            word_num = max(word_num, len(tokens))
-            target.append(tokens)
             
-        sentence_num = len(target)
+        if self.transform is not None:
+            if index % 2 == 0:
+                image = self.transform(Image.open(os.path.join(self.image_dir, image_name)).convert('RGB'))
+            else:
+                image = self.transform(Image.open(os.path.join(self.image_dir, image_name)).convert('RGB'))
+            
+        # caption = sample[2] #sample["caption"]
         
-        indication_prompt.extend(self.tokenizer.encode(indication).ids)
         
-        if len(indication_prompt) > self.encoder_n_max:
-            indication_prompt = indication_prompt[:self.encoder_n_max -2] + self.tokenizer.encode('<prompt>').ids
+        # target = list()
+        # indication_prompt = list()
+        # word_num = 0
+        # #max_word_num = 0
+        # for i, sentence in enumerate(caption.split('.')):
+        #     if i >= self.s_max:
+        #         break
+            
+        #     if len(sentence) == 0 or (len(sentence) == 1 and sentence in [".",",",";",":","@","/","-","_","%","*"]):
+        #         continue
+        #     sentence = self.tokenizer.encode(sentence).ids
+        #     if len(sentence) > self.n_max:
+        #         sentence = sentence[:self.n_max]
+                
+        #     tokens = list()
+        #     tokens.extend(self.tokenizer.encode('<s>').ids)
+        #     tokens.extend(sentence)
+        #     tokens.extend(self.tokenizer.encode('<s>').ids)
+        #     # if max_word_num < len(tokens):
+        #     #     max_word_num = len(tokens)
+        #     word_num = max(word_num, len(tokens))
+        #     target.append(tokens)
+            
+        # sentence_num = len(target)
         
-        return  indication_prompt, target, sentence_num, word_num  #image_name,label,  image,
+        # indication_prompt.extend(self.tokenizer.encode(indication).ids)
+        
+        # if len(indication_prompt) > self.encoder_n_max:
+        #     indication_prompt = indication_prompt[:self.encoder_n_max -2] + self.tokenizer.encode('<prompt>').ids
+        
+        return  image #indication_prompt, target, sentence_num, word_num  #image_name,label,  image,
 
     def __len__(self):
         return len(self.data)
@@ -400,9 +400,9 @@ if __name__ == '__main__':
     
     
     def check(train_loader):
-        for step, ( indication_prompt, true_stop_probs, reports) in enumerate(train_loader): #encoded_images,
-            if step <= 20000:
-                print( indication_prompt.shape, true_stop_probs.shape, reports.shape) #encoded_images.shape,
+        for step, images in enumerate(train_loader): #encoded_images, indication_prompt, true_stop_probs, reports
+            if step <= 20000: 
+                print(images.shape) #encoded_images.shape, indication_prompt.shape, true_stop_probs.shape, reports.shape
             else:
                 break
         return 
