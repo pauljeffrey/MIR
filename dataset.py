@@ -118,8 +118,8 @@ def collate_fn(data):
 
 
 def collate_fn2(data): #, history_word_num=60
-    images, indication, captions, sentence_num, word_num = zip(*data)  #labels, 
-    images = torch.stack(images, 0)
+    indication, captions, sentence_num, word_num = zip(*data)  #labels,  images,
+    #images = torch.stack(images, 0)
     #print("In the collate_fn...")
     #print(labels.shape)
     #labels = torch.stack(labels, 0).type(torch.LongTensor)
@@ -159,7 +159,7 @@ def collate_fn2(data): #, history_word_num=60
     del max_prompt_length
     del max_sentence_num
     
-    return  images, indication_prompts , probs, targets #images,  labels,
+    return  indication_prompts , probs, targets #images,  labels,
 
 
 def get_loader(image_dir,
@@ -225,9 +225,9 @@ class ChestXrayDataSet2(Dataset):
         self.encoder_n_max = encoder_n_max
 
     def __getitem__(self, index):
-        ['image', 'type', 'caption', 'problems', 'indication', 'labels']
+        #['image', 'type', 'caption', 'problems', 'indication', 'labels']
         sample = self.data[index]
-        image_name = sample[0] #sample["image"]
+        #image_name = sample[0] #sample["image"]
         # if index > 1200:  
         #     print("In the dataset function...")
         # #image = 
@@ -252,11 +252,11 @@ class ChestXrayDataSet2(Dataset):
                 indication = rm_indication(indication)
                 
             
-        if self.transform is not None:
-            if index % 2 == 0:
-                image = self.transform(Image.open(os.path.join(self.image_dir, image_name)).convert('RGB'))
-            else:
-                image = self.transform(Image.open(os.path.join(self.image_dir, image_name)).convert('RGB'))
+        # if self.transform is not None:
+        #     if index % 2 == 0:
+        #         image = self.transform(Image.open(os.path.join(self.image_dir, image_name)).convert('RGB'))
+        #     else:
+        #         image = self.transform(Image.open(os.path.join(self.image_dir, image_name)).convert('RGB'))
             
         caption = sample[2] #sample["caption"]
         
@@ -291,7 +291,7 @@ class ChestXrayDataSet2(Dataset):
         if len(indication_prompt) > self.encoder_n_max:
             indication_prompt = indication_prompt[:self.encoder_n_max -2] + self.tokenizer.encode('<prompt>').ids
         
-        return  image, indication_prompt, target, sentence_num, word_num  #image_name,label,
+        return  indication_prompt, target, sentence_num, word_num  #image_name,label,  image,
 
     def __len__(self):
         return len(self.data)
