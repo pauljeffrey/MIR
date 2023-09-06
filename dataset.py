@@ -257,9 +257,9 @@ class ChestXrayDataSet2(Dataset):
             
         if self.transform is not None:
             if index % 2 == 0:
-                image = self.transform(Image.open(os.path.join(self.image_dir, image_name)).convert('RGB'))
+                image = self.transform(Image.open(os.path.join(self.image_dir, str(image_name))).convert('RGB'))
             else:
-                image = self.transform(Image.open(os.path.join(self.image_dir, image_name)).convert('RGB'))
+                image = self.transform(Image.open(os.path.join(self.image_dir, str(image_name))).convert('RGB'))
             
         # caption = sample[2] #sample["caption"]
         
