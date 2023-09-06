@@ -118,7 +118,7 @@ def collate_fn(data):
 
 
 def collate_fn2(data): #, history_word_num=60
-    images = zip(*data)  #labels,  images, indication, captions, sentence_num, word_num
+    images, image_name = zip(*data)  #labels,  images, indication, captions, sentence_num, word_num
     images = torch.stack(images, 0)
     #print("In the collate_fn...")
     #print(labels.shape)
@@ -291,7 +291,7 @@ class ChestXrayDataSet2(Dataset):
         # if len(indication_prompt) > self.encoder_n_max:
         #     indication_prompt = indication_prompt[:self.encoder_n_max -2] + self.tokenizer.encode('<prompt>').ids
         
-        return  image #indication_prompt, target, sentence_num, word_num  #image_name,label,  image,
+        return  image, image_name #indication_prompt, target, sentence_num, word_num  #image_name,label,  image,
 
     def __len__(self):
         return len(self.data)
