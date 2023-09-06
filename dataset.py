@@ -401,7 +401,7 @@ if __name__ == '__main__':
     
     def check(train_loader):
         for step, ( indication_prompt, true_stop_probs, reports) in enumerate(train_loader): #encoded_images,
-            if step <= 10000:
+            if step <= 20000:
                 print( indication_prompt.shape, true_stop_probs.shape, reports.shape) #encoded_images.shape,
             else:
                 break
