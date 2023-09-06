@@ -139,9 +139,9 @@ def collate_fn2(data): #, history_word_num=60
         for j, sentence in enumerate(caption):
             targets[i, j, :len(sentence)] = sentence
             # if len(sentence) > 0:
-            probs[i][j] = 0
+            probs[i,j] = 0
             
-        probs[i][len(caption)] = 1
+        probs[i,len(caption)] = 1
             
     for i, tokens in enumerate(indication):
         indication_prompts[i,:len(tokens)] = tokens
@@ -151,6 +151,13 @@ def collate_fn2(data): #, history_word_num=60
     targets = torch.tensor(targets).type(torch.LongTensor)
     
     #print(type(prompt), type(label), type(target), type(prob))
+    del indication 
+    del captions
+    del sentence_num
+    del word_num
+    del max_word_num
+    del max_prompt_length
+    del max_sentence_num
     
     return  images, indication_prompts , probs, targets #images,  labels,
 
