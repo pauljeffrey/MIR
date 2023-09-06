@@ -323,7 +323,7 @@ class ChestXrayDataSet2(Dataset):
         return  image #indication_prompt, target, sentence_num, word_num  #image_name,label,  image,
 
     def __len__(self):
-        return len(self.data)
+        return len(self.strings_v)
 
 
 
