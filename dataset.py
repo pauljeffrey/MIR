@@ -232,9 +232,9 @@ class ChestXrayDataSet2(Dataset):
             # with open(caption_json, 'r') as f:
             #     self.data  = json.load(f)
             data = pd.read_json(caption_json)["image"] #, 'type', "caption","indication"
-            print(self.data.values.dtype)
-            self.data = self.data.values.astype("U")
-            print(self.data.dtype)
+            # print(self.data.values.dtype)
+            # self.data = self.data.values.astype("U")
+            # print(self.data.dtype)
             
             seqs = [string_to_sequence(s) for s in data]
             self.strings_v, self.strings_o = pack_sequences(seqs)
