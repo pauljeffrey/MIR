@@ -258,7 +258,7 @@ class ChestXrayDataSet2(Dataset):
         sample = self.data[index]
         # seq = unpack_sequence(self.strings_v, self.strings_o, index)
         # image_name = sequence_to_string(seq)
-        image_name = sample[0] #sample["image"]
+        image_name = sample["image"] #sample[0] #
         # if index > 1200:  
         #     print("In the dataset function...")
         # #image = 
