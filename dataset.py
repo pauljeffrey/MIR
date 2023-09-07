@@ -418,6 +418,7 @@ def get_enc_loader(image_dir,
 if __name__ == '__main__':
     import torch
     from torch.profiler import profile, record_function, ProfilerActivity
+    import gc
 
     transform = transforms.Compose(
     [
@@ -437,6 +438,7 @@ if __name__ == '__main__':
                 print(images.shape) #encoded_images.shape, indication_prompt.shape, true_stop_probs.shape, reports.shape
             else:
                 break
+            gc.collect()
         return 
 
     with profile(activities=[ProfilerActivity.CPU], record_shapes=True) as prof:
