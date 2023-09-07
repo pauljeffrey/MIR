@@ -14,6 +14,7 @@ from clean_caption import *
 from omegaconf import OmegaConf
 from torchvision import transforms
 from typing import Union
+from multiprocessing import Manager
 
 import cProfile
 import io
@@ -229,15 +230,16 @@ class ChestXrayDataSet2(Dataset):
             with open(caption_json, 'r') as f:
                 self.data = random.sample(json.load(f), 1000)
         else:
-            # with open(caption_json, 'r') as f:
-            #     self.data  = json.load(f)
-            data = pd.read_json(caption_json)["image"] #, 'type', "caption","indication"
+            manager = Manager()
+            with open(caption_json, 'r') as f:
+                self.data  = manager.list(json.load(f))
+            #data = pd.read_json(caption_json)["image"] #, 'type', "caption","indication"
             # print(self.data.values.dtype)
             # self.data = self.data.values.astype("U")
             # print(self.data.dtype)
             
-            seqs = [string_to_sequence(s) for s in data]
-            self.strings_v, self.strings_o = pack_sequences(seqs)
+            # seqs = [string_to_sequence(s) for s in data]
+            # self.strings_v, self.strings_o = pack_sequences(seqs)
             #print(self.data.columns)
         #self.file_names, self.labels = self.__load_label_list(file_list)
         if use_tokenizer_fast:
@@ -253,10 +255,10 @@ class ChestXrayDataSet2(Dataset):
 
     def __getitem__(self, index):
         #['image', 'type', 'caption', 'problems', 'indication', 'labels']
-        #sample = self.data[index]
-        seq = unpack_sequence(self.strings_v, self.strings_o, index)
-        image_name = sequence_to_string(seq)
-        #image_name = sample[0] #sample["image"]
+        sample = self.data[index]
+        # seq = unpack_sequence(self.strings_v, self.strings_o, index)
+        # image_name = sequence_to_string(seq)
+        image_name = sample[0] #sample["image"]
         # if index > 1200:  
         #     print("In the dataset function...")
         # #image = 
