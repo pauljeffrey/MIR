@@ -230,9 +230,12 @@ class ChestXrayDataSet2(Dataset):
             with open(caption_json, 'r') as f:
                 self.data = random.sample(json.load(f), 1000)
         else:
-            manager = Manager()
+            
             with open(caption_json, 'r') as f:
-                self.data  = manager.list(json.load(f))
+                self.data = json.load(f)
+                
+        manager = Manager()    
+        self.data  = manager.dict({i: each for i, each in enumerate(self.data)})
             #data = pd.read_json(caption_json)["image"] #, 'type', "caption","indication"
             # print(self.data.values.dtype)
             # self.data = self.data.values.astype("U")
