@@ -354,6 +354,7 @@ def get_loader2(image_dir,
     data_loader = torch.utils.data.DataLoader(dataset=dataset,
                                               batch_size=batch_size,
                                               shuffle=shuffle,
+                                              drop_last = True,
                                               #collate_fn=collate_fn,
                                               num_workers = 0,
                                               pin_memory=True)
