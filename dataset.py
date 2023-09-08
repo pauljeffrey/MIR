@@ -225,8 +225,13 @@ class ChestXrayDataSet2(Dataset):
         
         self.image_dir = image_dir
         if caption_json.endswith("val.json"):
-            with open(caption_json, 'r') as f:
-                self.data = random.sample(json.load(f), 1000)
+            self.data = pd.read_json(caption_json)
+            print("Shuffling validation data...")
+            for _ in range(15):
+                self.data = self.data.sample(frac=1)
+                
+            self.data = self.data.iloc[:1000]
+            
         else:            
             # with open(caption_json, 'r') as f:
             #     self.data = np.array(json.load(f))
@@ -234,9 +239,9 @@ class ChestXrayDataSet2(Dataset):
         # manager = Manager()    
         # self.data  = manager.dict({i: each for i, each in enumerate(self.data)})
             self.data = pd.read_json(caption_json)#, 'type', "caption","indication"
-            # print(self.data.values.dtype)
-            # self.data = self.data.values.astype("U")
-            # print(self.data.dtype)
+            print("Shuffling training data... ")
+            for _ in range(80):
+                self.data = self.data.sample(frac=1)
             
             seqs = [string_to_sequence(s) for s in self.data["image"]]
             self.images_v, self.images_o = pack_sequences(seqs)
