@@ -14,7 +14,7 @@ from clean_caption import *
 from omegaconf import OmegaConf
 from torchvision import transforms
 from typing import Union
-from multiprocessing import Manager
+from multiprocessing import Manager, Array
 
 import cProfile
 import io
@@ -235,7 +235,7 @@ class ChestXrayDataSet2(Dataset):
                 
         # manager = Manager()    
         # self.data  = manager.dict({i: each for i, each in enumerate(self.data)})
-            self.data = pd.read_json(caption_json) #, 'type', "caption","indication"
+            self.data = Array(pd.read_json(caption_json).values) #, 'type', "caption","indication"
             # print(self.data.values.dtype)
             # self.data = self.data.values.astype("U")
             # print(self.data.dtype)
@@ -258,7 +258,7 @@ class ChestXrayDataSet2(Dataset):
 
     def __getitem__(self, index):
         #['image', 'type', 'caption', 'problems', 'indication', 'labels']
-        image_name = self.data.image.iloc[index]
+        image_name = self.data[index][0] #self.data.image.iloc[index]
         
         # seq = unpack_sequence(self.strings_v, self.strings_o, index)
         # image_name = sequence_to_string(seq)
