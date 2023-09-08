@@ -436,21 +436,21 @@ if __name__ == '__main__':
             tokenizer_name = cfg.tokenizer.name, transform= transform, batch_size = cfg.training.train_batch_size, s_max= cfg.dataset.tokens.s_max,
             n_max=cfg.dataset.tokens.n_max, encoder_n_max=cfg.dataset.tokens.encoder_n_max, shuffle=cfg.training.shuffle, use_tokenizer_fast=cfg.tokenizer.use_fast, collate_fn=collate_fn2)
     
-    print(cfg.dataset.train.caption_json)
-    def check(train_loader):
-        for step, images in enumerate(train_loader): #encoded_images, indication_prompt, true_stop_probs, reports
-            if step <= 20000: 
-                print(images.shape) #encoded_images.shape, indication_prompt.shape, true_stop_probs.shape, reports.shape
-            else:
-                break
-            gc.collect()
-        return 
+    #print(cfg.dataset.train.caption_json)
+    #def check(train_loader):
+    for step, images in enumerate(train_loader): #encoded_images, indication_prompt, true_stop_probs, reports
+        if step <= 20000: 
+            print(step, images.shape) #encoded_images.shape, indication_prompt.shape, true_stop_probs.shape, reports.shape
+        else:
+            break
+        gc.collect()
 
-    with profile(activities=[ProfilerActivity.CPU], record_shapes=True) as prof:
-        with record_function("check"):
-            check(train_loader)
 
-    print(prof.key_averages().table(sort_by="cpu_memory_usage", row_limit=10))
+    # with profile(activities=[ProfilerActivity.CPU], record_shapes=True) as prof:
+    #     with record_function("check"):
+    #         check(train_loader)
+
+    # print(prof.key_averages().table(sort_by="cpu_memory_usage", row_limit=10))
 
         
     # vocab_path = '../data/vocab.pkl'
