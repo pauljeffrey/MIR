@@ -230,12 +230,12 @@ class ChestXrayDataSet2(Dataset):
             with open(caption_json, 'r') as f:
                 self.data = random.sample(json.load(f), 1000)
         else:            
-            with open(caption_json, 'r') as f:
-                self.data = np.array(json.load(f))
+            # with open(caption_json, 'r') as f:
+            #     self.data = np.array(json.load(f))
                 
         # manager = Manager()    
         # self.data  = manager.dict({i: each for i, each in enumerate(self.data)})
-            #data = pd.read_json(caption_json)["image"] #, 'type', "caption","indication"
+            self.data = pd.read_json(caption_json) #, 'type', "caption","indication"
             # print(self.data.values.dtype)
             # self.data = self.data.values.astype("U")
             # print(self.data.dtype)
@@ -255,13 +255,10 @@ class ChestXrayDataSet2(Dataset):
         self.n_max = n_max
         self.encoder_n_max = encoder_n_max
         
-    def return_sample(self, idx):
-        sample = self.data[idx]
-        return sample
 
     def __getitem__(self, index):
         #['image', 'type', 'caption', 'problems', 'indication', 'labels']
-        image_name = self.data[index][0]
+        image_name = self.data.image.iloc[index]
         
         # seq = unpack_sequence(self.strings_v, self.strings_o, index)
         # image_name = sequence_to_string(seq)
