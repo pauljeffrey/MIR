@@ -272,7 +272,7 @@ class ChestXrayDataSet2(Dataset):
         
         seq = unpack_sequence(self.images_v, self.images_o, index)
         image_name = sequence_to_string(seq)
-        print("image_name: ", image_name)
+        
         
         seq = unpack_sequence(self.type_v, self.type_o, index)
         sample_type = sequence_to_string(seq)
@@ -308,8 +308,9 @@ class ChestXrayDataSet2(Dataset):
                 image = self.transform(Image.open(os.path.join(self.image_dir, str(image_name))).convert('RGB'))
             
         # caption = sample[2] #sample["caption"]
-        print(indication)
-        print(caption)
+        print("image_name: ", image_name)
+        print("indication: ", indication)
+        print("caption: ", caption)
         
         # target = list()
         # indication_prompt = list()
