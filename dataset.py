@@ -235,13 +235,13 @@ class ChestXrayDataSet2(Dataset):
                 
         # manager = Manager()    
         # self.data  = manager.dict({i: each for i, each in enumerate(self.data)})
-            self.data = Array(pd.read_json(caption_json).values) #, 'type', "caption","indication"
+            self.data = pd.read_json(caption_json)#, 'type', "caption","indication"
             # print(self.data.values.dtype)
             # self.data = self.data.values.astype("U")
             # print(self.data.dtype)
             
-            # seqs = [string_to_sequence(s) for s in data]
-            # self.strings_v, self.strings_o = pack_sequences(seqs)
+            seqs = [string_to_sequence(s) for s in self.data]
+            self.strings_v, self.strings_o = pack_sequences(seqs)
             #print(self.data.columns)
         #self.file_names, self.labels = self.__load_label_list(file_list)
         if use_tokenizer_fast:
@@ -258,10 +258,10 @@ class ChestXrayDataSet2(Dataset):
 
     def __getitem__(self, index):
         #['image', 'type', 'caption', 'problems', 'indication', 'labels']
-        image_name = self.data[index][0] #self.data.image.iloc[index]
+        #image_name = self.data[index][0] #self.data.image.iloc[index]
         
-        # seq = unpack_sequence(self.strings_v, self.strings_o, index)
-        # image_name = sequence_to_string(seq)
+        seq = unpack_sequence(self.strings_v, self.strings_o, index)
+        image_name = sequence_to_string(seq)
         #image_name = sample.split("<<END>>")[0] #sample["image"] #sample[0] #
         # if index > 1200:  
         #     print("In the dataset function...")
