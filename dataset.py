@@ -360,7 +360,7 @@ def get_loader2(image_dir,
                                               shuffle=shuffle,
                                               drop_last = True,
                                               #collate_fn=collate_fn,
-                                              num_workers = 0,
+                                              num_workers = 1,
                                               pin_memory=True)
     return data_loader
 
