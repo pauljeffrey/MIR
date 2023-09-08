@@ -255,10 +255,16 @@ class ChestXrayDataSet2(Dataset):
         self.s_max = s_max
         self.n_max = n_max
         self.encoder_n_max = encoder_n_max
+        
+    def return_sample(self, idx):
+        sample = self.data[idx]
+        return sample
 
     def __getitem__(self, index):
         #['image', 'type', 'caption', 'problems', 'indication', 'labels']
-        sample = self.data[index]
+        sample = self.return_sample(index) #.data[index]
+        if index==0:
+            print(sample)
         # seq = unpack_sequence(self.strings_v, self.strings_o, index)
         # image_name = sequence_to_string(seq)
         image_name = sample["image"] #sample[0] #
@@ -359,7 +365,7 @@ def get_loader2(image_dir,
                                               shuffle=shuffle,
                                               drop_last = True,
                                               #collate_fn=collate_fn,
-                                              num_workers = 2,
+                                              num_workers = 0,
                                               pin_memory=True)
     return data_loader
 
