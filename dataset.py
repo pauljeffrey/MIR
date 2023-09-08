@@ -240,7 +240,7 @@ class ChestXrayDataSet2(Dataset):
             # self.data = self.data.values.astype("U")
             # print(self.data.dtype)
             
-            seqs = [string_to_sequence(s) for s in self.data]
+            seqs = [string_to_sequence(s) for s in self.data["image"]]
             self.strings_v, self.strings_o = pack_sequences(seqs)
             #print(self.data.columns)
         #self.file_names, self.labels = self.__load_label_list(file_list)
@@ -262,6 +262,7 @@ class ChestXrayDataSet2(Dataset):
         
         seq = unpack_sequence(self.strings_v, self.strings_o, index)
         image_name = sequence_to_string(seq)
+        print("image_name: ", image_name)
         #image_name = sample.split("<<END>>")[0] #sample["image"] #sample[0] #
         # if index > 1200:  
         #     print("In the dataset function...")
