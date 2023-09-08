@@ -241,7 +241,17 @@ class ChestXrayDataSet2(Dataset):
             # print(self.data.dtype)
             
             seqs = [string_to_sequence(s) for s in self.data["image"]]
-            self.strings_v, self.strings_o = pack_sequences(seqs)
+            self.images_v, self.images_o = pack_sequences(seqs)
+            
+            seqs = [string_to_sequence(s) for s in self.data["type"]]
+            self.type_v, self.type_o = pack_sequences(seqs)
+            
+            seqs = [string_to_sequence(s) for s in self.data["caption"]]
+            self.captions_v, self.captions_o = pack_sequences(seqs)
+            
+            seqs = [string_to_sequence(s) for s in self.data["indication"]]
+            self.indications_v, self.indications_o = pack_sequences(seqs)
+            
             #print(self.data.columns)
         #self.file_names, self.labels = self.__load_label_list(file_list)
         if use_tokenizer_fast:
@@ -260,32 +270,35 @@ class ChestXrayDataSet2(Dataset):
         #['image', 'type', 'caption', 'problems', 'indication', 'labels']
         #image_name = self.data[index][0] #self.data.image.iloc[index]
         
-        seq = unpack_sequence(self.strings_v, self.strings_o, index)
+        seq = unpack_sequence(self.images_v, self.images_o, index)
         image_name = sequence_to_string(seq)
         print("image_name: ", image_name)
-        #image_name = sample.split("<<END>>")[0] #sample["image"] #sample[0] #
-        # if index > 1200:  
-        #     print("In the dataset function...")
-        # #image = 
-        #print("Image shape: ", image.size)
-        #label = torch.tensor([int(each) for each in sample["labels"]])
         
-        # if sample[1] == "original":
+        seq = unpack_sequence(self.type_v, self.type_o, index)
+        sample_type = sequence_to_string(seq)
+        
+        seq = unpack_sequence(self.captions_v, self.captions_o, index)
+        caption = sequence_to_string(seq)
+        
+        seq = unpack_sequence(self.indications_v, self.indications_o, index)
+        indication = sequence_to_string(seq)
+        
+        if sample_type == "original":
             
-        #     indication = sample[4] #sample["indication"]
-        #     if "<prompt>" in indication:
-        #         indication = "<ind>" + add_noise(indication.split("<ind>")[1]) + "<ind>" + indication.split("<ind>")[-1]
-        #         indication = indication.split("<prompt>")[0] + "<prompt>" + add_noise(indication.split("<prompt>")[1]) + "<prompt>"
+            #indication = sample[4] #sample["indication"]
+            if "<prompt>" in indication:
+                indication = "<ind>" + add_noise(indication.split("<ind>")[1]) + "<ind>" + indication.split("<ind>")[-1]
+                indication = indication.split("<prompt>")[0] + "<prompt>" + add_noise(indication.split("<prompt>")[1]) + "<prompt>"
                 
-        #     else:
-        #         indication = "<ind>" + add_noise(indication.split("<ind>")[1]) + "<ind>"
-        # else:
-        #     #label = torch.ones((len(sample["labels"]))) * -1
-        #     indication = sample[4]  #sample["indication"]
-        #     indication = indication.split("<prompt>")[0] + "<prompt>" + add_noise(indication.split("<prompt>")[1]) + "<prompt>"
-        #     indication = "<ind>" + add_noise(indication.split("<ind>")[1]) + "<ind>" + indication.split("<ind>")[-1]
-        #     if "<prompt>" in indication:
-        #         indication = rm_indication(indication)
+            else:
+                indication = "<ind>" + add_noise(indication.split("<ind>")[1]) + "<ind>"
+        else:
+            #label = torch.ones((len(sample["labels"]))) * -1
+            #indication = sample[4]  #sample["indication"]
+            indication = indication.split("<prompt>")[0] + "<prompt>" + add_noise(indication.split("<prompt>")[1]) + "<prompt>"
+            indication = "<ind>" + add_noise(indication.split("<ind>")[1]) + "<ind>" + indication.split("<ind>")[-1]
+            if "<prompt>" in indication:
+                indication = rm_indication(indication)
                 
             
         if self.transform is not None:
@@ -295,7 +308,8 @@ class ChestXrayDataSet2(Dataset):
                 image = self.transform(Image.open(os.path.join(self.image_dir, str(image_name))).convert('RGB'))
             
         # caption = sample[2] #sample["caption"]
-        
+        print(indication)
+        print(caption)
         
         # target = list()
         # indication_prompt = list()
