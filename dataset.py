@@ -229,13 +229,12 @@ class ChestXrayDataSet2(Dataset):
         if caption_json.endswith("val.json"):
             with open(caption_json, 'r') as f:
                 self.data = random.sample(json.load(f), 1000)
-        else:
-            
+        else:            
             with open(caption_json, 'r') as f:
-                self.data = json.load(f)
+                self.data = np.array(json.load(f),dtype="U")
                 
-        manager = Manager()    
-        self.data  = manager.dict({i: each for i, each in enumerate(self.data)})
+        # manager = Manager()    
+        # self.data  = manager.dict({i: each for i, each in enumerate(self.data)})
             #data = pd.read_json(caption_json)["image"] #, 'type', "caption","indication"
             # print(self.data.values.dtype)
             # self.data = self.data.values.astype("U")
@@ -262,7 +261,7 @@ class ChestXrayDataSet2(Dataset):
 
     def __getitem__(self, index):
         #['image', 'type', 'caption', 'problems', 'indication', 'labels']
-        sample = self.return_sample(index) #.data[index]
+        sample = self.data[index]
         
         # seq = unpack_sequence(self.strings_v, self.strings_o, index)
         # image_name = sequence_to_string(seq)
