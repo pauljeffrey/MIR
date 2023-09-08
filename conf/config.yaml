@@ -10,13 +10,13 @@ dataset:
 
   train:
     image_dir: "/kaggle/input/chest-xrays-indiana-university/images/images_normalized"
-    caption_json: "/kaggle/input/custom/train.json"
+    caption_json: "/kaggle/working/training.json"
     #history_json: null
     #file_list: null
 
   eval:
     image_dir: "/kaggle/input/chest-xrays-indiana-university/images/images_normalized"
-    caption_json: "/kaggle/input/custom/val.json"
+    caption_json: "/kaggle/working/validation.json"
     #history_json: null
     #file_list: null
 

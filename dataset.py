@@ -359,7 +359,7 @@ def get_loader2(image_dir,
                                               shuffle=shuffle,
                                               drop_last = True,
                                               #collate_fn=collate_fn,
-                                              num_workers = 0,
+                                              num_workers = 2,
                                               pin_memory=True)
     return data_loader
 
@@ -434,7 +434,7 @@ if __name__ == '__main__':
             tokenizer_name = cfg.tokenizer.name, transform= transform, batch_size = cfg.training.train_batch_size, s_max= cfg.dataset.tokens.s_max,
             n_max=cfg.dataset.tokens.n_max, encoder_n_max=cfg.dataset.tokens.encoder_n_max, shuffle=cfg.training.shuffle, use_tokenizer_fast=cfg.tokenizer.use_fast, collate_fn=collate_fn2)
     
-    
+    print(cfg.dataset.train.caption_json)
     def check(train_loader):
         for step, images in enumerate(train_loader): #encoded_images, indication_prompt, true_stop_probs, reports
             if step <= 20000: 
