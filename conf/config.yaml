@@ -38,7 +38,7 @@ tokenizer:
   
 training:
   seed: 15
-  shuffle: true
+  shuffle: false
   learning_rate: 3e-4
   weight_decay: 0.1
   num_epochs: 50
