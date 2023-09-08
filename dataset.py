@@ -231,7 +231,7 @@ class ChestXrayDataSet2(Dataset):
                 self.data = random.sample(json.load(f), 1000)
         else:            
             with open(caption_json, 'r') as f:
-                self.data = np.array(json.load(f),dtype="U")
+                self.data = np.array(json.load(f))
                 
         # manager = Manager()    
         # self.data  = manager.dict({i: each for i, each in enumerate(self.data)})
@@ -261,11 +261,11 @@ class ChestXrayDataSet2(Dataset):
 
     def __getitem__(self, index):
         #['image', 'type', 'caption', 'problems', 'indication', 'labels']
-        sample = self.data[index]
+        image_name = self.data[index][0]
         
         # seq = unpack_sequence(self.strings_v, self.strings_o, index)
         # image_name = sequence_to_string(seq)
-        image_name = sample.split("<<END>>")[0] #sample["image"] #sample[0] #
+        #image_name = sample.split("<<END>>")[0] #sample["image"] #sample[0] #
         # if index > 1200:  
         #     print("In the dataset function...")
         # #image = 
