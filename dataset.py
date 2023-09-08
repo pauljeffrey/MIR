@@ -239,22 +239,22 @@ class ChestXrayDataSet2(Dataset):
         # manager = Manager()    
         # self.data  = manager.dict({i: each for i, each in enumerate(self.data)})
             self.data = pd.read_json(caption_json)#, 'type', "caption","indication"
-            print("Shuffling training data... ")
-            for _ in range(80):
-                self.data = self.data.sample(frac=1)
+            # print("Shuffling training data... ")
+            # for _ in range(80):
+            #     self.data = self.data.sample(frac=1)
             
-            seqs = [string_to_sequence(s) for s in self.data["image"]]
-            self.images_v, self.images_o = pack_sequences(seqs)
-            
-            seqs = [string_to_sequence(s) for s in self.data["type"]]
-            self.type_v, self.type_o = pack_sequences(seqs)
-            
-            seqs = [string_to_sequence(s) for s in self.data["caption"]]
-            self.captions_v, self.captions_o = pack_sequences(seqs)
-            
-            seqs = [string_to_sequence(s) for s in self.data["indication"]]
-            self.indications_v, self.indications_o = pack_sequences(seqs)
-            
+        seqs = [string_to_sequence(s) for s in self.data["image"]]
+        self.images_v, self.images_o = pack_sequences(seqs)
+        
+        seqs = [string_to_sequence(s) for s in self.data["type"]]
+        self.type_v, self.type_o = pack_sequences(seqs)
+        
+        seqs = [string_to_sequence(s) for s in self.data["caption"]]
+        self.captions_v, self.captions_o = pack_sequences(seqs)
+        
+        seqs = [string_to_sequence(s) for s in self.data["indication"]]
+        self.indications_v, self.indications_o = pack_sequences(seqs)
+        
             #print(self.data.columns)
         #self.file_names, self.labels = self.__load_label_list(file_list)
         if use_tokenizer_fast:

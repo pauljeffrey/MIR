@@ -1,4 +1,4 @@
-output_dir: "demo" #"train"
+output_dir: "train"
 load_dir: "epoch_most_recent" #"model_with_best_eval" #
 
 dataset:
@@ -25,7 +25,7 @@ model:
   config_name: null
   build_model: true
   from_trained: false
-  from_checkpoint: false
+  from_checkpoint: true
 
 tokenizer:
   name: '/kaggle/working/MIR/tokenizers/wordpiece_tokenizer8000.json'
@@ -69,7 +69,7 @@ architecture:
   #   mlc: null
 
   #history_encoder:
-  history_encoder_num_layers: 4
+  history_encoder_num_layers: 8
   history_encoder_n_heads: 12
   history_encoder_dim_feedforward: 2048
   #history_encoder_dmodel: 256 
@@ -102,11 +102,11 @@ architecture:
   
 
   #decoder:
-  dec_num_layers: 5
+  dec_num_layers: 10
   vocab_size: 5666 
-  use_topic_per_layer: [ true, true,true ,false, false] # false, false, false, true,true,
-  use_cross_att_per_layer: [true, true, true, true, false] #false, false, false, false, false, 
-  use_prompt_per_layer: [  true, false, true, false, false] #false, false, false, false,false,
+  use_topic_per_layer: [false, false, false, true,true, true, true,true ,false, false] # 
+  use_cross_att_per_layer: [false, false, false, false, false,true, true, true, true, false] # 
+  use_prompt_per_layer: [false, false, false, false,false,true, false, true, false, false] #
   d_model: 768
   nhead: 12
   #mem_dim: 2048 # visual features dim (not number of channels)
