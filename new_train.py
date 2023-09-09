@@ -387,48 +387,50 @@ def train(cfg: DictConfig):
             "gradient_accumulation_steps"
         ]
     # Shuffle data here first:
-    with open(cfg.dataset.train.caption_json, 'r') as f:
-        data = json.load(f)
-        print("Shuffling training data...")
-        for _ in range(40):
-            data = random.sample(data, len(data))
+    if not os.path.exists("/kaggle/working/train.json"):
+        with open(cfg.dataset.train.caption_json, 'r') as f:
+            data = json.load(f)
+            print("Shuffling training data...")
+            for _ in range(4):
+                data = random.sample(data, len(data))
+            
+        originals = []
+        for each in data:
+            if each["type"] == "original":
+                originals.append(1)
+            else:
+                originals.append(0)
+                
+        qa_perc = sum(originals)/len(originals)
+        original_prob = (1 - qa_perc) / sum(originals)
+        qa_perc = qa_perc / (len(originals) - sum(originals))
+        weights = []
         
-    originals = []
-    for each in data:
-        if each["type"] == "original":
-            originals.append(1)
-        else:
-            originals.append(0)
+        for value in originals:
+            if value == 0:
+                weights.append(qa_perc)
+            else:
+                weights.append(original_prob)
+        
+        sampler = WeightedRandomSampler(
+        weights=weights,
+        num_samples=len(data),
+        replacement=False
+    )
+        with open("/kaggle/working/train.json","w") as t:
+            json.dump(data, t)
+    if not os.path.exist("/kaggle/working/validation.json") :         
+        # Shuffle eval dataset
+        with open(cfg.dataset.eval.caption_json, 'r') as f:
+            data = json.load(f)
+            print("Shuffling validation data...")
+            for _ in range(2):
+                data = random.sample(data, len(data))
+        
+        with open("/kaggle/working/validation.json","w") as t:
+            json.dump(data, t)
             
-    qa_perc = sum(originals)/len(originals)
-    original_prob = (1 - qa_perc) / sum(originals)
-    qa_perc = qa_perc / (len(originals) - sum(originals))
-    weights = []
-    
-    for value in originals:
-        if value == 0:
-            weights.append(qa_perc)
-        else:
-            weights.append(original_prob)
-    
-    sampler = WeightedRandomSampler(
-     weights=weights,
-     num_samples=len(data),
-     replacement=False
- )
-    with open("/kaggle/working/train.json","w") as t:
-        json.dump(data, t)
-            
-    # Shuffle eval dataset
-    with open(cfg.dataset.eval.caption_json, 'r') as f:
-        data = json.load(f)
-        print("Shuffling validation data...")
-        for _ in range(40):
-            data = random.sample(data, len(data))
-    with open("/kaggle/working/validation.json","w") as t:
-        json.dump(data, t)
-            
-    del data
+    #del data
     # Create train_loader and eval_loader here
     #if cfg.tokenizer.name is not None:
     train_loader = get_loader2(cfg.dataset.train.image_dir,"/kaggle/working/train.json", # cfg.dataset.train.caption_json, 
