@@ -225,12 +225,12 @@ class ChestXrayDataSet2(Dataset):
         
         self.image_dir = image_dir
         if caption_json.endswith("val.json"):
-            self.data = pd.read_json(caption_json)
+            data = pd.read_json(caption_json)
             print("Shuffling validation data...")
             for _ in range(15):
-                self.data = self.data.sample(frac=1)
+                data = data.sample(frac=1)
                 
-            self.data = self.data.iloc[:1000]
+            data = data.iloc[:1000]
             
         else:            
             # with open(caption_json, 'r') as f:
