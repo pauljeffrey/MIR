@@ -365,7 +365,8 @@ def get_loader2(image_dir,
                encoder_n_max=60,
                shuffle=True,
                use_tokenizer_fast=False,
-               collate_fn=collate_fn2
+               collate_fn=collate_fn2,
+               sampler = None
                ):
     
     dataset = ChestXrayDataSet2(image_dir=image_dir,
@@ -380,9 +381,10 @@ def get_loader2(image_dir,
     data_loader = torch.utils.data.DataLoader(dataset=dataset,
                                               batch_size=batch_size,
                                               shuffle=shuffle,
-                                              drop_last = True,
+                                              drop_last = False,
                                               collate_fn=collate_fn,
                                               num_workers = 0,
+                                              sampler=sampler,
                                               pin_memory=True)
     return data_loader
 
