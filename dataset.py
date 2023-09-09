@@ -274,18 +274,18 @@ class ChestXrayDataSet2(Dataset):
         #['image', 'type', 'caption', 'problems', 'indication', 'labels']
         #image_name = self.data[index][0] #self.data.image.iloc[index]
         
-        seq = unpack_sequence(self.images_v, self.images_o, index)
-        image_name = sequence_to_string(seq)
+        img_seq = unpack_sequence(self.images_v, self.images_o, index)
+        image_name = sequence_to_string(img_seq)
         
         
-        seq = unpack_sequence(self.type_v, self.type_o, index)
-        sample_type = sequence_to_string(seq)
+        type_seq = unpack_sequence(self.type_v, self.type_o, index)
+        sample_type = sequence_to_string(type_seq)
         
-        seq = unpack_sequence(self.captions_v, self.captions_o, index)
-        caption = sequence_to_string(seq)
+        caption_seq = unpack_sequence(self.captions_v, self.captions_o, index)
+        caption = sequence_to_string(caption_seq)
         
-        seq = unpack_sequence(self.indications_v, self.indications_o, index)
-        indication = sequence_to_string(seq)
+        ind_seq = unpack_sequence(self.indications_v, self.indications_o, index)
+        indication = sequence_to_string(ind_seq)
         
         if sample_type == "original":
             
@@ -464,7 +464,7 @@ if __name__ == '__main__':
             print(step, images.shape, indication_prompt.shape, true_stop_probs.shape, reports.shape) #encoded_images.shape, indication_prompt.shape, true_stop_probs.shape, reports.shape
         else:
             break
-        #gc.collect()
+        gc.collect()
 
 
     # with profile(activities=[ProfilerActivity.CPU], record_shapes=True) as prof:
