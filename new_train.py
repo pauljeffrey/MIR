@@ -421,10 +421,10 @@ def train(cfg: DictConfig):
             
     # Shuffle eval dataset
     with open(cfg.dataset.eval.caption_json, 'r') as f:
-        print("Shuffling validation set...")
         data = json.load(f)
-        for _ in range(30):
-            data = random.shuffle(data, len(data))
+        print("Shuffling validation data...")
+        for _ in range(40):
+            data = random.sample(data, len(data))
     with open("/kaggle/working/validation.json","w") as t:
         json.dump(data, t)
             
