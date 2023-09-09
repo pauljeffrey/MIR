@@ -356,7 +356,7 @@ def train(cfg: DictConfig):
 
     transform = transforms.Compose(
     [
-        transforms.Resize((224,224), antialias=True), 
+        
         # transforms.RandomVerticalFlip(0.45),
         # transforms.RandomHorizontalFlip(0.45),
         transforms.RandomRotation((0,5)),
@@ -364,8 +364,8 @@ def train(cfg: DictConfig):
         transforms.GaussianBlur(kernel_size=(3, 3), sigma=(0.1, 1.2)),
         transforms.ColorJitter(brightness= (0.5, 1.5) , contrast=(0, 1.0)),
         transforms.Pad(20),
-        
-        transforms.ToTensor(device=device),
+        transforms.Resize((224,224), antialias=True), 
+        transforms.ToTensor(),
     ]
 )
     # On TPU, the tie weights in our model have been disconnected, so we need to restore the ties.
