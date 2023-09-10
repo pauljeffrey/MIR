@@ -276,8 +276,8 @@ def evaluate(model, accelerator, eval_loader, custom_loss): #, bce_loss
                 
                 print("stop loss: ", stop_loss)
                 print("sparse_loss: ", sparse_loss)
-                eval_stop_losses.append(accelerator.gather(stop_loss).detach().cpu().item())
-                eval_losses.append(accelerator.gather(sparse_loss).detach().cpu().item())
+                eval_stop_losses.append(accelerator.gather(stop_loss.repeat(cfg.training.eval_batch_size)))
+                eval_losses.append(accelerator.gather(sparse_loss.repeat(cfg.training.eval_batch_size)))
                 
             # print("loss : ", stop_loss, sparse_loss)
             # print("Loss list: ",eval_stop_losses, eval_losses)
@@ -287,8 +287,8 @@ def evaluate(model, accelerator, eval_loader, custom_loss): #, bce_loss
             
 
         try:
-            eval_loss = torch.mean(torch.Tensor(eval_losses))
-            eval_stop_loss = torch.mean(torch.Tensor(eval_stop_losses))
+            eval_loss = torch.mean(torch.cat(eval_losses))
+            eval_stop_loss = torch.mean(torch.cat(eval_stop_losses))
             #eval_bce_loss = torch.mean(torch.cat(eval_bce_losses))
             perplexity = math.exp(eval_loss.item())
             #print("Try : ", eval_loss, eval_stop_loss)
