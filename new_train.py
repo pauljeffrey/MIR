@@ -32,7 +32,7 @@ from transformers import (
 )
 import torch.autograd.profiler as profiler
 from torch.utils.data import WeightedRandomSampler
-
+from time import time
 
 torch.manual_seed(42)
 
@@ -386,6 +386,7 @@ def train(cfg: DictConfig):
         cfg.training.gradient_accumulation_steps = accelerator.state.deepspeed_plugin.deepspeed_config[
             "gradient_accumulation_steps"
         ]
+        
     # Shuffle data here first:
     if not os.path.exists("/kaggle/working/train.json"):
         with open(cfg.dataset.train.caption_json, 'r') as f:
@@ -393,6 +394,7 @@ def train(cfg: DictConfig):
             print(f"Shuffling training data of {len(data)} samples...")
             for _ in range(4):
                 data = random.sample(data, len(data))
+            print(data[0])
             
             originals = []
             for each in data:
@@ -412,6 +414,9 @@ def train(cfg: DictConfig):
                 else:
                     weights.append(original_prob)
             
+            with open("/kaggle/working/weights.json", "w") as w:
+                json.dump(weights, w)
+                
             sampler = WeightedRandomSampler(
             weights=weights,
             num_samples=len(data),
@@ -430,16 +435,17 @@ def train(cfg: DictConfig):
         
             with open("/kaggle/working/validation.json","w") as t:
                 json.dump(data, t)
-                
+    
+    time.wait(10)  
     #del data
     # Create train_loader and eval_loader here
     #if cfg.tokenizer.name is not None:
-    train_loader = get_loader2(cfg.dataset.train.image_dir,cfg.dataset.train.caption_json, 
+    train_loader = get_loader2(cfg.dataset.train.image_dir, "/kaggle/working/train.json", #cfg.dataset.train.caption_json, 
             tokenizer_name = cfg.tokenizer.name, transform= transform, batch_size = cfg.training.train_batch_size, s_max= cfg.dataset.tokens.s_max,
             n_max=cfg.dataset.tokens.n_max, encoder_n_max=cfg.dataset.tokens.encoder_n_max, shuffle=cfg.training.shuffle, use_tokenizer_fast=cfg.tokenizer.use_fast,
             collate_fn=collate_fn2, sampler= sampler)
     
-    eval_loader = get_loader2(cfg.dataset.eval.image_dir, cfg.dataset.eval.caption_json, 
+    eval_loader = get_loader2(cfg.dataset.eval.image_dir, "/kaggle/working/validation.json", #cfg.dataset.eval.caption_json, 
             tokenizer_name = cfg.tokenizer.name, transform= transform, batch_size = cfg.training.eval_batch_size, s_max= cfg.dataset.tokens.s_max,
             n_max=cfg.dataset.tokens.n_max, encoder_n_max=cfg.dataset.tokens.encoder_n_max, shuffle=cfg.training.shuffle, use_tokenizer_fast=cfg.tokenizer.use_fast, collate_fn=collate_fn2)
     # else:
@@ -513,7 +519,7 @@ def train(cfg: DictConfig):
             encoder_pad_mask = create_padding_mask(indication_prompt).to(device)
             #print("Mem shape: ", indication_prompt.shape, "mask shape: ", encoder_pad_mask.shape)
             #encoder_causal_mask = src_mask(indication_prompt.shape[1])
-            print("After dataloader yields samples...")
+           
             encoded_images  = model.encoder(encoded_images)#.type(torch.cuda.HalfTensor))
             
             for name , each in model.encoder.named_parameters():

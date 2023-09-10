@@ -43,14 +43,14 @@ training:
   weight_decay: 0.1
   num_epochs: 50
   max_train_steps: 1 #30000
-  gradient_accumulation_steps: 6
+  gradient_accumulation_steps: 30
   lr_scheduler: "cosine" # ["linear", "cosine", "cosine_with_restarts", "polynomial", "constant", "constant_with_warmup"]
   lr_warmup_steps: 1000
-  eval_every: 2048
+  eval_every: 5
   save_every: 32
   img_size: (224,224)
   train_batch_size: 20
-  eval_batch_size: 32
+  eval_batch_size: 20
 
   checkpoint:
     resume_from_checkpoint: 0 # integer representing which checkpoint to load from, or <= 0 to not
@@ -96,7 +96,7 @@ architecture:
   #sent_lstm:
   #hidden_layer_size: 128 # Number of units for the hidden layer of the MLP
   hidden_dim: 768
-  lstm_layers: 5 #Num of lstm layers
+  lstm_layers: 6 #Num of lstm layers
   #features_dim: 2048 # visual features dim (not number of channels)
   enforce_info: false
   
