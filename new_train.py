@@ -386,66 +386,24 @@ def train(cfg: DictConfig):
         cfg.training.gradient_accumulation_steps = accelerator.state.deepspeed_plugin.deepspeed_config[
             "gradient_accumulation_steps"
         ]
-        
-    # Shuffle data here first:
-    if not os.path.exists("/kaggle/working/train.json"):
-        with open(cfg.dataset.train.caption_json, 'r') as f:
-            data = json.load(f)
-            print(f"Shuffling training data of {len(data)} samples...")
-            for _ in range(4):
-                data = random.sample(data, len(data))
-            print(data[0])
-            
-            originals = []
-            for each in data:
-                if each["type"] == "original":
-                    originals.append(1)
-                else:
-                    originals.append(0)
-                    
-            qa_perc = sum(originals)/len(originals)
-            original_prob = (1 - qa_perc) / sum(originals)
-            qa_perc = qa_perc / (len(originals) - sum(originals))
-            weights = []
-            
-            for value in originals:
-                if value == 0:
-                    weights.append(qa_perc)
-                else:
-                    weights.append(original_prob)
-            
-            with open("/kaggle/working/weights.json", "w") as w:
-                json.dump(weights, w)
-                
-            sampler = WeightedRandomSampler(
-            weights=weights,
-            num_samples=len(data),
-            replacement=False
-        )
-            with open("/kaggle/working/train.json","w") as t:
-                json.dump(data, t)
-      
-    # Shuffle eval dataset          
-    if not os.path.exists("/kaggle/working/validation.json") :                
-        with open(cfg.dataset.eval.caption_json, 'r') as f:
-            data = json.load(f)
-            print("Shuffling validation data...")
-            for _ in range(2):
-                data = random.sample(data, len(data))
-        
-            with open("/kaggle/working/validation.json","w") as t:
-                json.dump(data, t)
     
-    time.wait(10)  
+    with open("/kaggle/working/weights.json", "r") as f:
+        weights = json.load(f)
+  
+    sampler = WeightedRandomSampler(
+        weights=weights,
+        num_samples=len(weights),
+        replacement=False
+    )
     #del data
     # Create train_loader and eval_loader here
     #if cfg.tokenizer.name is not None:
-    train_loader = get_loader2(cfg.dataset.train.image_dir, "/kaggle/working/train.json", #cfg.dataset.train.caption_json, 
+    train_loader = get_loader2(cfg.dataset.train.image_dir, cfg.dataset.train.caption_json, 
             tokenizer_name = cfg.tokenizer.name, transform= transform, batch_size = cfg.training.train_batch_size, s_max= cfg.dataset.tokens.s_max,
             n_max=cfg.dataset.tokens.n_max, encoder_n_max=cfg.dataset.tokens.encoder_n_max, shuffle=cfg.training.shuffle, use_tokenizer_fast=cfg.tokenizer.use_fast,
             collate_fn=collate_fn2, sampler= sampler)
     
-    eval_loader = get_loader2(cfg.dataset.eval.image_dir, "/kaggle/working/validation.json", #cfg.dataset.eval.caption_json, 
+    eval_loader = get_loader2(cfg.dataset.eval.image_dir, cfg.dataset.eval.caption_json, 
             tokenizer_name = cfg.tokenizer.name, transform= transform, batch_size = cfg.training.eval_batch_size, s_max= cfg.dataset.tokens.s_max,
             n_max=cfg.dataset.tokens.n_max, encoder_n_max=cfg.dataset.tokens.encoder_n_max, shuffle=cfg.training.shuffle, use_tokenizer_fast=cfg.tokenizer.use_fast, collate_fn=collate_fn2)
     # else:

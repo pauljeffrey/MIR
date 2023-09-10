@@ -224,13 +224,10 @@ class ChestXrayDataSet2(Dataset):
                  use_tokenizer_fast =True):
         
         self.image_dir = image_dir
-        if caption_json.endswith("val.json"):
+        if caption_json.endswith("validation.json") or caption_json.endswith("val.json"):
             data = pd.read_json(caption_json)
-            print("Shuffling validation data...")
-            for _ in range(15):
-                data = data.sample(frac=1)
                 
-            data = data.iloc[:1000]
+            data = data.iloc[:1500]
             
         else:            
             # with open(caption_json, 'r') as f:
