@@ -274,8 +274,8 @@ def evaluate(model, accelerator, eval_loader, custom_loss): #, bce_loss
                 #loss += custom_loss(true_stop_probs[:,i].type(indication_prompt.dtype), reports[:, i, 1:], pred_stop_probs,  output, eval=True)  # Ignore <sos> token
                 stop_loss, sparse_loss = custom_loss(true_stop_probs[:,i].type(indication_prompt.dtype), reports[:, i, 1:],pred_stop_probs,  output, eval=True)  # Ignore <sos> token
                 
-                print("stop loss: ", stop_loss)
-                print("sparse_loss: ", sparse_loss)
+                # print("stop loss: ", stop_loss)
+                # print("sparse_loss: ", sparse_loss)
                 eval_stop_losses.append(accelerator.gather(stop_loss.repeat(cfg.training.eval_batch_size)))
                 eval_losses.append(accelerator.gather(sparse_loss.repeat(cfg.training.eval_batch_size)))
                 
