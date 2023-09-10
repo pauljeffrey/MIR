@@ -485,7 +485,7 @@ def train(cfg: DictConfig):
         #     total_loss = 0
         train_losses = []
         #check = True
-        for (encoded_images,indication_prompt, true_stop_probs, reports) in train_loader: #labels,
+        for step, (encoded_images,indication_prompt, true_stop_probs, reports) in enumerate(train_loader): #labels,
             
             #print(f"\nStep {step}")
             # encoded_images = encoded_images.to(device)
