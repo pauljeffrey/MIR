@@ -463,7 +463,7 @@ def train(cfg: DictConfig):
             #         print(f"\nOn step {step}, Skipping to step {500}..")
             #     continue
             
-            print(encoded_images.shape, indication_prompt.shape, true_stop_probs.shape, reports.shape)
+            #print(encoded_images.shape, indication_prompt.shape, true_stop_probs.shape, reports.shape)
             
             # if torch.any(torch.isnan(encoded_images)):
             #     print("Raw images are nan..")
