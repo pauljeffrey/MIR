@@ -196,7 +196,7 @@ def string_to_sequence(s: str, dtype=np.int32) -> np.ndarray:
 
 def sequence_to_string(seq: np.ndarray) -> str:
     temp = ''.join([chr(c) for c in seq])
-    return tuple(temp.split("<<END>>"))
+    return tuple(temp.split("<<END>>"))[0]
 
 def pack_sequences(seqs: Union[np.ndarray, list]) -> (np.ndarray, np.ndarray):
     values = np.concatenate(seqs, axis=0)
@@ -317,8 +317,8 @@ class ChestXrayDataSet2(Dataset):
         #target = list()
         #indication_prompt = list()
         #word_num = 0
-        caption = [self.tokenizer.encode(sent).ids[:self.n_max] for sent in caption.split('.')[:self.s_max] if 
-                   (len(sent) == 0 or (len(sent) == 1 and sent in [".",",",";",":","@","/","-","_","%","*"]))]
+        # caption = [self.tokenizer.encode(sent).ids[:self.n_max] for sent in caption.split('.')[:self.s_max] if 
+        #            (len(sent) == 0 or (len(sent) == 1 and sent in [".",",",";",":","@","/","-","_","%","*"]))]
         #max_word_num = 0
         # for i, sentence in enumerate(caption.split('.')):
         #     if i >= self.s_max:
@@ -342,18 +342,18 @@ class ChestXrayDataSet2(Dataset):
             
         #sentence_num = len(target)
         
-        indication = self.tokenizer.encode(indication).ids
-        #indication_prompt.extend(self.tokenizer.encode(indication).ids)
+        # indication = self.tokenizer.encode(indication).ids
+        # #indication_prompt.extend(self.tokenizer.encode(indication).ids)
         
-        if len(indication) > self.encoder_n_max:
-            indication = indication[:self.encoder_n_max -2] + self.tokenizer.encode('<prompt>').ids
-        elif len(indication) < self.encoder_n_max:
-            indication = indication.extend([0] * (self.encoder_n_max - len(indication)))
+        # if len(indication) > self.encoder_n_max:
+        #     indication = indication[:self.encoder_n_max -2] + self.tokenizer.encode('<prompt>').ids
+        # elif len(indication) < self.encoder_n_max:
+        #     indication = indication.extend([0] * (self.encoder_n_max - len(indication)))
             
-        if index % 100 == 0:
-            print("image_name: ", image_name)
-            print("indication: ", indication)
-            print("caption: ", caption)
+        # if index % 100 == 0:
+        #     print("image_name: ", image_name)
+        #     print("indication: ", indication)
+        #     print("caption: ", caption)
         
         return  image #, indication_prompt, target, #sentence_num, word_num  #image_name,label,  image,
 
