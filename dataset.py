@@ -278,7 +278,7 @@ class ChestXrayDataSet2(Dataset):
         #image_details = sequence_to_string(img_seq)
         #image_name = sequence_to_string(img_seq)
         
-        image_name, sample_type, indication, caption = sequence_to_string(img_seq)
+        image_name, _, indication, caption = sequence_to_string(img_seq)
         # type_seq = unpack_sequence(self.type_v, self.type_o, index)
         # sample_type = sequence_to_string(type_seq)
         
@@ -288,22 +288,22 @@ class ChestXrayDataSet2(Dataset):
         # ind_seq = unpack_sequence(self.indications_v, self.indications_o, index)
         # indication = sequence_to_string(ind_seq)
         
-        if sample_type == "original":
+        # if sample_type == "original":
             
-            #indication = sample[4] #sample["indication"]
-            if "<prompt>" in indication:
-                indication = "<ind>" + add_noise(indication.split("<ind>")[1]) + "<ind>" + indication.split("<ind>")[-1]
-                indication = indication.split("<prompt>")[0] + "<prompt>" + add_noise(indication.split("<prompt>")[1]) + "<prompt>"
+        #     #indication = sample[4] #sample["indication"]
+        #     if "<prompt>" in indication:
+        #         indication = "<ind>" + add_noise(indication.split("<ind>")[1]) + "<ind>" + indication.split("<ind>")[-1]
+        #         indication = indication.split("<prompt>")[0] + "<prompt>" + add_noise(indication.split("<prompt>")[1]) + "<prompt>"
                 
-            else:
-                indication = "<ind>" + add_noise(indication.split("<ind>")[1]) + "<ind>"
-        else:
-            #label = torch.ones((len(sample["labels"]))) * -1
-            #indication = sample[4]  #sample["indication"]
-            indication = indication.split("<prompt>")[0] + "<prompt>" + add_noise(indication.split("<prompt>")[1]) + "<prompt>"
-            indication = "<ind>" + add_noise(indication.split("<ind>")[1]) + "<ind>" + indication.split("<ind>")[-1]
-            if "<prompt>" in indication:
-                indication = rm_indication(indication)
+        #     else:
+        #         indication = "<ind>" + add_noise(indication.split("<ind>")[1]) + "<ind>"
+        # else:
+        #     #label = torch.ones((len(sample["labels"]))) * -1
+        #     #indication = sample[4]  #sample["indication"]
+        #     indication = indication.split("<prompt>")[0] + "<prompt>" + add_noise(indication.split("<prompt>")[1]) + "<prompt>"
+        #     indication = "<ind>" + add_noise(indication.split("<ind>")[1]) + "<ind>" + indication.split("<ind>")[-1]
+        #     if "<prompt>" in indication:
+        #         indication = rm_indication(indication)
                 
             
         if self.transform is not None:
@@ -314,41 +314,46 @@ class ChestXrayDataSet2(Dataset):
             
         # caption = sample[2] #sample["caption"]
         
-        target = list()
-        indication_prompt = list()
-        word_num = 0
-        
-        max_word_num = 0
-        for i, sentence in enumerate(caption.split('.')):
-            if i >= self.s_max:
-                break
+        #target = list()
+        #indication_prompt = list()
+        #word_num = 0
+        caption = [self.tokenizer.encode(sent).ids[:self.n_max] for sent in caption.split('.')[:self.s_max] if 
+                   (len(sent) == 0 or (len(sent) == 1 and sent in [".",",",";",":","@","/","-","_","%","*"]))]
+        #max_word_num = 0
+        # for i, sentence in enumerate(caption.split('.')):
+        #     if i >= self.s_max:
+        #         break
             
-            if len(sentence) == 0 or (len(sentence) == 1 and sentence in [".",",",";",":","@","/","-","_","%","*"]):
-                continue
+        #     if len(sentence) == 0 or (len(sentence) == 1 and sentence in [".",",",";",":","@","/","-","_","%","*"]):
+        #         continue
             
-            sentence = self.tokenizer.encode(sentence).ids
-            if len(sentence) > self.n_max:
-                sentence = sentence[:self.n_max]
+        #     sentence = self.tokenizer.encode(sentence).ids
+        #     if len(sentence) > self.n_max:
+        #         sentence = sentence[:self.n_max]
                 
-            tokens = list()
-            tokens.extend(self.tokenizer.encode('<s>').ids)
-            tokens.extend(sentence)
-            tokens.extend(self.tokenizer.encode('<s>').ids)
-            # if max_word_num < len(tokens):
-            #     max_word_num = len(tokens)
-            word_num = max(word_num, len(tokens))
-            target.append(tokens)
+        #     tokens = list()
+        #     tokens.extend(self.tokenizer.encode('<s>').ids)
+        #     tokens.extend(sentence)
+        #     tokens.extend(self.tokenizer.encode('<s>').ids)
+        #     # if max_word_num < len(tokens):
+        #     #     max_word_num = len(tokens)
+        #     word_num = max(word_num, len(tokens))
+        #     target.append(tokens)
             
-        sentence_num = len(target)
+        #sentence_num = len(target)
         
-        indication_prompt.extend(self.tokenizer.encode(indication).ids)
+        indication = self.tokenizer.encode(indication).ids
+        #indication_prompt.extend(self.tokenizer.encode(indication).ids)
         
-        if len(indication_prompt) > self.encoder_n_max:
-            indication_prompt = indication_prompt[:self.encoder_n_max -2] + self.tokenizer.encode('<prompt>').ids
-        
-        print("image_name: ", image_name)
-        print("indication: ", indication_prompt)
-        print("caption: ", target)
+        if len(indication) > self.encoder_n_max:
+            indication = indication[:self.encoder_n_max -2] + self.tokenizer.encode('<prompt>').ids
+        elif len(indication) < self.encoder_n_max:
+            indication = indication.extend([0] * (self.encoder_n_max - len(indication)))
+            
+        if index % 100 == 0:
+            print("image_name: ", image_name)
+            print("indication: ", indication)
+            print("caption: ", caption)
         
         return  image #, indication_prompt, target, #sentence_num, word_num  #image_name,label,  image,
 
