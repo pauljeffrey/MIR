@@ -309,9 +309,6 @@ class ChestXrayDataSet2(Dataset):
                 image = self.transform(Image.open(os.path.join(self.image_dir, str(image_name))).convert('RGB'))
             
         # caption = sample[2] #sample["caption"]
-        # print("image_name: ", image_name)
-        # print("indication: ", indication)
-        # print("caption: ", caption)
         
         target = list()
         indication_prompt = list()
@@ -345,7 +342,11 @@ class ChestXrayDataSet2(Dataset):
         if len(indication_prompt) > self.encoder_n_max:
             indication_prompt = indication_prompt[:self.encoder_n_max -2] + self.tokenizer.encode('<prompt>').ids
         
-        return  image , indication_prompt, target, sentence_num, word_num  #image_name,label,  image,
+        # print("image_name: ", image_name)
+        # print("indication: ", indication_prompt)
+        # print("caption: ", target)
+        
+        return  image #, indication_prompt, target, #sentence_num, word_num  #image_name,label,  image,
 
     def __len__(self):
         return self.len
@@ -379,9 +380,9 @@ def get_loader2(image_dir,
                                               batch_size=batch_size,
                                               shuffle=shuffle,
                                               drop_last = False,
-                                              collate_fn=collate_fn,
+                                              #collate_fn=collate_fn,
                                               num_workers = 0,
-                                              sampler=sampler,
+                                              #sampler=sampler,
                                               pin_memory=True)
     return data_loader
 
@@ -458,11 +459,11 @@ if __name__ == '__main__':
     
     #print(cfg.dataset.train.caption_json)
     #def check(train_loader):
-    for step, (images,indication_prompt, true_stop_probs, reports) in enumerate(train_loader): #encoded_images, indication_prompt, true_stop_probs, reports
+    for step, images in enumerate(train_loader): #encoded_images, indication_prompt, true_stop_probs, reports
         if step <= 20000: 
-            print(step, images.shape, indication_prompt.shape, true_stop_probs.shape, reports.shape) #encoded_images.shape, indication_prompt.shape, true_stop_probs.shape, reports.shape
+            print(step, images.shape)#, indication_prompt, reports) #encoded_images.shape, indication_prompt.shape, true_stop_probs.shape, reports.shape
         else:
-            break
+            break #,indication_prompt,reports
         gc.collect()
 
 
