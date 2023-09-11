@@ -446,14 +446,14 @@ def train(cfg: DictConfig):
     for epoch in range(starting_epoch, cfg.training.num_epochs):        
         #model.train()
         
-        print(f"Step: {step}")
+        
         # if cfg.tracking:
         #     total_loss = 0
         train_losses = []
         #check = True
         for step, (encoded_images,indication_prompt, true_stop_probs, reports) in enumerate(train_loader): #labels,
             
-            #print(f"\nStep {step}")
+            print(f"\nStep {step}")
             # encoded_images = encoded_images.to(device)
             # reports = reports.to(device)
             # true_stop_probs = true_stop_probs.to(device)
