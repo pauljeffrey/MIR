@@ -1,5 +1,5 @@
 output_dir: "train"
-load_dir: "epoch_most_recent" #"model_with_best_eval" #
+load_dir: "model_with_best_eval" #"epoch_most_recent" #
 
 dataset:
   name: null
@@ -25,7 +25,7 @@ model:
   config_name: null
   build_model: true
   from_trained: false
-  from_checkpoint: false
+  from_checkpoint: true
 
 tokenizer:
   name: '/kaggle/working/MIR/tokenizers/wordpiece_tokenizer8000.json'
@@ -43,14 +43,14 @@ training:
   weight_decay: 0.1
   num_epochs: 50
   max_train_steps: 60000
-  gradient_accumulation_steps: 12
+  gradient_accumulation_steps: 16
   lr_scheduler: "cosine" # ["linear", "cosine", "cosine_with_restarts", "polynomial", "constant", "constant_with_warmup"]
   lr_warmup_steps: 1500
   eval_every: 256
   save_every: 64
   img_size: (224,224)
-  train_batch_size: 6
-  eval_batch_size: 8
+  train_batch_size: 4
+  eval_batch_size: 6
 
   checkpoint:
     resume_from_checkpoint: 0 # integer representing which checkpoint to load from, or <= 0 to not
