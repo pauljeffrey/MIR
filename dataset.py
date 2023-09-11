@@ -278,7 +278,7 @@ class ChestXrayDataSet2(Dataset):
         #image_details = sequence_to_string(img_seq)
         #image_name = sequence_to_string(img_seq)
         
-        image_name, _, indication, caption = sequence_to_string(img_seq)
+        image_name = sequence_to_string(img_seq) # _, indication, caption
         # type_seq = unpack_sequence(self.type_v, self.type_o, index)
         # sample_type = sequence_to_string(type_seq)
         
