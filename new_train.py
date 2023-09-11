@@ -313,15 +313,15 @@ def train(cfg: DictConfig):
         level=logging.INFO,
     )
 
-    deepspeed_plugin = DeepSpeedPlugin(zero_stage=1, gradient_accumulation_steps=cfg.training.gradient_accumulation_steps, gradient_clipping=1.0)
-    accelerator = Accelerator( deepspeed_plugin =deepspeed_plugin) #,  mixed_precision='fp16',
+    # deepspeed_plugin = DeepSpeedPlugin(zero_stage=1, gradient_accumulation_steps=cfg.training.gradient_accumulation_steps, gradient_clipping=1.0)
+    # accelerator = Accelerator( deepspeed_plugin =deepspeed_plugin) #,  mixed_precision='fp16',
     
-    accelerator.wait_for_everyone()
-    device= accelerator.device
+    # accelerator.wait_for_everyone()
+    # device= accelerator.device
     
 
-    logger.info(accelerator.state, main_process_only=False)
-    logger.info(OmegaConf.to_yaml(cfg))
+    # logger.info(accelerator.state, main_process_only=False)
+    # logger.info(OmegaConf.to_yaml(cfg))
     
     if not cfg.model.from_checkpoint:
         model = load_model(cfg)
@@ -371,12 +371,12 @@ def train(cfg: DictConfig):
     ]
 )
     # On TPU, the tie weights in our model have been disconnected, so we need to restore the ties.
-    if accelerator.distributed_type == DistributedType.TPU:
-        model.tie_weights()
+    # if accelerator.distributed_type == DistributedType.TPU:
+    #     model.tie_weights()
 
   
     # Only show the progress bar once on each machine.
-    progress_bar = tqdm(range(cfg.training.max_train_steps), disable=not accelerator.is_local_main_process)
+    progress_bar = tqdm(range(cfg.training.max_train_steps)) #, disable=not accelerator.is_local_main_process)
     completed_steps = 0
     starting_epoch = epoch if epoch is not None else 0
     best_metric = loss
@@ -384,10 +384,10 @@ def train(cfg: DictConfig):
     
   
     # Get gradient accumulation steps from deepspeed config if available
-    if accelerator.state.deepspeed_plugin is not None:
-        cfg.training.gradient_accumulation_steps = accelerator.state.deepspeed_plugin.deepspeed_config[
-            "gradient_accumulation_steps"
-        ]
+    # if accelerator.state.deepspeed_plugin is not None:
+    #     cfg.training.gradient_accumulation_steps = accelerator.state.deepspeed_plugin.deepspeed_config[
+    #         "gradient_accumulation_steps"
+    #     ]
     
     # with open("/kaggle/working/weights.json", "r") as f:
     #     weights = json.load(f)
@@ -420,15 +420,15 @@ def train(cfg: DictConfig):
 
 
     # Prepare everything using our accelerator
-    (
-        model,
-        optimizer,
-        train_loader,
-        eval_loader,
-        lr_scheduler,
-    ) = accelerator.prepare(
-        model, optimizer, train_loader, eval_loader, lr_scheduler
-    )
+    # (
+    #     model,
+    #     optimizer,
+    #     train_loader,
+    #     eval_loader,
+    #     lr_scheduler,
+    # ) = accelerator.prepare(
+    #     model, optimizer, train_loader, eval_loader, lr_scheduler
+    # )
     
     #n_batches = len(train_loader)
     if not os.path.exists(cfg.output_dir):
