@@ -195,7 +195,8 @@ def string_to_sequence(s: str, dtype=np.int32) -> np.ndarray:
     return np.array([ord(c) for c in s], dtype=dtype)
 
 def sequence_to_string(seq: np.ndarray) -> str:
-    return ''.join([chr(c) for c in seq])
+    temp = ''.join([chr(c) for c in seq])
+    return tuple(temp.split("<<END>>"))
 
 def pack_sequences(seqs: Union[np.ndarray, list]) -> (np.ndarray, np.ndarray):
     values = np.concatenate(seqs, axis=0)
@@ -235,23 +236,25 @@ class ChestXrayDataSet2(Dataset):
                 
         # manager = Manager()    
         # self.data  = manager.dict({i: each for i, each in enumerate(self.data)})
-            data = pd.read_json(caption_json)#, 'type', "caption","indication"
+            #data = pd.read_json(caption_json)#, 'type', "caption","indication"
+            with open(caption_json,"r") as f:
+                data = json.load(f)
             # print("Shuffling training data... ")
             # for _ in range(80):
             #     self.data = self.data.sample(frac=1)
         self.len = len(data)
             
-        seqs = [string_to_sequence(s) for s in data["image"]]
+        seqs = [string_to_sequence(s) for s in data]
         self.images_v, self.images_o = pack_sequences(seqs)
         
-        seqs = [string_to_sequence(s) for s in data["type"]]
-        self.type_v, self.type_o = pack_sequences(seqs)
+        # seqs = [string_to_sequence(s) for s in data["type"]]
+        # self.type_v, self.type_o = pack_sequences(seqs)
         
-        seqs = [string_to_sequence(s) for s in data["caption"]]
-        self.captions_v, self.captions_o = pack_sequences(seqs)
+        # seqs = [string_to_sequence(s) for s in data["caption"]]
+        # self.captions_v, self.captions_o = pack_sequences(seqs)
         
-        seqs = [string_to_sequence(s) for s in data["indication"]]
-        self.indications_v, self.indications_o = pack_sequences(seqs)
+        # seqs = [string_to_sequence(s) for s in data["indication"]]
+        # self.indications_v, self.indications_o = pack_sequences(seqs)
         
             #print(self.data.columns)
         #self.file_names, self.labels = self.__load_label_list(file_list)
@@ -272,17 +275,18 @@ class ChestXrayDataSet2(Dataset):
         #image_name = self.data[index][0] #self.data.image.iloc[index]
         
         img_seq = unpack_sequence(self.images_v, self.images_o, index)
-        image_name = sequence_to_string(img_seq)
+        #image_details = sequence_to_string(img_seq)
+        #image_name = sequence_to_string(img_seq)
         
+        image_name, sample_type, indication, caption = sequence_to_string(img_seq)
+        # type_seq = unpack_sequence(self.type_v, self.type_o, index)
+        # sample_type = sequence_to_string(type_seq)
         
-        type_seq = unpack_sequence(self.type_v, self.type_o, index)
-        sample_type = sequence_to_string(type_seq)
+        # caption_seq = unpack_sequence(self.captions_v, self.captions_o, index)
+        # caption = sequence_to_string(caption_seq)
         
-        caption_seq = unpack_sequence(self.captions_v, self.captions_o, index)
-        caption = sequence_to_string(caption_seq)
-        
-        ind_seq = unpack_sequence(self.indications_v, self.indications_o, index)
-        indication = sequence_to_string(ind_seq)
+        # ind_seq = unpack_sequence(self.indications_v, self.indications_o, index)
+        # indication = sequence_to_string(ind_seq)
         
         if sample_type == "original":
             
@@ -342,9 +346,9 @@ class ChestXrayDataSet2(Dataset):
         if len(indication_prompt) > self.encoder_n_max:
             indication_prompt = indication_prompt[:self.encoder_n_max -2] + self.tokenizer.encode('<prompt>').ids
         
-        # print("image_name: ", image_name)
-        # print("indication: ", indication_prompt)
-        # print("caption: ", target)
+        print("image_name: ", image_name)
+        print("indication: ", indication_prompt)
+        print("caption: ", target)
         
         return  image #, indication_prompt, target, #sentence_num, word_num  #image_name,label,  image,
 
@@ -453,7 +457,7 @@ if __name__ == '__main__':
     ]
     )
     cfg = OmegaConf.load("/kaggle/working/MIR/conf/config.yaml") #
-    train_loader = get_loader2(cfg.dataset.train.image_dir, cfg.dataset.train.caption_json, 
+    train_loader = get_loader2(cfg.dataset.train.image_dir, "/kaggle/working/stringed_train.json", #cfg.dataset.train.caption_json, 
             tokenizer_name = cfg.tokenizer.name, transform= transform, batch_size = cfg.training.train_batch_size, s_max= cfg.dataset.tokens.s_max,
             n_max=cfg.dataset.tokens.n_max, encoder_n_max=cfg.dataset.tokens.encoder_n_max, shuffle=cfg.training.shuffle, use_tokenizer_fast=cfg.tokenizer.use_fast, collate_fn=collate_fn2)
     
