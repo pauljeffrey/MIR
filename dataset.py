@@ -227,7 +227,7 @@ class ChestXrayDataSet2(Dataset):
         if caption_json.endswith("validation.json") or caption_json.endswith("val.json"):
             data = pd.read_json(caption_json)
                 
-            data = data.iloc[:500]
+            data = data.iloc[:250]
             
         else:            
             # with open(caption_json, 'r') as f:

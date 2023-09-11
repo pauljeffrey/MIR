@@ -446,7 +446,7 @@ def train(cfg: DictConfig):
     for epoch in range(starting_epoch, cfg.training.num_epochs):        
         #model.train()
         
-        print("In the training function...")    
+        print(f"Step: {step}")
         # if cfg.tracking:
         #     total_loss = 0
         train_losses = []
