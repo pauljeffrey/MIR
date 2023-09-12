@@ -253,8 +253,8 @@ class ChestXrayDataSet2(Dataset):
         seqs = [string_to_sequence(s) for s in self.data["caption"]]
         self.captions_v, self.captions_o = pack_sequences(seqs)
         
-        # seqs = [string_to_sequence(s) for s in data["indication"]]
-        # self.indications_v, self.indications_o = pack_sequences(seqs)
+        seqs = [string_to_sequence(s) for s in self.data["indication"]]
+        self.indications_v, self.indications_o = pack_sequences(seqs)
         
             #print(self.data.columns)
         #self.file_names, self.labels = self.__load_label_list(file_list)
@@ -285,8 +285,8 @@ class ChestXrayDataSet2(Dataset):
         seq = unpack_sequence(self.captions_v, self.captions_o, index)
         caption = sequence_to_string(seq)
         
-        # ind_seq = unpack_sequence(self.indications_v, self.indications_o, index)
-        # indication = sequence_to_string(ind_seq)
+        seq = unpack_sequence(self.indications_v, self.indications_o, index)
+        indication = sequence_to_string(seq)
         
         # if sample_type == "original":
             
