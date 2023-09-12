@@ -196,7 +196,7 @@ def string_to_sequence(s: str, dtype=np.int32) -> np.ndarray:
 
 def sequence_to_string(seq: np.ndarray) -> str:
     temp = ''.join([chr(c) for c in seq])
-    return tuple(temp.split("<<END>>"))[0]
+    return temp
 
 def pack_sequences(seqs: Union[np.ndarray, list]) -> (np.ndarray, np.ndarray):
     values = np.concatenate(seqs, axis=0)
@@ -244,7 +244,7 @@ class ChestXrayDataSet2(Dataset):
             #     self.data = self.data.sample(frac=1)
         self.len = len(data)
             
-        seqs = [string_to_sequence(s) for s in data]
+        seqs = [string_to_sequence(s) for s in data["image"]]
         self.images_v, self.images_o = pack_sequences(seqs)
         
         # seqs = [string_to_sequence(s) for s in data["type"]]
@@ -462,7 +462,7 @@ if __name__ == '__main__':
     ]
     )
     cfg = OmegaConf.load("/kaggle/working/MIR/conf/config.yaml") #
-    train_loader = get_loader2(cfg.dataset.train.image_dir, "/kaggle/working/stringed_train.json", #cfg.dataset.train.caption_json, 
+    train_loader = get_loader2(cfg.dataset.train.image_dir, cfg.dataset.train.caption_json, 
             tokenizer_name = cfg.tokenizer.name, transform= transform, batch_size = cfg.training.train_batch_size, s_max= cfg.dataset.tokens.s_max,
             n_max=cfg.dataset.tokens.n_max, encoder_n_max=cfg.dataset.tokens.encoder_n_max, shuffle=cfg.training.shuffle, use_tokenizer_fast=cfg.tokenizer.use_fast, collate_fn=collate_fn2)
     
