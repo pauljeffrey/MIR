@@ -288,15 +288,17 @@ class ChestXrayDataSet2(Dataset):
         seq = unpack_sequence(self.indications_v, self.indications_o, index)
         indication = sequence_to_string(seq)
         
+        del seq
         # if sample_type == "original":
             
-        #     #indication = sample[4] #sample["indication"]
-        #     if "<prompt>" in indication:
-        #         indication = "<ind>" + add_noise(indication.split("<ind>")[1]) + "<ind>" + indication.split("<ind>")[-1]
-        #         indication = indication.split("<prompt>")[0] + "<prompt>" + add_noise(indication.split("<prompt>")[1]) + "<prompt>"
-                
-        #     else:
-        #         indication = "<ind>" + add_noise(indication.split("<ind>")[1]) + "<ind>"
+            #indication = sample[4] #sample["indication"]
+        if "<prompt>" in indication:
+            indication = "<ind>" + add_noise(indication.split("<ind>")[1]) + "<ind>" + indication.split("<ind>")[-1]
+            indication = indication.split("<prompt>")[0] + "<prompt>" + add_noise(indication.split("<prompt>")[1]) + "<prompt>"
+            indication = rm_indication(indication)
+            
+        else:
+            indication = "<ind>" + add_noise(indication.split("<ind>")[1]) + "<ind>"
         # else:
         #     #label = torch.ones((len(sample["labels"]))) * -1
         #     #indication = sample[4]  #sample["indication"]
