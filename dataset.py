@@ -125,15 +125,15 @@ def collate_fn2(data): #, history_word_num=60
     #print("In the collate_fn...")
     #print(labels.shape)
     #labels = torch.stack(labels, 0).type(torch.LongTensor)
-    max_prompt_length = max([len(each) for each in indication])
-    max_word_num = max(word_num)
-    max_sentence_num = max(sentence_num)
+    #max_prompt_length = 
+    #max_word_num = 
+    #max_sentence_num = 
     
 
-    indication_prompts = np.zeros((len(indication), max_prompt_length))
+    indication_prompts = np.zeros((len(indication), max([len(each) for each in indication])))
     
-    targets = np.zeros((len(captions), max_sentence_num + 1, max_word_num))
-    probs = np.ones((len(captions), max_sentence_num + 1))  * -1
+    targets = np.zeros((len(captions), max(sentence_num) + 1, max(word_num)))
+    probs = np.ones((len(captions), max(sentence_num) + 1))  * -1
 
     for i, caption in enumerate(captions):
         for j, sentence in enumerate(caption):
@@ -323,11 +323,13 @@ class ChestXrayDataSet2(Dataset):
         caption = [self.tokenizer.encode(sent).ids[:self.n_max] for sent in caption.split('.')[:self.s_max] if not 
                    (len(sent) == 0 or (len(sent) == 1 and sent in [".",",",";",":","@","/","-","_","%","*"]))]
         
+        max_word_num = 0
         for each in caption:
             #print(type(each))
             each.insert(0, self.tokenizer.encode('<s>').ids[0])
             each.append(self.tokenizer.encode('<s>').ids[0])
-        #max_word_num = 0
+            max_word_num = max(max_word_num, len(each))
+        #
         # for i, sentence in enumerate(caption.split('.')):
         #     if i >= self.s_max:
         #         break
@@ -354,20 +356,19 @@ class ChestXrayDataSet2(Dataset):
         # #indication_prompt.extend(self.tokenizer.encode(indication).ids)
         #print("Indication before padding: ", indication)
         if len(indication) > self.encoder_n_max:
-            print("iidicationn type: ", type(indication))
             indication = indication[:self.encoder_n_max - 2] + self.tokenizer.encode('<prompt>').ids
-            print("indication maxed: ", indication)
             
-        if len(indication) < self.encoder_n_max:
-            indication.extend([0] * (self.encoder_n_max - len(indication)))
-            print("indication min: ", indication)
+            
+        # if len(indication) < self.encoder_n_max:
+        #     indication.extend([0] * (self.encoder_n_max - len(indication)))
+        #     print("indication min: ", indication)
             
         if index % 500 == 0:
-        #     print("image_name: ", image_name)
+            #print("image_name: ", image_name)
             print("indication: ", indication)
             print("caption: ", caption)
         
-        return  image #, indication_prompt, target, #sentence_num, word_num  #image_name,label,  image,
+        return  image , indication, caption, len(caption), max_word_num  #image_name,label,  image,
 
     def __len__(self):
         return self.len
@@ -480,9 +481,9 @@ if __name__ == '__main__':
     
     #print(cfg.dataset.train.caption_json)
     #def check(train_loader):
-    for step, images in enumerate(train_loader): #encoded_images, indication_prompt, true_stop_probs, reports
+    for step, (images ,indication_prompts , probs, targets) in enumerate(train_loader): #encoded_images, indication_prompt, true_stop_probs, reports
         if step <= 20000: 
-            print(step, images.shape)#, indication_prompt, reports) #encoded_images.shape, indication_prompt.shape, true_stop_probs.shape, reports.shape
+            print(step, images.shape, indication_prompts.shape, probs.shape, targets.shape) #encoded_images.shape, indication_prompt.shape, true_stop_probs.shape, reports.shape
         else:
             break #,indication_prompt,reports
         gc.collect()
