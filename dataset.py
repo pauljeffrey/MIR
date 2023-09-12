@@ -121,6 +121,7 @@ def collate_fn(data):
 
 def collate_fn2(data): #, history_word_num=60
     images, indication, captions, sentence_num, word_num = zip(*data)  #labels,  
+    print(len(images), len(indication), len(captions), len(sentence_num,len(word_num)))
     images = torch.stack(images, 0)
     #print("In the collate_fn...")
     #print(labels.shape)
