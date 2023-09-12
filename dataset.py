@@ -324,9 +324,9 @@ class ChestXrayDataSet2(Dataset):
                    (len(sent) == 0 or (len(sent) == 1 and sent in [".",",",";",":","@","/","-","_","%","*"]))]
         
         for each in caption:
-            print(type(each))
-            # each = each.insert(0, self.tokenizer.encode('<s>').ids[0])
-            # each = each.append(self.tokenizer.encode('<s>').ids[0])
+            #print(type(each))
+            each.insert(0, self.tokenizer.encode('<s>').ids[0])
+            each.append(self.tokenizer.encode('<s>').ids[0])
         #max_word_num = 0
         # for i, sentence in enumerate(caption.split('.')):
         #     if i >= self.s_max:
@@ -357,8 +357,9 @@ class ChestXrayDataSet2(Dataset):
             print("iidicationn type: ", type(indication))
             indication = indication[:self.encoder_n_max - 2] + self.tokenizer.encode('<prompt>').ids
             print("indication maxed: ", indication)
+            
         if len(indication) < self.encoder_n_max:
-            indication = indication.extend([0] * (self.encoder_n_max - len(indication)))
+            indication.extend([0] * (self.encoder_n_max - len(indication)))
             print("indication min: ", indication)
             
         if index % 500 == 0:
