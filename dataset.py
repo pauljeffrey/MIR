@@ -149,7 +149,7 @@ def collate_fn2(data): #, history_word_num=60
     indication_prompts = torch.tensor(indication_prompts).type(torch.LongTensor)
     probs = torch.tensor(probs).type(torch.LongTensor)
     targets = torch.tensor(targets).type(torch.LongTensor)
-    
+    print("collate: ", images.shape, indication_prompts.shape, probs.shape, targets.shape)
     # #print(type(prompt), type(label), type(target), type(prob))
     # del indication 
     # del captions
