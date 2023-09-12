@@ -308,6 +308,7 @@ class ChestXrayDataSet2(Dataset):
         #         indication = rm_indication(indication)
                 
             
+        print(indication)
         if self.transform is not None:
             if index % 2 == 0:
                 image = self.transform(Image.open(os.path.join(self.image_dir, str(image_name))).convert('RGB'))
@@ -321,6 +322,8 @@ class ChestXrayDataSet2(Dataset):
         #word_num = 0
         caption = [self.tokenizer.encode(sent).ids[:self.n_max] for sent in caption.split('.')[:self.s_max] if not 
                    (len(sent) == 0 or (len(sent) == 1 and sent in [".",",",";",":","@","/","-","_","%","*"]))]
+        for each in caption:
+            each = self.tokenizer.encode("<s>").ids + each + self.tokenizer.encode("<s>").ids
         #max_word_num = 0
         # for i, sentence in enumerate(caption.split('.')):
         #     if i >= self.s_max:
@@ -346,7 +349,7 @@ class ChestXrayDataSet2(Dataset):
         
         indication = self.tokenizer.encode(indication).ids
         # #indication_prompt.extend(self.tokenizer.encode(indication).ids)
-        
+        print("Indication before padding: ", indication)
         if len(indication) > self.encoder_n_max:
             indication = indication[:self.encoder_n_max - 2] + self.tokenizer.encode('<prompt>').ids
         elif len(indication) < self.encoder_n_max:
