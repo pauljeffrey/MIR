@@ -242,7 +242,7 @@ class ChestXrayDataSet2(Dataset):
             # print("Shuffling training data... ")
             # for _ in range(80):
             #     self.data = self.data.sample(frac=1)
-        self.len = len(data)
+        self.len = len(self.data)
             
         seqs = [string_to_sequence(s) for s in self.data["image"]]
         self.images_v, self.images_o = pack_sequences(seqs)
