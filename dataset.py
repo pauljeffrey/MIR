@@ -236,15 +236,15 @@ class ChestXrayDataSet2(Dataset):
                 
         # manager = Manager()    
         # self.data  = manager.dict({i: each for i, each in enumerate(self.data)})
-            #data = pd.read_json(caption_json)#, 'type', "caption","indication"
-            with open(caption_json,"r") as f:
-                data = json.load(f)
+            self.data = pd.read_json(caption_json)#, 'type', "caption","indication"
+            # with open(caption_json,"r") as f:
+            #     data = json.load(f)
             # print("Shuffling training data... ")
             # for _ in range(80):
             #     self.data = self.data.sample(frac=1)
         self.len = len(data)
             
-        seqs = [string_to_sequence(s) for s in data["image"]]
+        seqs = [string_to_sequence(s) for s in self.data["image"]]
         self.images_v, self.images_o = pack_sequences(seqs)
         
         # seqs = [string_to_sequence(s) for s in data["type"]]
