@@ -121,7 +121,7 @@ def collate_fn(data):
 
 def collate_fn2(data): #, history_word_num=60
     images, indication, captions, sentence_num, word_num = zip(*data)  #labels,  
-    print(len(images), len(indication), len(captions), len(sentence_num,len(word_num)))
+    #print(len(images), len(indication), len(captions), len(sentence_num,len(word_num)))
     images = torch.stack(images, 0)
     #print("In the collate_fn...")
     #print(labels.shape)
@@ -150,7 +150,7 @@ def collate_fn2(data): #, history_word_num=60
     indication_prompts = torch.tensor(indication_prompts).type(torch.LongTensor)
     probs = torch.tensor(probs).type(torch.LongTensor)
     targets = torch.tensor(targets).type(torch.LongTensor)
-    print("collate: ", images.shape, indication_prompts.shape, probs.shape, targets.shape)
+    #print("collate: ", images.shape, indication_prompts.shape, probs.shape, targets.shape)
     # #print(type(prompt), type(label), type(target), type(prob))
     # del indication 
     # del captions
@@ -403,7 +403,7 @@ def get_loader2(image_dir,
                                               batch_size=batch_size,
                                               shuffle=shuffle,
                                               drop_last = False,
-                                              #collate_fn=collate_fn,
+                                              collate_fn=collate_fn,
                                               num_workers = 0,
                                               #sampler=sampler,
                                               pin_memory=True)
