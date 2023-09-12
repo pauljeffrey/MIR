@@ -250,7 +250,7 @@ class ChestXrayDataSet2(Dataset):
         # seqs = [string_to_sequence(s) for s in data["type"]]
         # self.type_v, self.type_o = pack_sequences(seqs)
         
-        seqs = [string_to_sequence(s) for s in data["caption"]]
+        seqs = [string_to_sequence(s) for s in self.data["caption"]]
         self.captions_v, self.captions_o = pack_sequences(seqs)
         
         # seqs = [string_to_sequence(s) for s in data["indication"]]
