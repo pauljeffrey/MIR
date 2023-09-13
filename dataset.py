@@ -297,76 +297,45 @@ class ChestXrayDataSet2(Dataset):
             
         else:
             indication = "<ind>" + add_noise(indication.split("<ind>")[1]) + "<ind>"
-        # else:
-        #     #label = torch.ones((len(sample["labels"]))) * -1
-        #     #indication = sample[4]  #sample["indication"]
-        #     indication = indication.split("<prompt>")[0] + "<prompt>" + add_noise(indication.split("<prompt>")[1]) + "<prompt>"
-        #     indication = "<ind>" + add_noise(indication.split("<ind>")[1]) + "<ind>" + indication.split("<ind>")[-1]
-        #     if "<prompt>" in indication:
-        #         indication = rm_indication(indication)
-                
-            
-        #print(indication)
+       
         if self.transform is not None:
             if index % 2 == 0:
                 image = self.transform(Image.open(os.path.join(self.image_dir, str(image_name))).convert('RGB'))
             else:
                 image = self.transform(Image.open(os.path.join(self.image_dir, str(image_name))).convert('RGB'))
             
-        # caption = sample[2] #sample["caption"]
         
-        #target = list()
-        #indication_prompt = list()
-        #word_num = 0
         caption = [self.tokenizer.encode(sent).ids[:self.n_max] for sent in caption.split('.')[:self.s_max] if not 
                    (len(sent) == 0 or (len(sent) == 1 and sent in [".",",",";",":","@","/","-","_","%","*"]))]
         
-        max_word_num = 0
+        #max_word_num = 0
+        
+        # New  
+        probs = np.ones( self.s_max + 1)  * -1
+        probs[:len(caption)] = 1
+        probs[len(caption)] = 0
+        
         for each in caption:
             #print(type(each))
             each.insert(0, self.tokenizer.encode('<s>').ids[0])
             each.append(self.tokenizer.encode('<s>').ids[0])
-            max_word_num = max(max_word_num, len(each))
-        #
-        # for i, sentence in enumerate(caption.split('.')):
-        #     if i >= self.s_max:
-        #         break
+            each.append([0] * (self.n_max - len(each)))
             
-        #     if len(sentence) == 0 or (len(sentence) == 1 and sentence in [".",",",";",":","@","/","-","_","%","*"]):
-        #         continue
-            
-        #     sentence = self.tokenizer.encode(sentence).ids
-        #     if len(sentence) > self.n_max:
-        #         sentence = sentence[:self.n_max]
-                
-        #     tokens = list()
-        #     tokens.extend(self.tokenizer.encode('<s>').ids)
-        #     tokens.extend(sentence)
-        #     tokens.extend(self.tokenizer.encode('<s>').ids)
-        #     # if max_word_num < len(tokens):
-        #     #     max_word_num = len(tokens)
-        #     word_num = max(word_num, len(tokens))
-        #     target.append(tokens)
-            
-        #sentence_num = len(target)
+        # New    
+        for _ in range(self.s_max - len(caption)):
+            caption.append([0] * self.n_max)
+            #max_word_num = max(max_word_num, len(each))
         
         indication = self.tokenizer.encode(indication).ids
         # #indication_prompt.extend(self.tokenizer.encode(indication).ids)
         #print("Indication before padding: ", indication)
         if len(indication) > self.encoder_n_max:
-            indication = indication[:self.encoder_n_max - 2] + self.tokenizer.encode('<prompt>').ids
+            indication = indication[:self.encoder_n_max - 2] + self.tokenizer.encode('<prompt>').ids 
+        elif len(indication) < self.encoder_n_max:
+            indication.append([0]* (self.encoder_n_max - len(indication)))
             
-            
-        # if len(indication) < self.encoder_n_max:
-        #     indication.extend([0] * (self.encoder_n_max - len(indication)))
-        #     print("indication min: ", indication)
-            
-        # if index % 500 == 0:
-        #     #print("image_name: ", image_name)
-        #     print("indication: ", indication)
-        #     print("caption: ", caption)
         
-        return  image , indication, caption, len(caption), max_word_num  #image_name,label,  image,
+        return  image , torch.tensor(indication), torch.tensor(probs), torch.tensor(caption) #, len(caption), max_word_num  #image_name,label,  image,
 
     def __len__(self):
         return self.len
