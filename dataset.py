@@ -334,10 +334,10 @@ class ChestXrayDataSet2(Dataset):
         elif len(indication) < self.encoder_n_max:
             indication.extend([0]* (self.encoder_n_max - len(indication)))
             
-        print(indication)
-        indication = torch.tensor(indication)
-        probs = torch.tensor(probs)
-        caption = torch.tensor(caption)
+        #print(indication)
+        # indication = torch.tensor(indication)
+        # probs = torch.tensor(probs)
+        # caption = torch.tensor(caption)
         
         return  image , torch.tensor(indication), torch.tensor(probs), torch.tensor(caption) #, len(caption), max_word_num  #image_name,label,  image,
 
@@ -373,7 +373,7 @@ def get_loader2(image_dir,
                                               batch_size=batch_size,
                                               shuffle=shuffle,
                                               drop_last = False,
-                                              collate_fn=collate_fn,
+                                              #collate_fn=collate_fn,
                                               num_workers = 0,
                                               #sampler=sampler,
                                               pin_memory=True)
