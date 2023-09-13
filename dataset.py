@@ -334,6 +334,7 @@ class ChestXrayDataSet2(Dataset):
         elif len(indication) < self.encoder_n_max:
             indication.append([0]* (self.encoder_n_max - len(indication)))
             
+        print(indication)
         indication = torch.tensor(indication)
         probs = torch.tensor(probs)
         caption = torch.tensor(caption)
