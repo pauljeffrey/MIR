@@ -361,10 +361,10 @@ class ChestXrayDataSet2(Dataset):
         #     indication.extend([0] * (self.encoder_n_max - len(indication)))
         #     print("indication min: ", indication)
             
-        if index % 500 == 0:
-            #print("image_name: ", image_name)
-            print("indication: ", indication)
-            print("caption: ", caption)
+        # if index % 500 == 0:
+        #     #print("image_name: ", image_name)
+        #     print("indication: ", indication)
+        #     print("caption: ", caption)
         
         return  image , indication, caption, len(caption), max_word_num  #image_name,label,  image,
 
@@ -491,10 +491,9 @@ if __name__ == '__main__':
     #print(cfg.dataset.train.caption_json)
     #def check(train_loader):
     for step, (images ,indication_prompts , probs, targets) in enumerate(train_loader): #encoded_images, indication_prompt, true_stop_probs, reports
-        if step <= 20000: 
+        if step % 500 == 0: 
             print(step, images.shape, indication_prompts.shape, probs.shape, targets.shape) #encoded_images.shape, indication_prompt.shape, true_stop_probs.shape, reports.shape
-        else:
-            break #,indication_prompt,reports
+         #,indication_prompt,reports
         gc.collect()
 
 

@@ -108,9 +108,9 @@ def load(model, cfg, from_checkpoint=False):
         return model
 
 #@hydra.main(version_base=None, config_path="conf", config_name="config")
-def load_model(cfg: DictConfig):
+def load_model(cfg: DictConfig, device= "cuda"):
     model_params = cfg.architecture
-    model = MedicalReportGenerator(**model_params)
+    model = MedicalReportGenerator(**model_params).to(device)
     if cfg.model.from_trained:
         path = os.path.join(os.path.abspath(cfg.output_dir), cfg.load_dir) # Assumes that all state_dicts are stored in the same directory.
         print(f"\nLoading all sub model weights from {path}...")
@@ -324,7 +324,7 @@ def train(cfg: DictConfig):
     # logger.info(OmegaConf.to_yaml(cfg))
     
     if not cfg.model.from_checkpoint:
-        model = load_model(cfg)
+        model = load_model(cfg, device= device)
         epoch = None
         loss = None
         # Optimizer
