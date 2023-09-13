@@ -319,7 +319,7 @@ class ChestXrayDataSet2(Dataset):
             #print(type(each))
             each.insert(0, self.tokenizer.encode('<s>').ids[0])
             each.append(self.tokenizer.encode('<s>').ids[0])
-            each.append([0] * (self.n_max - len(each)))
+            each.extend([0] * (self.n_max - len(each)))
             
         # New    
         for _ in range(self.s_max - len(caption)):
@@ -332,7 +332,7 @@ class ChestXrayDataSet2(Dataset):
         if len(indication) > self.encoder_n_max:
             indication = indication[:self.encoder_n_max - 2] + self.tokenizer.encode('<prompt>').ids 
         elif len(indication) < self.encoder_n_max:
-            indication.append([0]* (self.encoder_n_max - len(indication)))
+            indication.extend([0]* (self.encoder_n_max - len(indication)))
             
         print(indication)
         indication = torch.tensor(indication)
