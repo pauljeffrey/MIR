@@ -330,6 +330,7 @@ class ChestXrayDataSet2(Dataset):
         # #indication_prompt.extend(self.tokenizer.encode(indication).ids)
         #print("Indication before padding: ", indication)
         if len(indication) > self.encoder_n_max:
+            print("This is bigger: ", len(indication))
             indication = indication[:self.encoder_n_max - 2] + self.tokenizer.encode('<prompt>').ids 
             print("max: ", len(indication))
         elif len(indication) < self.encoder_n_max:
