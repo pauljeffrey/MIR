@@ -330,12 +330,12 @@ class ChestXrayDataSet2(Dataset):
         # #indication_prompt.extend(self.tokenizer.encode(indication).ids)
         #print("Indication before padding: ", indication)
         if len(indication) > self.encoder_n_max:
-            print("This is bigger: ", len(indication))
+            #print("This is bigger: ", len(indication))
             indication = indication[:self.encoder_n_max - 1] + self.tokenizer.encode('<prompt>').ids 
             print("max: ", len(indication))
         elif len(indication) < self.encoder_n_max:
             indication.extend([0]* (self.encoder_n_max - len(indication)))
-            print("min: ", len(indication))
+            #print("min: ", len(indication))
             
         #print(indication)
         # indication = torch.tensor(indication)
