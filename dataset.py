@@ -123,19 +123,12 @@ def collate_fn(data):
 def collate_fn2(data): #, history_word_num=60
     images, indication, captions, sentence_num, word_num = zip(*data)  #labels,  
     #print(len(images), len(indication), len(captions), len(sentence_num,len(word_num)))
-    images = torch.stack(images, 0)
-    #print("In the collate_fn...")
-    #print(labels.shape)
-    #labels = torch.stack(labels, 0).type(torch.LongTensor)
-    #max_prompt_length = 
-    #max_word_num = 
-    #max_sentence_num = 
-    
+    images = torch.stack(images, 0)  
 
-    indication_prompts = np.zeros((len(indication), max([len(each) for each in indication])))
+    indication_prompts = np.zeros((len(indication), max([len(each) for each in indication])),dtype='int8')
     
-    targets = np.zeros((len(captions), max(sentence_num) + 1, max(word_num)))
-    probs = np.ones((len(captions), max(sentence_num) + 1))  * -1
+    targets = np.zeros((len(captions), max(sentence_num) + 1, max(word_num)),dtype='int8')
+    probs = np.ones((len(captions), max(sentence_num) + 1), dtype='int8')  * -1
 
     for i, caption in enumerate(captions):
         for j, sentence in enumerate(caption):
@@ -148,9 +141,9 @@ def collate_fn2(data): #, history_word_num=60
     for i, tokens in enumerate(indication):
         indication_prompts[i,:len(tokens)] = tokens
         
-    indication_prompts = torch.tensor(indication_prompts).type(torch.LongTensor)
-    probs = torch.tensor(probs).type(torch.LongTensor)
-    targets = torch.tensor(targets).type(torch.LongTensor)
+    # indication_prompts = torch.tensor(indication_prompts).type(torch.LongTensor)
+    # probs = torch.tensor(probs).type(torch.LongTensor)
+    # targets = torch.tensor(targets).type(torch.LongTensor)
     
     del indication
     del captions

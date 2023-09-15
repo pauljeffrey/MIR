@@ -37,9 +37,9 @@ def evaluate(model, eval_loader, custom_loss): #, bce_loss
         for _ , (encoded_images, indication_prompt, true_stop_probs, reports) in enumerate(eval_loader):   #labels,      
             #n_sentences  = reports.shape[1]
             encoded_images = encoded_images.to(device)
-            indication_prompt = indication_prompt.to(device)
-            true_stop_probs = true_stop_probs.to(device)
-            reports = reports.to(device)
+            indication_prompt = torch.tensor(indication_prompt).type(torch.LongTensor).to(device)
+            true_stop_probs = torch.tensor(true_stop_probs).type(torch.LongTensor).to(device)
+            reports = torch.tensor(reports).type(torch.LongTensor).to(device)
             
             n_sentences  = reports.shape[1]
             
@@ -195,8 +195,10 @@ def train(cfg: DictConfig):
         train_losses = []
         #check = True
         for step, (encoded_images,indication_prompt, true_stop_probs, reports) in enumerate(train_loader): #labels,
+            indication_prompt = torch.tensor(indication_prompt).type(torch.LongTensor).to(device)
+            true_stop_probs = torch.tensor(true_stop_probs).type(torch.LongTensor).to(device)
+            reports = torch.tensor(reports).type(torch.LongTensor).to(device)
             
-            true_stop_probs = true_stop_probs.to(device)
             loss = 0            
             n_sentences  = reports.shape[1]
             
