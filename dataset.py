@@ -308,23 +308,24 @@ class ChestXrayDataSet2(Dataset):
         caption = [self.tokenizer.encode(sent).ids[:self.n_max] for sent in caption.split('.')[:self.s_max] if not 
                    (len(sent) == 0 or (len(sent) == 1 and sent in [".",",",";",":","@","/","-","_","%","*"]))]
         
-        #max_word_num = 0
+        max_word_num = 0
         
         # New  
-        probs = np.ones( self.s_max + 1)  * -1
-        probs[:len(caption)] = 1
-        probs[len(caption)] = 0
+        # probs = np.ones( self.s_max + 1)  * -1
+        # probs[:len(caption)] = 1
+        # probs[len(caption)] = 0
         
         for each in caption:
             #print(type(each))
             each.insert(0, self.tokenizer.encode('<s>').ids[0])
             each.append(self.tokenizer.encode('<s>').ids[0])
-            each.extend([0] * (self.n_max - len(each)))
+            #each.extend([0] * (self.n_max - len(each)))
+            max_word_num = max(max_word_num, len(each))
             
         # New    
-        for _ in range(self.s_max - len(caption)):
-            caption.append([0] * self.n_max)
-            #max_word_num = max(max_word_num, len(each))
+        # for _ in range(self.s_max - len(caption)):
+        #     caption.append([0] * self.n_max)
+        #     #max_word_num = max(max_word_num, len(each))
         
         indication = self.tokenizer.encode(indication).ids
         # #indication_prompt.extend(self.tokenizer.encode(indication).ids)
@@ -332,17 +333,16 @@ class ChestXrayDataSet2(Dataset):
         if len(indication) > self.encoder_n_max:
             #print("This is bigger: ", len(indication))
             indication = indication[:self.encoder_n_max - 1] + self.tokenizer.encode('<prompt>').ids 
-            print("max: ", len(indication))
-        elif len(indication) < self.encoder_n_max:
-            indication.extend([0]* (self.encoder_n_max - len(indication)))
-            #print("min: ", len(indication))
+            #print("max: ", len(indication))
+        # elif len(indication) < self.encoder_n_max:
+        #     indication.extend([0]* (self.encoder_n_max - len(indication)))
+        #     #print("min: ", len(indication))
             
-        #print(indication)
         # indication = torch.tensor(indication)
         # probs = torch.tensor(probs)
         # caption = torch.tensor(caption)
         
-        return  image , torch.tensor(indication), torch.tensor(probs), torch.tensor(caption) #, len(caption), max_word_num  #image_name,label,  image,
+        return  image , indication, caption , len(caption), max_word_num  #image_name,label,  image,
 
     def __len__(self):
         return self.len
@@ -449,14 +449,14 @@ if __name__ == '__main__':
     ]
     )
     
-    with open("/kaggle/working/weights.json", "r") as f:
-        weights = json.load(f)
+    # with open("/kaggle/working/weights.json", "r") as f:
+    #     weights = json.load(f)
   
-    sampler = WeightedRandomSampler(
-        weights=weights,
-        num_samples=len(weights),
-        replacement=False
-    )
+    # sampler = WeightedRandomSampler(
+    #     weights=weights,
+    #     num_samples=len(weights),
+    #     replacement=False
+    # )
     
     cfg = OmegaConf.load("/kaggle/working/MIR/conf/config.yaml") #
     train_loader = get_loader2(cfg.dataset.train.image_dir, cfg.dataset.train.caption_json, 
