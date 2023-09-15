@@ -581,21 +581,21 @@ def train(cfg: DictConfig):
                                     memory_key_padding_mask=encoder_pad_mask, tgt_mask=tgt_mask,
                                         tgt_is_causal=False)  # [batch_size, seq_len - 1, d_model] 
                 
-    #             # if torch.any(torch.isinf(output)) or torch.any(torch.isnan(output)):
-    #             #     print("Output is affected...")
+                # if torch.any(torch.isinf(output)) or torch.any(torch.isnan(output)):
+                #     print("Output is affected...")
                     
-    #             # print("output shape: ", output.shape, reports[:, i, 1:].shape)
-    #             # print("stop prob shape: ", pred_stop_probs.shape, true_stop_probs[:, 0].shape)
+                # print("output shape: ", output.shape, reports[:, i, 1:].shape)
+                # print("stop prob shape: ", pred_stop_probs.shape, true_stop_probs[:, 0].shape)
                 
-    #             loss += custom_loss(true_stop_probs[:,i].type(indication_prompt.dtype), reports[:, i, 1:], pred_stop_probs,  output)  # Ignore <sos> token
+                loss += custom_loss(true_stop_probs[:,i].type(indication_prompt.dtype), reports[:, i, 1:], pred_stop_probs,  output)  # Ignore <sos> token
 
-    #         #loss += custom_bce_loss( tags, labels)
+            #loss += custom_bce_loss( tags, labels)
             
-    #         train_losses.append(
-    #                 accelerator.gather(loss.repeat(cfg.training.train_batch_size))
-    #             )
+            train_losses.append(
+                    accelerator.gather(loss.repeat(cfg.training.train_batch_size))
+                )
     
-    #         train_loss = torch.mean(torch.cat(train_losses))  
+            train_loss = torch.mean(torch.cat(train_losses))  
                       
     #         # We keep track of the loss at each epoch
     #         if cfg.tracking:
