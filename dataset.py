@@ -241,6 +241,7 @@ class ChestXrayDataSet2(Dataset):
             # for _ in range(80):
             #     self.data = self.data.sample(frac=1)
         self.len = len(data)
+        print("caption name: ", caption_json)
         print(data.columns)
             
         seqs = [string_to_sequence(s) for s in data["image"]]
