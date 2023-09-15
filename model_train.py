@@ -246,7 +246,7 @@ def train(cfg: DictConfig):
                                         tgt_is_causal=False)  # [batch_size, seq_len - 1, d_model] 
             
                 
-                loss += custom_loss(true_stop_probs[:,i].type(indication_prompt.dtype), reports[:, i, 1:], pred_stop_probs,  output)  # Ignore <sos> token
+                loss += custom_loss(true_stop_probs[:,i].type(indication_prompt.dtype), reports[:, i, 1:].to(device), pred_stop_probs,  output)  # Ignore <sos> token
 
             #loss += custom_bce_loss( tags, labels)
             
