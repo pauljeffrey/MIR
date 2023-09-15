@@ -335,7 +335,7 @@ def train(cfg: DictConfig):
             # or "optimizer" not in accelerator.state.deepspeed_plugin.deepspeed_config
             # else DummyOptim
         )
-        optimizer = optimizer_cls(model.parameters(), lr=cfg.training.learning_rate)
+        optimizer = optimizer_cls(model.parameters(), lr=cfg.training.learning_rate).to(device)
 
 
     #     # if (
