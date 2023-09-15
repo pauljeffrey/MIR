@@ -36,6 +36,11 @@ def evaluate(model, eval_loader, custom_loss): #, bce_loss
         print("In evaluation function ....")
         for _ , (encoded_images, indication_prompt, true_stop_probs, reports) in enumerate(eval_loader):   #labels,      
             #n_sentences  = reports.shape[1]
+            encoded_images = encoded_images.to(device)
+            indication_prompt = indication_prompt.to(device)
+            true_stop_probs = true_stop_probs.to(device)
+            reports = reports.to(device)
+            
             n_sentences  = reports.shape[1]
             
             encoder_pad_mask = create_padding_mask(indication_prompt).to(device)
@@ -190,7 +195,8 @@ def train(cfg: DictConfig):
         train_losses = []
         #check = True
         for step, (encoded_images,indication_prompt, true_stop_probs, reports) in enumerate(train_loader): #labels,
-     
+            
+            true_stop_probs = true_stop_probs.to(device)
             loss = 0            
             n_sentences  = reports.shape[1]
             
