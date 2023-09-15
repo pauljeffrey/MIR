@@ -164,7 +164,7 @@ def train(cfg: DictConfig):
 )
  
     # Only show the progress bar once on each machine.
-    #progress_bar = tqdm(range(cfg.training.max_train_steps)) #, disable=not accelerator.is_local_main_process)
+    progress_bar = tqdm(range(cfg.training.max_train_steps)) #, disable=not accelerator.is_local_main_process)
     completed_steps = 0
     starting_epoch = epoch if epoch is not None else 0
     best_metric = loss
@@ -266,7 +266,7 @@ def train(cfg: DictConfig):
                 optimizer.step()
                 lr_scheduler.step()
                 optimizer.zero_grad()
-                #progress_bar.update(1)
+                progress_bar.update(1)
                 completed_steps += 1
                 
     #         # continue
