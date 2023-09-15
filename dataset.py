@@ -376,7 +376,7 @@ def get_loader2(image_dir,
                                               batch_size=batch_size,
                                               shuffle=shuffle,
                                               drop_last = False,
-                                              #collate_fn=collate_fn,
+                                              collate_fn=collate_fn,
                                               num_workers = 0,
                                               #sampler=sampler,
                                               pin_memory=True)
