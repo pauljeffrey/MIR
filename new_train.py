@@ -318,7 +318,7 @@ def train(cfg: DictConfig):
     
     accelerator.wait_for_everyone()
     device= accelerator.device
-    print(device)
+    #print(device)
 
     # logger.info(accelerator.state, main_process_only=False)
     # logger.info(OmegaConf.to_yaml(cfg))
@@ -335,7 +335,7 @@ def train(cfg: DictConfig):
             # or "optimizer" not in accelerator.state.deepspeed_plugin.deepspeed_config
             # else DummyOptim
         )
-        optimizer = optimizer_cls(model.parameters(), lr=cfg.training.learning_rate).to(device)
+        optimizer = optimizer_cls(model.parameters(), lr=cfg.training.learning_rate)
 
 
     #     # if (
@@ -376,7 +376,7 @@ def train(cfg: DictConfig):
 
   
     # Only show the progress bar once on each machine.
-    progress_bar = tqdm(range(cfg.training.max_train_steps)) #, disable=not accelerator.is_local_main_process)
+    #progress_bar = tqdm(range(cfg.training.max_train_steps)) #, disable=not accelerator.is_local_main_process)
     completed_steps = 0
     starting_epoch = epoch if epoch is not None else 0
     best_metric = loss
@@ -438,9 +438,9 @@ def train(cfg: DictConfig):
     custom_loss = CustomLoss()
     #custom_bce_loss = CustomBCELoss()
     
-    for name , each in model.named_parameters():
-        if torch.any(torch.isnan(each)):
-            print(name, " layer has nan values in it..")
+    # for name , each in model.named_parameters():
+    #     if torch.any(torch.isnan(each)):
+    #         print(name, " layer has nan values in it..")
             
 
     for epoch in range(starting_epoch, cfg.training.num_epochs):        
@@ -461,11 +461,11 @@ def train(cfg: DictConfig):
             #         print(f"\nOn step {step}, Skipping to step {500}..")
             #     continue
             if step % 500 == 0:
-                print(indication_prompt.device)
+                print("\nIndication prompt device: ", indication_prompt.device)
                 print("step: ", step, encoded_images.shape, indication_prompt.shape, true_stop_probs.shape, reports.shape)
             
-            if torch.any(torch.isnan(encoded_images)):
-                print("Raw images are nan..")
+            # if torch.any(torch.isnan(encoded_images)):
+            #     print("Raw images are nan..")
                 
             #print("True_stop_probs: ", true_stop_probs)
             #print(f"Step: {step} \n\n")
@@ -481,12 +481,12 @@ def train(cfg: DictConfig):
            
             encoded_images  = model.encoder(encoded_images)#.type(torch.cuda.HalfTensor))
             
-            for name , each in model.encoder.named_parameters():
-                if torch.any(torch.isnan(each)):
-                    print("After Image processing: ", name, " layer has nan values in it..")
+            # for name , each in model.encoder.named_parameters():
+            #     if torch.any(torch.isnan(each)):
+            #         print("After Image processing: ", name, " layer has nan values in it..")
                     
-            if torch.any(torch.isinf(encoded_images)) or torch.any(torch.isnan(encoded_images)):
-                print("Encoded Images is nan")
+            # if torch.any(torch.isinf(encoded_images)) or torch.any(torch.isnan(encoded_images)):
+            #     print("Encoded Images is nan")
             
             # if torch.any(torch.isinf(tags)) or torch.any(torch.isnan(tags)):
             #     print("Tags are nan")
@@ -502,8 +502,8 @@ def train(cfg: DictConfig):
                 #     print("Encoding by decoder embedding layer is nan")
                     
                 indication_prompt = model.history_encoder(indication_prompt, mask=encoder_pad_mask.type(indication_prompt.dtype))
-                if torch.any(torch.isinf(indication_prompt)) or torch.any(torch.isnan(indication_prompt)):
-                    print("Encoding by History encoder is nan")  
+                # if torch.any(torch.isinf(indication_prompt)) or torch.any(torch.isnan(indication_prompt)):
+                #     print("Encoding by History encoder is nan")  
 
             # # compute mask, confirm the first part.
             # mem_mask = torch.cat([torch.zeros((encoded_images.shape[0], encoded_images.shape[1])), encoder_pad_mask], dim=-1)
@@ -518,15 +518,15 @@ def train(cfg: DictConfig):
             #lstm_init = True
             #print(hn.shape, cn.shape)
             #output = model(encoded_images, reports[:, :-1])  # [batch_size, seq_len - 1, vocab_size]
-            if torch.any(torch.isinf(prev_hidden)) or torch.any(torch.isnan(prev_hidden)):
-                    print("Initial Prev hidden, hn, cn is nan")
+            # if torch.any(torch.isinf(prev_hidden)) or torch.any(torch.isnan(prev_hidden)):
+            #         print("Initial Prev hidden, hn, cn is nan")
                     
             for i in range(n_sentences):
                 #print(f"This loop is for the number {i} sentence.")
                 
-                for name , each in model.named_parameters():
-                    if torch.any(torch.isnan(each)):
-                        print(name, " layer has nan values in it..")
+                # for name , each in model.named_parameters():
+                #     if torch.any(torch.isnan(each)):
+                #         print(name, " layer has nan values in it..")
                     
                 # if model.co_attention:
                 #     if model.history_encoder is not None:
@@ -550,14 +550,14 @@ def train(cfg: DictConfig):
                 #print("Context and hidden shape before entering lstm: ", context_vector.shape, prev_hidden.shape)
                 prev_hidden, pred_stop_probs, (hn, cn) = model.sent_lstm(context_vector, prev_hidden, (hn, cn))  # [batch_size, d_model]
                 #lstm_init= False
-                if torch.any(torch.isinf(prev_hidden)) or torch.any(torch.isnan(prev_hidden)):
-                    print("New prev hidden is nan")
+                # if torch.any(torch.isinf(prev_hidden)) or torch.any(torch.isnan(prev_hidden)):
+                #     print("New prev hidden is nan")
                     
-                if torch.any(torch.isinf(hn)) or torch.any(torch.isnan(hn)):
-                    print("hn , cn are nan")
+                # if torch.any(torch.isinf(hn)) or torch.any(torch.isnan(hn)):
+                #     print("hn , cn are nan")
                     
-                if torch.any(torch.isinf(pred_stop_probs)) or torch.any(torch.isnan(pred_stop_probs)):
-                    print("Pred_stop_probs is nan")
+                # if torch.any(torch.isinf(pred_stop_probs)) or torch.any(torch.isnan(pred_stop_probs)):
+                #     print("Pred_stop_probs is nan")
                 # Decode reports
                 tgt = reports[:,i, :-1]  # Remove last token from reports
                 #print("Target indices: ", tgt)
@@ -568,11 +568,11 @@ def train(cfg: DictConfig):
                 
                 memory = encoded_images * att_wts # [batch_size, seq_len, d_model]
                 #memory_mask = None
-                if torch.any(torch.isinf(memory)) or torch.any(torch.isnan(memory)):
-                    print("Memory is affected contains nan values..")
+                # if torch.any(torch.isinf(memory)) or torch.any(torch.isnan(memory)):
+                #     print("Memory is affected contains nan values..")
                     
-                if torch.any(torch.isnan(encoder_pad_mask)) or  torch.any(torch.isnan(tgt_mask)):#torch.any(torch.isnan(padding_mask)) or
-                    print("Padding mask contains nan values...")
+                # if torch.any(torch.isnan(encoder_pad_mask)) or  torch.any(torch.isnan(tgt_mask)):#torch.any(torch.isnan(padding_mask)) or
+                #     print("Padding mask contains nan values...")
                 # Compute attention for visual_features, encoded_prompt
                 #memory = model.prompt_attention(memory, indication_prompt, key_padding_mask=mem_mask, residual_connection=True)
                 # print(memory.shape, indication_prompt.shape, tgt.shape, prev_hidden.shape)
@@ -597,24 +597,24 @@ def train(cfg: DictConfig):
     
             train_loss = torch.mean(torch.cat(train_losses))  
                       
-    #         # We keep track of the loss at each epoch
-    #         if cfg.tracking:
-    #             total_loss += loss.detach().float()
+            # We keep track of the loss at each epoch
+            if cfg.tracking:
+                total_loss += loss.detach().float()
                 
-    #         # print("Loss before division by gradient accumulation: ", loss)
-    #         # loss = loss / cfg.training.gradient_accumulation_steps
+            # print("Loss before division by gradient accumulation: ", loss)
+            # loss = loss / cfg.training.gradient_accumulation_steps
             
-    #         # print("Loss before backward: ", loss)
-    #         accelerator.backward(loss)
+            # print("Loss before backward: ", loss)
+            accelerator.backward(loss)
             
-    #         #continue
+            #continue
             
-    #         if step  % cfg.training.gradient_accumulation_steps == 0 or step == len(train_loader) - 1:
-    #             optimizer.step()
-    #             lr_scheduler.step()
-    #             optimizer.zero_grad()
-    #             progress_bar.update(1)
-    #             completed_steps += 1
+            if step  % cfg.training.gradient_accumulation_steps == 0 or step == len(train_loader) - 1:
+                optimizer.step()
+                lr_scheduler.step()
+                optimizer.zero_grad()
+                #progress_bar.update(1)
+                completed_steps += 1
                 
     #         # continue
             
