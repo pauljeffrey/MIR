@@ -125,10 +125,10 @@ def collate_fn2(data): #, history_word_num=60
     #print(len(images), len(indication), len(captions), len(sentence_num,len(word_num)))
     images = torch.stack(images, 0)  
 
-    indication_prompts = np.zeros((len(indication), max([len(each) for each in indication])),dtype='int8')
+    indication_prompts = np.zeros((len(indication), max([len(each) for each in indication])),dtype='float16')
     
-    targets = np.zeros((len(captions), max(sentence_num) + 1, max(word_num)),dtype='int8')
-    probs = np.ones((len(captions), max(sentence_num) + 1), dtype='int8')  * -1
+    targets = np.zeros((len(captions), max(sentence_num) + 1, max(word_num)),dtype='float16')
+    probs = np.ones((len(captions), max(sentence_num) + 1), dtype='float16')  * -1
 
     for i, caption in enumerate(captions):
         for j, sentence in enumerate(caption):
