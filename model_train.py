@@ -196,14 +196,14 @@ def train(cfg: DictConfig):
             
             encoder_pad_mask = create_padding_mask(indication_prompt).to(device)
            
-            encoded_images  = model.encoder(encoded_images)
+            encoded_images  = model.encoder(encoded_images.to(device))
             bs , n_channels = encoded_images.shape[0], encoded_images.shape[1]
             
             # if model.co_attention:
             #     semantic_features = model.semantic_features_extractor(tags)
                 
             if model.history_encoder is not None:
-                indication_prompt = model.decoder.embed_layer(indication_prompt)
+                indication_prompt = model.decoder.embed_layer(indication_prompt.to(device))
                 # if torch.any(torch.isinf(indication_prompt)) or torch.any(torch.isnan(indication_prompt)):
                 #     print("Encoding by decoder embedding layer is nan")
                     
@@ -229,7 +229,7 @@ def train(cfg: DictConfig):
                 prev_hidden, pred_stop_probs, (hn, cn) = model.sent_lstm(context_vector, prev_hidden, (hn, cn))  # [batch_size, d_model]
               
                 # Decode reports
-                tgt = reports[:,i, :-1]  # Remove last token from reports
+                tgt = reports[:,i, :-1].to(device)  # Remove last token from reports
                
                 tgt_mask = src_mask(tgt.shape[1]).to(device).type(indication_prompt.dtype)
                 
