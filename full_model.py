@@ -10,7 +10,7 @@ class MedicalReportGenerator(nn.Module):
                  use_cross_att_per_layer: List[bool], use_prompt_per_layer: List[bool], d_model: int, nhead: int, history_encoder_num_layers: int =None, model_dict=None,
                  history_encoder_n_heads: int = None, history_encoder_dim_feedforward: int= None, dim_feedforward: int = 2048, 
                  topic_units: Optional[int]= 0, dropout: float = 0.1, pretrained: bool = True, activation: Union[str, Callable[[Tensor], Tensor]] = F.gelu, 
-                 layer_norm_eps: float = 1e-5, batch_first: bool = True, norm_first: bool = False, device=None, dtype=None,  
+                 layer_norm_eps: float = 1e-5, batch_first: bool = True, norm_first: bool = False, device="cuda", dtype=None,  
                  norm=None, co_attention: bool = True, add_encoder= True, enforce_info= False, pa_nhead= 1,use_residual = True,use_history=None ):
         # history_encoder_dmodel: int = None,
         super(MedicalReportGenerator, self).__init__()
