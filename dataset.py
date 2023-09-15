@@ -241,8 +241,8 @@ class ChestXrayDataSet2(Dataset):
             # for _ in range(80):
             #     self.data = self.data.sample(frac=1)
         self.len = len(data)
-        print("caption name: ", caption_json)
-        print(data.columns)
+        # print("caption name: ", caption_json)
+        # print(data.columns)
             
         seqs = [string_to_sequence(s) for s in data["image"]]
         self.images_v, self.images_o = pack_sequences(seqs)
@@ -250,11 +250,11 @@ class ChestXrayDataSet2(Dataset):
         # seqs = [string_to_sequence(s) for s in data["type"]]
         # self.type_v, self.type_o = pack_sequences(seqs)
         
-        seqs = [string_to_sequence(s) for s in data["indication_caption"]]
+        seqs = [string_to_sequence(s) for s in data["caption"]]
         self.captions_v, self.captions_o = pack_sequences(seqs)
         
-        # seqs = [string_to_sequence(s) for s in data["indication"]]
-        # self.indications_v, self.indications_o = pack_sequences(seqs)
+        seqs = [string_to_sequence(s) for s in data["indication"]]
+        self.indications_v, self.indications_o = pack_sequences(seqs)
         
             #print(self.data.columns)
         #self.file_names, self.labels = self.__load_label_list(file_list)
@@ -285,9 +285,9 @@ class ChestXrayDataSet2(Dataset):
         seq = unpack_sequence(self.captions_v, self.captions_o, index)
         caption = sequence_to_string(seq)
         
-        # seq = unpack_sequence(self.indications_v, self.indications_o, index)
-        # indication = sequence_to_string(seq)
-        indication, caption = caption.split("<<END>>")       
+        seq = unpack_sequence(self.indications_v, self.indications_o, index)
+        indication = sequence_to_string(seq)
+        #indication, caption = caption.split("<<END>>")       
          
         del seq
         # if sample_type == "original":
