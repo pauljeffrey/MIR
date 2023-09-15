@@ -313,7 +313,7 @@ def train(cfg: DictConfig):
         level=logging.INFO,
     )
 
-    deepspeed_plugin = DeepSpeedPlugin(zero_stage=1, gradient_accumulation_steps=cfg.training.gradient_accumulation_steps, gradient_clipping=1.0)
+    deepspeed_plugin = DeepSpeedPlugin(zero_stage=2, gradient_accumulation_steps=cfg.training.gradient_accumulation_steps, gradient_clipping=1.0)
     accelerator = Accelerator( deepspeed_plugin =deepspeed_plugin) #,  mixed_precision='fp16',
     
     accelerator.wait_for_everyone()
@@ -389,21 +389,21 @@ def train(cfg: DictConfig):
             "gradient_accumulation_steps"
         ]
     
-    with open("/kaggle/working/weights.json", "r") as f:
-        weights = json.load(f)
+    # with open("/kaggle/working/weights.json", "r") as f:
+    #     weights = json.load(f)
   
-    sampler = WeightedRandomSampler(
-        weights=weights,
-        num_samples=len(weights),
-        replacement=False
-    )
+    # sampler = WeightedRandomSampler(
+    #     weights=weights,
+    #     num_samples=len(weights),
+    #     replacement=False
+    # )
     #del data
     # Create train_loader and eval_loader here
     #if cfg.tokenizer.name is not None:
     train_loader = get_loader2(cfg.dataset.train.image_dir, cfg.dataset.train.caption_json, 
             tokenizer_name = cfg.tokenizer.name, transform= transform, batch_size = cfg.training.train_batch_size, s_max= cfg.dataset.tokens.s_max,
             n_max=cfg.dataset.tokens.n_max, encoder_n_max=cfg.dataset.tokens.encoder_n_max, shuffle=cfg.training.shuffle, use_tokenizer_fast=cfg.tokenizer.use_fast,
-            collate_fn=collate_fn2, sampler= sampler)
+            collate_fn=collate_fn2)#, sampler= sampler)
     
     eval_loader = get_loader2(cfg.dataset.eval.image_dir, cfg.dataset.eval.caption_json, 
             tokenizer_name = cfg.tokenizer.name, transform= transform, batch_size = cfg.training.eval_batch_size, s_max= cfg.dataset.tokens.s_max,
@@ -436,7 +436,7 @@ def train(cfg: DictConfig):
 
     #print(device, model.device)
     custom_loss = CustomLoss()
-    custom_bce_loss = CustomBCELoss()
+    #custom_bce_loss = CustomBCELoss()
     
     for name , each in model.named_parameters():
         if torch.any(torch.isnan(each)):
@@ -461,7 +461,7 @@ def train(cfg: DictConfig):
             #         print(f"\nOn step {step}, Skipping to step {500}..")
             #     continue
             
-            print(encoded_images.shape, indication_prompt.shape, true_stop_probs.shape, reports.shape)
+            #print(encoded_images.shape, indication_prompt.shape, true_stop_probs.shape, reports.shape)
             
             if torch.any(torch.isnan(encoded_images)):
                 print("Raw images are nan..")
