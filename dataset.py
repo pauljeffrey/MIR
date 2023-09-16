@@ -46,6 +46,7 @@ class ChestXrayDataSet(Dataset):
             data = pd.read_json(caption_json)#, 'type', "caption","indication"
           
         self.len = len(data)
+        print("Chestxray DAtaset..")
         # print("caption name: ", caption_json)
         # print(data.columns)
             
