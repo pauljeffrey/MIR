@@ -42,10 +42,8 @@ class ChestXrayDataSet(Dataset):
             data = data.iloc[:250]
             
         else:            
-            with open(caption_json, "r") as f:
-                data = json.load(f)
             
-            #data = pd.read_json(caption_json)#, 'type', "caption","indication"
+            data = pd.read_json(caption_json)#, 'type', "caption","indication"
           
         self.len = len(data)
         print("Chestxray DAtaset..")
@@ -63,7 +61,9 @@ class ChestXrayDataSet(Dataset):
         
         # seqs = [string_to_sequence(s) for s in data["indication"]]
         # self.indications_v, self.indications_o = pack_sequences(seqs)
-        self.data  = shared_memory.ShareableList(data)
+        self.imgs  = shared_memory.ShareableList(list(data["image"]))
+        self.captions = shared_memory.ShareableList(list(data["caption"]))
+        self.indications = shared_memory.ShareableList(list(data["indication"]))
         
         if use_tokenizer_fast:
             self.tokenizer = Tokenizer.from_pretrained(tokenizer_name)
@@ -78,10 +78,10 @@ class ChestXrayDataSet(Dataset):
         
 
     def __getitem__(self, index):
-        sample = self.data[index] 
-        image_name = sample["image"]
-        indication = sample["indication"]
-        caption = sample["caption"]
+        #sample = self.data[index] 
+        image_name = self.imgs[index]
+        indication = self.indications[index]
+        caption = self.captions[index]
        
         # if sample_type == "original":
             
