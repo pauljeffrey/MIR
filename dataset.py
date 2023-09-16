@@ -17,83 +17,109 @@ from typing import Union
 from multiprocessing import Manager, Array
 
 from torch.utils.data import WeightedRandomSampler
+
+from multiprocessing import shared_memory #import ShareableList
 import cProfile
 import io
 import pstats
+
+
 class ChestXrayDataSet(Dataset):
     def __init__(self,
                  image_dir,
                  caption_json,
-                 history_json,
-                 file_list,
-                 vocabulary,
-                 vocabulary2,
-                 s_max=10,
-                 n_max=50,
-                 transforms=None):
+                 tokenizer_name,
+                 s_max=15,
+                 n_max=40,
+                 encoder_n_max=60,
+                 transforms=None,
+                 use_tokenizer_fast =True):
+        
         self.image_dir = image_dir
-        self.caption = JsonReader(caption_json)
-        self.history = JsonReader(history_json)
-        self.file_names, self.labels = self.__load_label_list(file_list)
-        self.vocab = vocabulary
-        self.vocab2 = vocabulary2
+        if caption_json.endswith("validation.json") or caption_json.endswith("val.json"):
+            data = pd.read_json(caption_json)
+                
+            data = data.iloc[:250]
+            
+        else:            
+            
+            data = pd.read_json(caption_json)#, 'type', "caption","indication"
+          
+        self.len = len(data)
+        # print("caption name: ", caption_json)
+        # print(data.columns)
+            
+        # seqs = [string_to_sequence(s) for s in data["image"]]
+        # self.images_v, self.images_o = pack_sequences(seqs)
+        
+        # # seqs = [string_to_sequence(s) for s in data["type"]]
+        # # self.type_v, self.type_o = pack_sequences(seqs)
+        
+        # seqs = [string_to_sequence(s) for s in data["caption"]]
+        # self.captions_v, self.captions_o = pack_sequences(seqs)
+        
+        # seqs = [string_to_sequence(s) for s in data["indication"]]
+        # self.indications_v, self.indications_o = pack_sequences(seqs)
+        self.data  = shared_memory.ShareableList(data)
+        
+        if use_tokenizer_fast:
+            self.tokenizer = Tokenizer.from_pretrained(tokenizer_name)
+        else:
+            #print(tokenizer_name)
+            self.tokenizer = Tokenizer.from_file(tokenizer_name)
+            
         self.transform = transforms
         self.s_max = s_max
         self.n_max = n_max
-
-    def __load_label_list(self, file_list):
-        labels = []
-        filename_list = []
-        with open(file_list, 'r') as f:
-            for line in f:
-                items = line.split()
-                image_name = items[0]
-                label = items[1:]
-                label = [int(i) for i in label]
-                image_name = '{}.png'.format(image_name)
-                filename_list.append(image_name)
-                labels.append(label)
-        return filename_list, labels
+        self.encoder_n_max = encoder_n_max
+        
 
     def __getitem__(self, index):
-        image_name = self.file_names[index]
-        image = Image.open(os.path.join(self.image_dir, image_name)).convert('RGB')
-        label = self.labels[index]
+        sample = self.data[index] 
+        image_name = sample["image"]
+        indication = sample["indication"]
+        caption = sample["caption"]
+       
+        # if sample_type == "original":
+            
+            #indication = sample[4] #sample["indication"]
+        if "<prompt>" in indication:
+            indication = "<ind>" + add_noise(indication.split("<ind>")[1]) + "<ind>" + indication.split("<ind>")[-1]
+            indication = indication.split("<prompt>")[0] + "<prompt>" + add_noise(indication.split("<prompt>")[1]) + "<prompt>"
+            indication = rm_indication(indication)
+            
+        else:
+            indication = "<ind>" + add_noise(indication.split("<ind>")[1]) + "<ind>"
+       
         if self.transform is not None:
-            image = self.transform(image)
-        try:
-            text = self.caption[image_name]
-            history = self.history[image_name]
-        except Exception as err:
-            text = 'normal. '
-
-        target = list()
+            if index % 2 == 0:
+                image = self.transform(Image.open(os.path.join(self.image_dir, str(image_name))).convert('RGB'))
+            else:
+                image = self.transform(Image.open(os.path.join(self.image_dir, str(image_name))).convert('RGB'))
+            
+        
+        caption = [self.tokenizer.encode(sent).ids[:self.n_max] for sent in caption.split('.')[:self.s_max] if not 
+                   (len(sent) == 0 or (len(sent) == 1 and sent in [".",",",";",":","@","/","-","_","%","*"]))]
+        
         max_word_num = 0
-        for i, sentence in enumerate(text.split('. ')):
-            if i >= self.s_max:
-                break
-            sentence = sentence.split()
-            if len(sentence) == 0 or len(sentence) == 1 or len(sentence) > self.n_max:
-                continue
-            tokens = list()
-            tokens.append(self.vocab('<start>'))
-            tokens.extend([self.vocab(token) for token in sentence])
-            tokens.append(self.vocab('<end>'))
-            if max_word_num < len(tokens):
-                max_word_num = len(tokens)
-            target.append(tokens)
-        sentence_num = len(target)
         
-        history_max_word_num = 0
-        tokens = [self.vocab2(token) for token in history.split()]
-        if history_max_word_num < len(tokens):
-            history_max_word_num = len(tokens)
+        for each in caption:
+            #print(type(each))
+            each.insert(0, self.tokenizer.encode('<s>').ids[0])
+            each.append(self.tokenizer.encode('<s>').ids[0])
+            #each.extend([0] * (self.n_max - len(each)))
+            max_word_num = max(max_word_num, len(each))
+            
         
+        indication = self.tokenizer.encode(indication).ids
+        if len(indication) > self.encoder_n_max:
+            #print("This is bigger: ", len(indication))
+            indication = indication[:self.encoder_n_max - 1] + self.tokenizer.encode('<prompt>').ids 
         
-        return image, tokens, label, target, sentence_num, max_word_num, history_max_word_num
+        return  image , indication, caption , len(caption), max_word_num  #image_name,label,  image,
 
     def __len__(self):
-        return len(self.file_names)
+        return self.len
 
 
 def collate_fn(data):
@@ -359,7 +385,7 @@ def get_loader2(image_dir,
                sampler = None
                ):
     
-    dataset = ChestXrayDataSet2(image_dir=image_dir,
+    dataset = ChestXrayDataSet(image_dir=image_dir,
                                caption_json=caption_json,
                                tokenizer_name=tokenizer_name,
                                s_max=s_max,
@@ -440,7 +466,12 @@ if __name__ == '__main__':
 
     transform = transforms.Compose(
     [
-        transforms.Resize((224,224), antialias=True),        
+        transforms.RandomRotation((0,5)),
+        #transforms.v2.RandomResize((200, 250)), v2.RandomResize
+        transforms.GaussianBlur(kernel_size=(3, 3), sigma=(0.1, 1.2)),
+        transforms.ColorJitter(brightness= (0.5, 1.5) , contrast=(0, 1.0)),
+        transforms.Pad(20),
+        transforms.Resize((224,224), antialias=True), 
         transforms.ToTensor(),
     ]
     )
