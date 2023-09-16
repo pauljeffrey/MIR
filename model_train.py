@@ -25,7 +25,6 @@ from utils import src_mask, create_padding_mask
 from new_train import load, load_model, save_model
 import torch
 
-
 def evaluate(model, eval_loader, custom_loss): #, bce_loss
     model.eval()
     device="cuda"
