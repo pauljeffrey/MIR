@@ -15,6 +15,7 @@ from omegaconf import OmegaConf
 from torchvision import transforms
 from typing import Union
 from multiprocessing import Manager, Array
+import cstl
 
 from torch.utils.data import WeightedRandomSampler
 
@@ -61,9 +62,9 @@ class ChestXrayDataSet(Dataset):
         
         # seqs = [string_to_sequence(s) for s in data["indication"]]
         # self.indications_v, self.indications_o = pack_sequences(seqs)
-        self.imgs  = shared_memory.ShareableList(list(data["image"]))
-        self.captions = shared_memory.ShareableList(list(data["caption"]))
-        self.indications = shared_memory.ShareableList(list(data["indication"]))
+        self.imgs  = cstl.frompy(list(data["image"]))
+        self.captions = cstl.frompy(list(data["caption"]))
+        self.indications = cstl.frompy(list(data["indication"]))
         
         if use_tokenizer_fast:
             self.tokenizer = Tokenizer.from_pretrained(tokenizer_name)
