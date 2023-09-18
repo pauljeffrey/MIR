@@ -156,9 +156,9 @@ def collate_fn2(data): #, history_word_num=60
     #New
     max_ind = max([len(each) for each in indication])
     #max_sent = max([len(each) for each in captions])
-    indication = np.array([ each.extend([0] * (max_ind - len(each))) for each in indication] , dtype="float16")
+    #indication = np.array([ each.extend([0] * (max_ind - len(each))) for each in indication] , dtype="float16")
 
-    #indication_prompts = np.zeros((len(indication), max([len(each) for each in indication])),dtype='float16')
+    indication_prompts = np.zeros((len(indication), max([len(each) for each in indication])),dtype='float16')
     
     targets = np.zeros((len(captions), max(sentence_num) + 1, max(word_num)),dtype='float16')
     
@@ -172,19 +172,19 @@ def collate_fn2(data): #, history_word_num=60
             
         probs[i,len(caption)] = 1
             
-    # for i, tokens in enumerate(indication):
-    #     indication_prompts[i,:len(tokens)] = tokens
+    for i, tokens in enumerate(indication):
+        indication_prompts[i,:len(tokens)] = tokens
         
     # indication_prompts = torch.tensor(indication_prompts).type(torch.LongTensor)
     # probs = torch.tensor(probs).type(torch.LongTensor)
     # targets = torch.tensor(targets).type(torch.LongTensor)
-    print(indication)
-    #del indication
+    #print(indication)
+    del indication
     del captions
     del sentence_num
     del word_num
     
-    return  images ,indication , probs, targets #images,  labels,
+    return  images ,indication_prompts , probs, targets #images,  labels,
 
 
 def get_loader(image_dir,
