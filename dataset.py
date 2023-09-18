@@ -51,12 +51,12 @@ class ChestXrayDataSet(Dataset):
         self.len = len(data)
         print("Chestxray Dataset..")
         print(data[:10])
-        seqs = []
-        for s in data:
-            print(s)
-            seqs.append(string_to_sequence(s))
+        # seqs = []
+        # for s in data:
+        #     print(s)
+        #     seqs.append(string_to_sequence(s))
   
-        #seqs = [string_to_sequence(s) for s in data]
+        seqs = [string_to_sequence(s) for s in data]
         self.data_v, self.data_o = pack_sequences(seqs)
         
         # self.imgs  = cstl.frompy(list(data["image"]))
