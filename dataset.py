@@ -395,7 +395,7 @@ def get_loader2(image_dir,
                sampler = None
                ):
     
-    dataset = ChestXrayDataSet(image_dir=image_dir,
+    dataset = ChestXrayDataSet2(image_dir=image_dir,
                                caption_json=caption_json,
                                tokenizer_name=tokenizer_name,
                                s_max=s_max,
