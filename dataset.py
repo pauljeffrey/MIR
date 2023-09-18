@@ -50,7 +50,7 @@ class ChestXrayDataSet(Dataset):
           
         self.len = len(data)
         print("Chestxray Dataset..")
-        print(data[:10])
+        #print(data[:10])
         # seqs = []
         # for s in data:
         #     print(s)
@@ -172,14 +172,14 @@ def collate_fn2(data): #, history_word_num=60
             
         probs[i,len(caption)] = 1
             
-    for i, tokens in enumerate(indication):
-        indication_prompts[i,:len(tokens)] = tokens
+    # for i, tokens in enumerate(indication):
+    #     indication_prompts[i,:len(tokens)] = tokens
         
     # indication_prompts = torch.tensor(indication_prompts).type(torch.LongTensor)
     # probs = torch.tensor(probs).type(torch.LongTensor)
     # targets = torch.tensor(targets).type(torch.LongTensor)
     
-    del indication
+    #del indication
     del captions
     del sentence_num
     del word_num
