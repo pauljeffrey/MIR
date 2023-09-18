@@ -42,9 +42,11 @@ class ChestXrayDataSet(Dataset):
                 
             data = data.iloc[:250]
             
-        else:            
+        else:          
+            with open(caption_json, "r") as f:
+                data = json.load(f)  
             
-            data = pd.read_json(caption_json)#, 'type', "caption","indication"
+            #data = pd.read_json(caption_json)#, 'type', "caption","indication"
           
         self.len = len(data)
         print("Chestxray Dataset..")
