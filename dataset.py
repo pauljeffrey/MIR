@@ -178,7 +178,7 @@ def collate_fn2(data): #, history_word_num=60
     # indication_prompts = torch.tensor(indication_prompts).type(torch.LongTensor)
     # probs = torch.tensor(probs).type(torch.LongTensor)
     # targets = torch.tensor(targets).type(torch.LongTensor)
-    
+    print(indication)
     #del indication
     del captions
     del sentence_num
