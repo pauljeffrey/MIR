@@ -184,7 +184,7 @@ def collate_fn2(data): #, history_word_num=60
     del sentence_num
     del word_num
     
-    return  images ,indication_prompts , probs, targets #images,  labels,
+    return  images ,indication , probs, targets #images,  labels,
 
 
 def get_loader(image_dir,
