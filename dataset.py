@@ -47,24 +47,14 @@ class ChestXrayDataSet(Dataset):
             data = pd.read_json(caption_json)#, 'type', "caption","indication"
           
         self.len = len(data)
-        print("Chestxray DAtaset..")
-        # print("caption name: ", caption_json)
-        # print(data.columns)
-            
-        # seqs = [string_to_sequence(s) for s in data["image"]]
-        # self.images_v, self.images_o = pack_sequences(seqs)
+        print("Chestxray Dataset..")
+  
+        seqs = [string_to_sequence(s) for s in data]
+        self.data_v, self.data_o = pack_sequences(seqs)
         
-        # # seqs = [string_to_sequence(s) for s in data["type"]]
-        # # self.type_v, self.type_o = pack_sequences(seqs)
-        
-        # seqs = [string_to_sequence(s) for s in data["caption"]]
-        # self.captions_v, self.captions_o = pack_sequences(seqs)
-        
-        # seqs = [string_to_sequence(s) for s in data["indication"]]
-        # self.indications_v, self.indications_o = pack_sequences(seqs)
-        self.imgs  = cstl.frompy(list(data["image"]))
-        self.captions = cstl.frompy(list(data["caption"]))
-        self.indications = cstl.frompy(list(data["indication"]))
+        # self.imgs  = cstl.frompy(list(data["image"]))
+        # self.captions = cstl.frompy(list(data["caption"]))
+        # self.indications = cstl.frompy(list(data["indication"]))
         
         if use_tokenizer_fast:
             self.tokenizer = Tokenizer.from_pretrained(tokenizer_name)
@@ -80,9 +70,11 @@ class ChestXrayDataSet(Dataset):
 
     def __getitem__(self, index):
         #sample = self.data[index] 
-        image_name = self.imgs[index]
-        indication = self.indications[index]
-        caption = self.captions[index]
+        
+        seq = unpack_sequence(self.data_v, self.data_o, index)
+        
+        image_name, indication, caption = sequence_to_string(seq).split("<<END>>")
+        
        
         # if sample_type == "original":
             
@@ -216,8 +208,8 @@ def string_to_sequence(s: str, dtype=np.int32) -> np.ndarray:
     return np.array([ord(c) for c in s], dtype=dtype)
 
 def sequence_to_string(seq: np.ndarray) -> str:
-    temp = ''.join([chr(c) for c in seq])
-    return temp
+    return ''.join([chr(c) for c in seq])
+    
 
 def pack_sequences(seqs: Union[np.ndarray, list]) -> (np.ndarray, np.ndarray):
     values = np.concatenate(seqs, axis=0)
@@ -470,11 +462,11 @@ if __name__ == '__main__':
 
     transform = transforms.Compose(
     [
-        transforms.RandomRotation((0,5)),
-        #transforms.v2.RandomResize((200, 250)), v2.RandomResize
-        transforms.GaussianBlur(kernel_size=(3, 3), sigma=(0.1, 1.2)),
-        transforms.ColorJitter(brightness= (0.5, 1.5) , contrast=(0, 1.0)),
-        transforms.Pad(20),
+        # transforms.RandomRotation((0,5)),
+        # #transforms.v2.RandomResize((200, 250)), v2.RandomResize
+        # transforms.GaussianBlur(kernel_size=(3, 3), sigma=(0.1, 1.2)),
+        # transforms.ColorJitter(brightness= (0.5, 1.5) , contrast=(0, 1.0)),
+        # transforms.Pad(20),
         transforms.Resize((224,224), antialias=True), 
         transforms.ToTensor(),
     ]
