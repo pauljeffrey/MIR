@@ -48,6 +48,7 @@ class ChestXrayDataSet(Dataset):
           
         self.len = len(data)
         print("Chestxray Dataset..")
+        print(seqs[:10])
         seqs = []
         for s in data:
             print(s)
