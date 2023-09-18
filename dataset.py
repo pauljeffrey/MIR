@@ -80,9 +80,11 @@ class ChestXrayDataSet(Dataset):
         
         seq = unpack_sequence(self.data_v, self.data_o, index)
         
-        image_name, indication, caption = sequence_to_string(seq).split("<<END>>")
+        sample = sequence_to_string(seq)
         
-       
+        image_name = sample.split("<<END>>")[0]
+        indication = sample.split("<<END>>")[1]
+        caption = sample.split("<<END>>")[2]
         # if sample_type == "original":
             
             #indication = sample[4] #sample["indication"]

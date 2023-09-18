@@ -24,6 +24,7 @@ torch.manual_seed(42)
 from utils import src_mask, create_padding_mask
 from new_train import load, load_model, save_model
 import torch
+import gc
 
 def evaluate(model, eval_loader, custom_loss): #, bce_loss
     model.eval()
@@ -308,7 +309,8 @@ def train(cfg: DictConfig):
                         os.mkdir(output_dir)
                             
                     save_model(model, optimizer= optimizer, epoch=epoch, loss= loss, path =output_dir)
-                  
+                
+            gc.collect()  
 
             if completed_steps >= cfg.training.max_train_steps:
                 break
