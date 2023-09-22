@@ -201,7 +201,10 @@ def train(cfg: DictConfig):
             #if step % 500 == 0:
             print(step, encoded_images.shape, indication_prompt.shape, true_stop_probs.shape, reports.shape)
             
-            loss = 0            
+            loss = 0      
+            gc.collect() 
+            if step > 10:
+                break      
             # n_sentences  = reports.shape[1]
             
     #         encoder_pad_mask = create_padding_mask(indication_prompt).to(device)
@@ -312,10 +315,10 @@ def train(cfg: DictConfig):
                             
     #                 save_model(model, optimizer= optimizer, epoch=epoch, loss= loss, path =output_dir)
                 
-            gc.collect()  
+             
 
-            if completed_steps >= cfg.training.max_train_steps:
-                break
+            # if completed_steps >= cfg.training.max_train_steps:
+            #     break
             
     #     eval_loss, eval_bce_loss, perplexity = evaluate(model,eval_loader, custom_loss) #, custom_bce_loss
     #     model.train()
