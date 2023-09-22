@@ -42,7 +42,7 @@ training:
   learning_rate: 3e-4
   weight_decay: 0.1
   num_epochs: 1
-  max_train_steps: 10
+  max_train_steps: 100000
   gradient_accumulation_steps: 2
   lr_scheduler: "cosine" # ["linear", "cosine", "cosine_with_restarts", "polynomial", "constant", "constant_with_warmup"]
   lr_warmup_steps: 1500
