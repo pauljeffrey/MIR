@@ -257,27 +257,13 @@ class ChestXrayDataSet2(Dataset):
                 
             data = data.iloc[:250]
             
-        else:            
-            # with open(caption_json, 'r') as f:
-            #     self.data = np.array(json.load(f))
-                
-        # manager = Manager()    
-        # self.data  = manager.dict({i: each for i, each in enumerate(self.data)})
-            data = pd.read_json(caption_json)#, 'type', "caption","indication"
-            # with open(caption_json,"r") as f:
-            #     data = json.load(f)
-            # print("Shuffling training data... ")
-            # for _ in range(80):
-            #     self.data = self.data.sample(frac=1)
+        else:  
+            data = pd.read_json("/kaggle/input/custom1/train.json")#, 'type', "caption","indication"
+            
         self.len = len(data)
-        # print("caption name: ", caption_json)
-        # print(data.columns)
             
         seqs = [string_to_sequence(s) for s in data["image"]]
         self.images_v, self.images_o = pack_sequences(seqs)
-        
-        # seqs = [string_to_sequence(s) for s in data["type"]]
-        # self.type_v, self.type_o = pack_sequences(seqs)
         
         seqs = [string_to_sequence(s) for s in data["caption"]]
         self.captions_v, self.captions_o = pack_sequences(seqs)
@@ -285,8 +271,6 @@ class ChestXrayDataSet2(Dataset):
         seqs = [string_to_sequence(s) for s in data["indication"]]
         self.indications_v, self.indications_o = pack_sequences(seqs)
         
-            #print(self.data.columns)
-        #self.file_names, self.labels = self.__load_label_list(file_list)
         if use_tokenizer_fast:
             self.tokenizer = Tokenizer.from_pretrained(tokenizer_name)
         else:
@@ -300,17 +284,9 @@ class ChestXrayDataSet2(Dataset):
         
 
     def __getitem__(self, index):
-        #['image', 'type', 'caption', 'problems', 'indication', 'labels']
-        #image_name = self.data[index][0] #self.data.image.iloc[index]
-        
         seq = unpack_sequence(self.images_v, self.images_o, index)
-        #image_details = sequence_to_string(img_seq)
-        #image_name = sequence_to_string(img_seq)
         
-        image_name = sequence_to_string(seq) # _, indication, caption
-        # type_seq = unpack_sequence(self.type_v, self.type_o, index)
-        # sample_type = sequence_to_string(type_seq)
-        
+        image_name = sequence_to_string(seq) 
         seq = unpack_sequence(self.captions_v, self.captions_o, index)
         caption = sequence_to_string(seq)
         

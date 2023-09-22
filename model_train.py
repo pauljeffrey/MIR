@@ -195,139 +195,141 @@ def train(cfg: DictConfig):
         train_losses = []
         #check = True
         for step, (encoded_images,indication_prompt, true_stop_probs, reports) in enumerate(train_loader): #labels,
-            indication_prompt = torch.tensor(indication_prompt).type(torch.LongTensor).to(device)
-            true_stop_probs = torch.tensor(true_stop_probs).type(torch.LongTensor).to(device)
-            reports = torch.tensor(reports).type(torch.LongTensor).to(device)
+            # indication_prompt = torch.tensor(indication_prompt).type(torch.LongTensor).to(device)
+            # true_stop_probs = torch.tensor(true_stop_probs).type(torch.LongTensor).to(device)
+            # reports = torch.tensor(reports).type(torch.LongTensor).to(device)
+            
+            print(encoded_images.shape, indication_prompt.shape, true_stop_probs.shape, reports.shape)
             
             loss = 0            
-            n_sentences  = reports.shape[1]
+            # n_sentences  = reports.shape[1]
             
-            encoder_pad_mask = create_padding_mask(indication_prompt).to(device)
+    #         encoder_pad_mask = create_padding_mask(indication_prompt).to(device)
            
-            encoded_images  = model.encoder(encoded_images.to(device))
-            bs , n_channels = encoded_images.shape[0], encoded_images.shape[1]
+    #         encoded_images  = model.encoder(encoded_images.to(device))
+    #         bs , n_channels = encoded_images.shape[0], encoded_images.shape[1]
             
-            # if model.co_attention:
-            #     semantic_features = model.semantic_features_extractor(tags)
+    #         # if model.co_attention:
+    #         #     semantic_features = model.semantic_features_extractor(tags)
                 
-            if model.history_encoder is not None:
-                indication_prompt = model.decoder.embed_layer(indication_prompt.to(device))
-                # if torch.any(torch.isinf(indication_prompt)) or torch.any(torch.isnan(indication_prompt)):
-                #     print("Encoding by decoder embedding layer is nan")
+    #         if model.history_encoder is not None:
+    #             indication_prompt = model.decoder.embed_layer(indication_prompt.to(device))
+    #             # if torch.any(torch.isinf(indication_prompt)) or torch.any(torch.isnan(indication_prompt)):
+    #             #     print("Encoding by decoder embedding layer is nan")
                     
-                indication_prompt = model.history_encoder(indication_prompt, mask=encoder_pad_mask.type(indication_prompt.dtype))
+    #             indication_prompt = model.history_encoder(indication_prompt, mask=encoder_pad_mask.type(indication_prompt.dtype))
             
-            #Initialize states
-            if len(encoded_images.shape) > 3:
-                encoded_images = encoded_images.reshape(bs, n_channels, -1)
+    #         #Initialize states
+    #         if len(encoded_images.shape) > 3:
+    #             encoded_images = encoded_images.reshape(bs, n_channels, -1)
                 
-            #print("lstm hidden state and cell state: ", model.sent_lstm.num_layers)
+    #         #print("lstm hidden state and cell state: ", model.sent_lstm.num_layers)
             
-            prev_hidden, (hn, cn) = model.sent_lstm.init_state(encoded_images,indication_prompt)
+    #         prev_hidden, (hn, cn) = model.sent_lstm.init_state(encoded_images,indication_prompt)
                     
-            for i in range(n_sentences):                
-                # Attend to encoded_images
-                if model.history_encoder is not None:
-                    context_vector, att_wts = model.attention(prev_hidden, encoded_images, indication_prompt)                          
-                else:
-                    context_vector, att_wts = model.attention(prev_hidden, encoded_images)
+    #         for i in range(n_sentences):                
+    #             # Attend to encoded_images
+    #             if model.history_encoder is not None:
+    #                 context_vector, att_wts = model.attention(prev_hidden, encoded_images, indication_prompt)                          
+    #             else:
+    #                 context_vector, att_wts = model.attention(prev_hidden, encoded_images)
 
-                # Generate Topic Vector
-                #print("Context and hidden shape before entering lstm: ", context_vector.shape, prev_hidden.shape)
-                prev_hidden, pred_stop_probs, (hn, cn) = model.sent_lstm(context_vector, prev_hidden, (hn, cn))  # [batch_size, d_model]
+    #             # Generate Topic Vector
+    #             #print("Context and hidden shape before entering lstm: ", context_vector.shape, prev_hidden.shape)
+    #             prev_hidden, pred_stop_probs, (hn, cn) = model.sent_lstm(context_vector, prev_hidden, (hn, cn))  # [batch_size, d_model]
               
-                # Decode reports
-                tgt = reports[:,i, :-1].to(device)  # Remove last token from reports
+    #             # Decode reports
+    #             tgt = reports[:,i, :-1].to(device)  # Remove last token from reports
                
-                tgt_mask = src_mask(tgt.shape[1]).to(device).type(indication_prompt.dtype)
+    #             tgt_mask = src_mask(tgt.shape[1]).to(device).type(indication_prompt.dtype)
                 
-                memory = encoded_images * att_wts # [batch_size, seq_len, d_model]
+    #             memory = encoded_images * att_wts # [batch_size, seq_len, d_model]
                
-                output = model.decoder(tgt, prev_hidden, (indication_prompt, memory), tgt_key_padding_mask= None,
-                                    memory_key_padding_mask=encoder_pad_mask, tgt_mask=tgt_mask,
-                                        tgt_is_causal=False)  # [batch_size, seq_len - 1, d_model] 
+    #             output = model.decoder(tgt, prev_hidden, (indication_prompt, memory), tgt_key_padding_mask= None,
+    #                                 memory_key_padding_mask=encoder_pad_mask, tgt_mask=tgt_mask,
+    #                                     tgt_is_causal=False)  # [batch_size, seq_len - 1, d_model] 
             
                 
-                loss += custom_loss(true_stop_probs[:,i].type(indication_prompt.dtype), reports[:, i, 1:].to(device), pred_stop_probs,  output)  # Ignore <sos> token
+    #             loss += custom_loss(true_stop_probs[:,i].type(indication_prompt.dtype), reports[:, i, 1:].to(device), pred_stop_probs,  output)  # Ignore <sos> token
 
-            #loss += custom_bce_loss( tags, labels)
+    #         #loss += custom_bce_loss( tags, labels)
             
-            train_losses.append(
-                    loss.item()
-                )
+    #         train_losses.append(
+    #                 loss.item()
+    #             )
     
-            train_loss = sum(train_losses) / len(train_losses) 
-            loss = loss / cfg.training.gradient_accumulation_steps
-            loss.backward()
+    #         train_loss = sum(train_losses) / len(train_losses) 
+    #         loss = loss / cfg.training.gradient_accumulation_steps
+    #         loss.backward()
             
-            #continue
+    #         #continue
             
-            if step  % cfg.training.gradient_accumulation_steps == 0 or step == len(train_loader) - 1:
-                optimizer.step()
-                lr_scheduler.step()
-                optimizer.zero_grad()
-                progress_bar.update(1)
-                completed_steps += 1
+    #         if step  % cfg.training.gradient_accumulation_steps == 0 or step == len(train_loader) - 1:
+    #             optimizer.step()
+    #             lr_scheduler.step()
+    #             optimizer.zero_grad()
+    #             progress_bar.update(1)
+    #             completed_steps += 1
                 
-    #         # continue
+    # #         # continue
             
-            if step % cfg.training.eval_every == 0:
-                model.eval()   
-                #print("\nEvaluating model...")
-                eval_loss, eval_bce_loss, perplexity = evaluate(model, eval_loader, custom_loss) #custom_bce_los
+    #         if step % cfg.training.eval_every == 0:
+    #             model.eval()   
+    #             #print("\nEvaluating model...")
+    #             eval_loss, eval_bce_loss, perplexity = evaluate(model, eval_loader, custom_loss) #custom_bce_los
                 
-                print(f"\nEpoch {epoch}, Step {step} : train_loss: {train_loss} perplexity: {perplexity} sparse_loss: {eval_loss}  \
-                    stop_loss {eval_bce_loss} total_eval_loss {eval_loss + eval_bce_loss}" ) #label_loss: {label_loss} 
+    #             print(f"\nEpoch {epoch}, Step {step} : train_loss: {train_loss} perplexity: {perplexity} sparse_loss: {eval_loss}  \
+    #                 stop_loss {eval_bce_loss} total_eval_loss {eval_loss + eval_bce_loss}" ) #label_loss: {label_loss} 
                 
-                model.train()
-                #train_losses = []
+    #             model.train()
+    #             #train_losses = []
                 
-                # Tracks the best checkpoint and best metric
-                mean_loss = (train_loss + eval_loss)/2
-                loss_diff = train_loss - eval_loss
+    #             # Tracks the best checkpoint and best metric
+    #             mean_loss = (train_loss + eval_loss)/2
+    #             loss_diff = train_loss - eval_loss
                 
-                if (best_metric is None or (best_metric > mean_loss and loss_diff > -0.65)):
-                    best_metric = mean_loss
-                    best_metric_checkpoint = os.path.join(cfg.output_dir, str(epoch))
+    #             if (best_metric is None or (best_metric > mean_loss and loss_diff > -0.65)):
+    #                 best_metric = mean_loss
+    #                 best_metric_checkpoint = os.path.join(cfg.output_dir, str(epoch))
                 
-                    epoch_dir = f"model_with_best_eval"
-                    if cfg.output_dir is not None:                 
+    #                 epoch_dir = f"model_with_best_eval"
+    #                 if cfg.output_dir is not None:                 
                             
-                        output_dir = os.path.join(cfg.output_dir, epoch_dir)
-                        if not os.path.exists(output_dir):
-                            os.mkdir(output_dir)
+    #                     output_dir = os.path.join(cfg.output_dir, epoch_dir)
+    #                     if not os.path.exists(output_dir):
+    #                         os.mkdir(output_dir)
                             
-                        save_model(model, optimizer=optimizer, epoch=epoch, loss=loss, path=output_dir)
+    #                     save_model(model, optimizer=optimizer, epoch=epoch, loss=loss, path=output_dir)
                        
-            #print("Back to training...")        
-            if step % cfg.training.save_every == 0:                 
-                epoch_dir = f"epoch_most_recent"
-                if cfg.output_dir is not None:           
-                    output_dir = os.path.join(os.path.abspath(cfg.output_dir), epoch_dir)
+    #         #print("Back to training...")        
+    #         if step % cfg.training.save_every == 0:                 
+    #             epoch_dir = f"epoch_most_recent"
+    #             if cfg.output_dir is not None:           
+    #                 output_dir = os.path.join(os.path.abspath(cfg.output_dir), epoch_dir)
                     
-                    if not os.path.exists(output_dir):
-                        os.mkdir(output_dir)
+    #                 if not os.path.exists(output_dir):
+    #                     os.mkdir(output_dir)
                             
-                    save_model(model, optimizer= optimizer, epoch=epoch, loss= loss, path =output_dir)
+    #                 save_model(model, optimizer= optimizer, epoch=epoch, loss= loss, path =output_dir)
                 
             gc.collect()  
 
-            if completed_steps >= cfg.training.max_train_steps:
-                break
+    #         if completed_steps >= cfg.training.max_train_steps:
+    #             break
             
-        eval_loss, eval_bce_loss, perplexity = evaluate(model,eval_loader, custom_loss) #, custom_bce_loss
-        model.train()
-        print(f"\nEpoch {epoch}, Step {step} : train_loss: {train_loss} perplexity: {perplexity} sparse_loss: {eval_loss}  \
-                    stop_loss {eval_bce_loss} total_eval_loss {eval_loss + eval_bce_loss}" )
+    #     eval_loss, eval_bce_loss, perplexity = evaluate(model,eval_loader, custom_loss) #, custom_bce_loss
+    #     model.train()
+    #     print(f"\nEpoch {epoch}, Step {step} : train_loss: {train_loss} perplexity: {perplexity} sparse_loss: {eval_loss}  \
+    #                 stop_loss {eval_bce_loss} total_eval_loss {eval_loss + eval_bce_loss}" )
         
-    print('Saving the model using the best weights checkpoint in the current output directory')
-    if cfg.output_dir is not None:
-        output_dir = os.path.join(os.path.abspath(cfg.output_dir), "final")
+    # print('Saving the model using the best weights checkpoint in the current output directory')
+    # if cfg.output_dir is not None:
+    #     output_dir = os.path.join(os.path.abspath(cfg.output_dir), "final")
         
-        if not os.path.exists(output_dir):
-            os.mkdir(output_dir)
+    #     if not os.path.exists(output_dir):
+    #         os.mkdir(output_dir)
                             
-        save_model(model, path= output_dir)
+    #     save_model(model, path= output_dir)
        
     return
 
