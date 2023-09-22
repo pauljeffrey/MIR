@@ -258,7 +258,7 @@ class ChestXrayDataSet2(Dataset):
             data = data.iloc[:250]
             
         else:  
-            data = pd.read_json("/kaggle/input/custom1/train.json")#, 'type', "caption","indication"
+            data = pd.read_json(caption_json)#, 'type', "caption","indication"
             
         self.len = len(data)
             
