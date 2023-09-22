@@ -153,10 +153,10 @@ def train(cfg: DictConfig):
 
     transform = transforms.Compose(
     [
-        transforms.RandomRotation((0,5)),
-        #transforms.v2.RandomResize((200, 250)), v2.RandomResize
-        transforms.GaussianBlur(kernel_size=(3, 3), sigma=(0.1, 1.2)),
-        transforms.ColorJitter(brightness= (0.5, 1.5) , contrast=(0, 1.0)),
+        # transforms.RandomRotation((0,5)),
+        # #transforms.v2.RandomResize((200, 250)), v2.RandomResize
+        # transforms.GaussianBlur(kernel_size=(3, 3), sigma=(0.1, 1.2)),
+        # transforms.ColorJitter(brightness= (0.5, 1.5) , contrast=(0, 1.0)),
         transforms.Pad(20),
         transforms.Resize((224,224), antialias=True), 
         transforms.ToTensor(),
@@ -199,7 +199,7 @@ def train(cfg: DictConfig):
             # true_stop_probs = torch.tensor(true_stop_probs).type(torch.LongTensor).to(device)
             # reports = torch.tensor(reports).type(torch.LongTensor).to(device)
             if step % 500 == 0:
-                print(encoded_images.shape, indication_prompt.shape, true_stop_probs.shape, reports.shape)
+                print(step, encoded_images.shape, indication_prompt.shape, true_stop_probs.shape, reports.shape)
             
             loss = 0            
             # n_sentences  = reports.shape[1]
