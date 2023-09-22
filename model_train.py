@@ -198,12 +198,12 @@ def train(cfg: DictConfig):
             # indication_prompt = torch.tensor(indication_prompt).type(torch.LongTensor).to(device)
             # true_stop_probs = torch.tensor(true_stop_probs).type(torch.LongTensor).to(device)
             # reports = torch.tensor(reports).type(torch.LongTensor).to(device)
-            #if step % 500 == 0:
-            print(step, encoded_images.shape, indication_prompt.shape, true_stop_probs.shape, reports.shape)
+            if step % 500 == 0:
+                print(step, encoded_images.shape, indication_prompt.shape, true_stop_probs.shape, reports.shape)
             
             loss = 0      
             gc.collect() 
-            if step > 10:
+            if step > 4500:
                 break      
             # n_sentences  = reports.shape[1]
             
