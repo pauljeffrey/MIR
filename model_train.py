@@ -314,8 +314,8 @@ def train(cfg: DictConfig):
                 
             gc.collect()  
 
-    #         if completed_steps >= cfg.training.max_train_steps:
-    #             break
+            if completed_steps >= cfg.training.max_train_steps:
+                break
             
     #     eval_loss, eval_bce_loss, perplexity = evaluate(model,eval_loader, custom_loss) #, custom_bce_loss
     #     model.train()
