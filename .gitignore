@@ -4,5 +4,8 @@ rotary_embedding.py
 txt_data
 checkpoint.tar
 final
+bittensordata_train.jsonl
+bittensordata_test.jsonl
+mergeddata.jsonl
 
 
