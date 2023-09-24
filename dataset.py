@@ -127,6 +127,90 @@ class ChestXrayDataSet(Dataset):
         return self.len
 
 
+
+class ChestXrayDataSet3(Dataset):
+    def __init__(self,
+                 image_dir,
+                 caption_json,
+                 tokenizer_name,
+                 s_max=15,
+                 n_max=40,
+                 encoder_n_max=60,
+                 transforms=None,
+                 use_tokenizer_fast =True):
+        
+        self.image_dir = image_dir 
+          
+        df = pd.read_json("/kaggle/input/custom/train.json")
+        self.dataset  = Dataset.from_pandas(df)
+
+          
+        self.len = len(df)
+        print("Chestxray Dataset..")
+        
+        
+        if use_tokenizer_fast:
+            self.tokenizer = Tokenizer.from_pretrained(tokenizer_name)
+        else:
+            #print(tokenizer_name)
+            self.tokenizer = Tokenizer.from_file(tokenizer_name)
+            
+        self.transform = transforms
+        self.s_max = s_max
+        self.n_max = n_max
+        self.encoder_n_max = encoder_n_max
+        
+
+    def __getitem__(self, index):
+        sample = self.dataset[index] 
+        
+        
+        image_name = sample["image"]
+        indication = sample["indication"]
+        caption = sample["caption"]
+        # if sample_type == "original":
+            
+            #indication = sample[4] #sample["indication"]
+        if "<prompt>" in indication:
+            indication = "<ind>" + add_noise(indication.split("<ind>")[1]) + "<ind>" + indication.split("<ind>")[-1]
+            indication = indication.split("<prompt>")[0] + "<prompt>" + add_noise(indication.split("<prompt>")[1]) + "<prompt>"
+            indication = rm_indication(indication)
+            
+        else:
+            indication = "<ind>" + add_noise(indication.split("<ind>")[1]) + "<ind>"
+       
+        if self.transform is not None:
+            if index % 2 == 0:
+                image = self.transform(Image.open(os.path.join(self.image_dir, str(image_name))).convert('RGB'))
+            else:
+                image = self.transform(Image.open(os.path.join(self.image_dir, str(image_name))).convert('RGB'))
+            
+        
+        caption = [self.tokenizer.encode(sent).ids[:self.n_max] for sent in caption.split('.')[:self.s_max] if not 
+                   (len(sent) == 0 or (len(sent) == 1 and sent in [".",",",";",":","@","/","-","_","%","*"]))]
+        
+        max_word_num = 0
+        
+        for each in caption:
+            #print(type(each))
+            each.insert(0, self.tokenizer.encode('<s>').ids[0])
+            each.append(self.tokenizer.encode('<s>').ids[0])
+            #each.extend([0] * (self.n_max - len(each)))
+            max_word_num = max(max_word_num, len(each))
+            
+        
+        indication = self.tokenizer.encode(indication).ids
+        if len(indication) > self.encoder_n_max:
+            #print("This is bigger: ", len(indication))
+            indication = indication[:self.encoder_n_max - 1] + self.tokenizer.encode('<prompt>').ids 
+        
+        return  image , indication, caption , len(caption), max_word_num  #image_name,label,  image,
+
+    def __len__(self):
+        return self.len
+
+
+
 def collate_fn(data):
     images, tokens, label, captions, sentence_num, max_word_num, history_max_word_num = zip(*data)
     images = torch.stack(images, 0)
@@ -371,7 +455,7 @@ def get_loader2(image_dir,
                sampler = None
                ):
     
-    dataset = ChestXrayDataSet2(image_dir=image_dir,
+    dataset = ChestXrayDataSet3(image_dir=image_dir,
                                caption_json=caption_json,
                                tokenizer_name=tokenizer_name,
                                s_max=s_max,
@@ -387,7 +471,7 @@ def get_loader2(image_dir,
                                               collate_fn=collate_fn,
                                               num_workers = 0,
                                               #sampler=sampler,
-                                              pin_memory=False)
+                                              pin_memory=True)
     return data_loader
 
 
