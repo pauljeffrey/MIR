@@ -287,9 +287,9 @@ def collate_fn2(data): #, history_word_num=60
     for i, tokens in enumerate(indication):
         indication_prompts[i,:len(tokens)] = tokens
         
-    indication_prompts = torch.tensor(indication_prompts).type(torch.LongTensor).to("cuda")
-    probs = torch.tensor(probs).type(torch.LongTensor).to("cuda")
-    targets = torch.tensor(targets).type(torch.LongTensor).to("cuda")
+    indication_prompts = torch.tensor(indication_prompts).type(torch.LongTensor)#.to("cuda")
+    probs = torch.tensor(probs).type(torch.LongTensor)#.to("cuda")
+    targets = torch.tensor(targets).type(torch.LongTensor)#.to("cuda")
     #print(indication)
     del indication
     del captions
