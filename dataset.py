@@ -141,7 +141,7 @@ class ChestXrayDataSet3(Dataset):
         
         self.image_dir = image_dir 
           
-        df = pd.read_json("/kaggle/input/custom/train.json")
+        df = pd.read_json(caption_json)
         self.dataset  = Dataset.from_pandas(df)
 
           
