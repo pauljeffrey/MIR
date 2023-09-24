@@ -91,7 +91,7 @@ class ChestXrayDataSet(Dataset):
         self.len = len(data)
         print("Chestxray Dataset..")
 
-        self._data = TorchSerializedList(data)
+        self._data = NumpySerializedList(data)
         
         if use_tokenizer_fast:
             self.tokenizer = Tokenizer.from_pretrained(tokenizer_name)
@@ -270,11 +270,11 @@ def collate_fn2(data): #, history_word_num=60
     #max_sent = max([len(each) for each in captions])
     #indication = np.array([ each.extend([0] * (max_ind - len(each))) for each in indication] , dtype="float16")
 
-    indication_prompts = np.zeros((len(indication), max([len(each) for each in indication])), dtype=np.float16)
+    indication_prompts = np.zeros((len(indication), max([len(each) for each in indication])))
     
-    targets = np.zeros((len(captions), max(sentence_num) + 1, max(word_num)), dtype=np.float16)
+    targets = np.zeros((len(captions), max(sentence_num) + 1, max(word_num)))
     
-    probs = np.ones((len(captions), max(sentence_num) + 1), dtype=np.float16)  * -1
+    probs = np.ones((len(captions), max(sentence_num) + 1), )  * -1
 
     for i, caption in enumerate(captions):
         for j, sentence in enumerate(caption):
@@ -495,7 +495,7 @@ def get_loader2(image_dir,
                                               shuffle=shuffle,
                                               drop_last = False,
                                               collate_fn=collate_fn,
-                                              num_workers = 0,
+                                              num_workers = 1,
                                               #sampler=sampler,
                                               pin_memory=True)
     return data_loader
