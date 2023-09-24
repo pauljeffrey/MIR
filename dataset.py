@@ -14,7 +14,7 @@ from clean_caption import *
 from omegaconf import OmegaConf
 from torchvision import transforms
 from typing import Union
-from multiprocessing import Manager, Array
+#from multiprocessing import Manager, Array
 #import cstl
 
 from torch.utils.data import WeightedRandomSampler
@@ -23,7 +23,48 @@ from multiprocessing import shared_memory #import ShareableList
 import cProfile
 import io
 import pstats
+import pickle
+from typing import List,Any
 
+class NumpySerializedList():
+    def __init__(self, lst: list):
+        def _serialize(data):
+            buffer = pickle.dumps(data, protocol=-1)
+            return np.frombuffer(buffer, dtype=np.uint8)
+
+        print(
+            "Serializing {} elements to byte tensors and concatenating them all ...".format(
+                len(lst)
+            )
+        )
+        self._lst = [_serialize(x) for x in lst]
+        self._addr = np.asarray([len(x) for x in self._lst], dtype=np.int64)
+        self._addr = np.cumsum(self._addr)
+        self._lst = np.concatenate(self._lst)
+        print("Serialized dataset takes {:.2f} MiB".format(len(self._lst) / 1024**2))
+
+    def __len__(self):
+        return len(self._addr)
+
+    def __getitem__(self, idx):
+        start_addr = 0 if idx == 0 else self._addr[idx - 1].item()
+        end_addr = self._addr[idx].item()
+        bytes = memoryview(self._lst[start_addr:end_addr])
+        return pickle.loads(bytes)
+
+
+class TorchSerializedList(NumpySerializedList):
+    def __init__(self, lst: list):
+        super().__init__(lst)
+        self._addr = torch.from_numpy(self._addr)
+        self._lst = torch.from_numpy(self._lst)
+
+    def __getitem__(self, idx):
+        start_addr = 0 if idx == 0 else self._addr[idx - 1].item()
+        end_addr = self._addr[idx].item()
+        bytes = memoryview(self._lst[start_addr:end_addr].numpy())
+        return pickle.loads(bytes)
+    
 
 class ChestXrayDataSet(Dataset):
     def __init__(self,
@@ -38,9 +79,8 @@ class ChestXrayDataSet(Dataset):
         
         self.image_dir = image_dir
         if caption_json.endswith("validation.json") or caption_json.endswith("val.json"):
-            data = pd.read_json(caption_json)
-                
-            data = data.iloc[:250]
+            with open(caption_json, "r") as f:
+                data = json.load(f) 
             
         else:          
             with open(caption_json, "r") as f:
@@ -50,18 +90,8 @@ class ChestXrayDataSet(Dataset):
           
         self.len = len(data)
         print("Chestxray Dataset..")
-        #print(data[:10])
-        # seqs = []
-        # for s in data:
-        #     print(s)
-        #     seqs.append(string_to_sequence(s))
-  
-        seqs = [string_to_sequence(s) for s in data]
-        self.data_v, self.data_o = pack_sequences(seqs)
-        
-        # self.imgs  = cstl.frompy(list(data["image"]))
-        # self.captions = cstl.frompy(list(data["caption"]))
-        # self.indications = cstl.frompy(list(data["indication"]))
+
+        self._data = TorchSerializedList(data)
         
         if use_tokenizer_fast:
             self.tokenizer = Tokenizer.from_pretrained(tokenizer_name)
@@ -75,16 +105,12 @@ class ChestXrayDataSet(Dataset):
         self.encoder_n_max = encoder_n_max
         
 
-    def __getitem__(self, index):
-        #sample = self.data[index] 
+    def __getitem__(self, index):      
+        sample = self._data[index]
         
-        seq = unpack_sequence(self.data_v, self.data_o, index)
-        
-        sample = sequence_to_string(seq)
-        
-        image_name = sample.split("<<END>>")[0]
-        indication = sample.split("<<END>>")[1]
-        caption = sample.split("<<END>>")[2]
+        image_name = sample["image"]
+        indication = sample["indication"]
+        caption = sample["caption"]
         # if sample_type == "original":
             
             #indication = sample[4] #sample["indication"]
@@ -455,7 +481,7 @@ def get_loader2(image_dir,
                sampler = None
                ):
     
-    dataset = ChestXrayDataSet3(image_dir=image_dir,
+    dataset = ChestXrayDataSet(image_dir=image_dir,
                                caption_json=caption_json,
                                tokenizer_name=tokenizer_name,
                                s_max=s_max,
