@@ -104,7 +104,7 @@ class ChestXrayDataSet(Dataset):
         self.n_max = n_max
         self.encoder_n_max = encoder_n_max
         
-
+    @profile
     def __getitem__(self, index):      
         sample = self._data[index]
         
@@ -260,7 +260,7 @@ def collate_fn(data):
         
     return images, patient_history, torch.Tensor(label), targets, prob
 
-
+@profile
 def collate_fn2(data): #, history_word_num=60
     images, indication, captions, sentence_num, word_num = zip(*data)  #labels,  
     #print(len(images), len(indication), len(captions), len(sentence_num,len(word_num)))
