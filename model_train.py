@@ -203,7 +203,7 @@ def train(cfg: DictConfig):
             
             loss = 0      
             gc.collect() 
-            if step > 4500:
+            if step > 3000:
                 break      
             # n_sentences  = reports.shape[1]
             
