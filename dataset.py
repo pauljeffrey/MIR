@@ -115,7 +115,7 @@ class ChestXrayDataSet(Dataset):
         image_name = sample["image"]
         indication = sample["indication"]
         caption = sample["caption"]
-        print(f"Index number {index}- Image name: {image_name}")
+        #print(f"Index number {index}- Image name: {image_name}")
         # if sample_type == "original":
             
             #indication = sample[4] #sample["indication"]
