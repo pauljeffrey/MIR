@@ -597,6 +597,9 @@ if __name__ == '__main__':
     for step, (images ,indication_prompts , probs, targets) in enumerate(train_loader): #encoded_images, indication_prompt, true_stop_probs, reports
         if step % 500 == 0: 
             print(step, images.shape, indication_prompts.shape, probs.shape, targets.shape) #encoded_images.shape, indication_prompt.shape, true_stop_probs.shape, reports.shape
+            print("Instruction prompts: ", indication_prompts)
+            print("Stop_prob: ", probs)
+            print("Targets: ", targets)
          #,indication_prompt,reports
         gc.collect()
 
