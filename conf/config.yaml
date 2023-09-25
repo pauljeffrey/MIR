@@ -9,14 +9,14 @@ dataset:
     encoder_n_max: 60
 
   train:
-    image_dir: "/kaggle/input/chest-xrays-indiana-university/images/images_normalized"
-    caption_json: "/kaggle/working/new_train.json" #"/kaggle/input/custom/train.json" #
+    image_dir: "/content/sample_data/data/images/images_normalized"
+    caption_json: "/content/drive/MyDrive/MIR/train.json" #"/kaggle/input/custom/train.json" #
     #history_json: null
     #file_list: null
 
   eval:
-    image_dir: "/kaggle/input/chest-xrays-indiana-university/images/images_normalized"
-    caption_json: "/kaggle/working/new_val.json" #"/kaggle/input/custom/val.json" #
+    image_dir: "/content/sample_data/data/images/images_normalized"
+    caption_json: "/content/drive/MyDrive/MIR/val.json" #"/kaggle/input/custom/val.json" #
     #history_json: null
     #file_list: null
 
@@ -28,7 +28,7 @@ model:
   from_checkpoint: false
 
 tokenizer:
-  name: '/kaggle/working/MIR/tokenizers/wordpiece_tokenizer8000.json'
+  name: '/content/sample_data/MIR/tokenizers/wordpiece_tokenizer8000.json'
   use_fast: false
   preprocessing_num_workers: null
 
@@ -38,7 +38,7 @@ tokenizer:
   
 training:
   seed: 15
-  shuffle: false
+  shuffle: true
   learning_rate: 3e-4
   weight_decay: 0.1
   num_epochs: 1

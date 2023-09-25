@@ -716,7 +716,7 @@ def train(cfg: DictConfig):
 
 
 if __name__ == "__main__":
-    cfg = OmegaConf.load("/kaggle/working/MIR/conf/config.yaml") #
+    cfg = OmegaConf.load("/content/sample_data/MIR/conf/config.yaml") #
     # try:
     #     with profiler.profile(record_shapes=True, use_cuda=False) as prof:
     train(cfg)
