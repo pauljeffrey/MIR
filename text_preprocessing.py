@@ -7,6 +7,7 @@ from transformers import PreTrainedTokenizerFast
 import json
 import os
 import re
+import string
 """
 In this example, we first load a dataset of texts. Then, we initialize a BPE tokenizer using the tokenizers. Tokenizer class and the
 tokenizers.models.BPE() model. To customize the tokenizer training, we initialize a tokenizers.trainers.BpeTrainer object with desired 
@@ -28,7 +29,7 @@ SPECIAL_TOKENS = ["<PAD>", "<UNK>", "[CLS]", "[SEP]", "<s>","<MASK>", "<size>", 
                   "T1", "T2","T3", "T4","T5","T6","T7","T8","T9","T10","T11","T12", "1","2","3","4","5","6","7","8","9","0",
                   "<loc0>", "<loc1>", "<loc2>", "<loc00>","<loc01>","<loc02>","<loc10>","<loc11>","<loc12>","<loc20>","<loc21>",
                   "<loc22>","<loc02><loc22>","<loc0><loc2>","<rib1>","<rib2>","<rib3>","<rib4>","<rib5>","<rib6>","<rib7>","<rib8>",
-                  "<rib9>","<rib10>","<rib11>","<rib12>"]
+                  "<rib9>","<rib10>","<rib11>","<rib12>"]# + list(string.ascii_letters)
 
 #loc = axis, x, y
 DIRECTIONS = {"left":"2", "right": "0", "up":"0", "mid":"1","down":"2", "mid-":"1","mid - ": "1", 
@@ -38,7 +39,7 @@ NUMBERS = {"1st":"first", "2nd": "second", "3rd": "third", "4th": "fourth","5th"
            "8th": "eighth", "9th":"Ninth","10th":"tenth", "11th": "eleventh","12th": "twelfth"}
 
 
-def build_bpe_tokenizer(texts, vocab_size=5000, min_frequency=2, special_tokens=SPECIAL_TOKENS, save_dir= "bpe_tokenizer.json"):
+def build_bpe_tokenizer(texts, vocab_size=8000, min_frequency=2, special_tokens=SPECIAL_TOKENS, save_dir= "bpe_tokenizer.json"):
     
     # Initialize a BPE tokenizer
     tokenizer = Tokenizer(BPE())
@@ -69,7 +70,7 @@ def build_bpe_tokenizer(texts, vocab_size=5000, min_frequency=2, special_tokens=
     return wrapped_tokenizer
 
 
-def build_wordpiece_tokenizer(texts, vocab_size=5000, min_frequency=1, special_tokens = SPECIAL_TOKENS, save_dir= "wordpiece_tokenizer.json"):
+def build_wordpiece_tokenizer(texts, vocab_size=8000, min_frequency=2, special_tokens = SPECIAL_TOKENS, save_dir= "wordpiece_tokenizer.json"):
     # Initialize a WordPiece tokenizer
     tokenizer = Tokenizer(WordPiece(unk_token="<UNK>", max_input_chars_per_word=7))
     

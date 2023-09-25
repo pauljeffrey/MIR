@@ -345,11 +345,13 @@ class EncoderLayer(nn.Module):
 
         x = src
         if self.norm_first:
+            x1 = self._ff_block(self.norm2(x))
             x = x + self._sa_block(self.norm1(x), src_mask, src_key_padding_mask)
-            x = x + self._ff_block(self.norm2(x))
+            x = x + self._ff_block(self.norm2(x)) + x1
         else:
+            x1 = self.norm1(self._ff_block(x))
             x = self.norm1(x + self._sa_block(x, src_mask, src_key_padding_mask))
-            x = self.norm2(x + self._ff_block(x))
+            x = self.norm2(x + self._ff_block(x) + x1)
 
         return x
 

@@ -5,19 +5,44 @@ import torch.nn as nn
 #import torch.nn.functional as F
 
 
+class SimilarityLoss(nn.Module):
+    def __init__(self, similarity_type="euclidean"):
+        super(SimilarityLoss, self).__init__()
+        if similarity_type == "all":
+            self.cosine_loss = torch.nn.CosineSimilarity(dim=-1, eps=1e-08)
+            self.dist_loss = torch.cdist
+        elif similarity_type == "cosine":
+            self.cosine_loss = torch.nn.CosineSimilarity(dim=-1, eps=1e-08)
+        else:
+            self.dist_loss = torch.cdist
+        self.similarity_type = similarity_type
+            
+    def forward(self, true, pred):
+        if self.similarity_type == "all":
+            loss = self.cosine_loss(true, pred) + self.dist_loss(true, pred)
+        elif self.similarity_type == "cosine":
+            loss = self.cosine_loss(true, pred)
+        else:
+            loss = self.dist_loss(true, pred)
+        
+        return loss
+            
 class CustomLoss(nn.Module):
-    def __init__(self, alpha=0.5):
+    def __init__(self, similarity_type= "all"):
         super(CustomLoss, self).__init__()
         #self.alpha = alpha
         self.cross_entropy = nn.CrossEntropyLoss()
-        self.bce = nn.BCELoss()#nn.BCEWithLogitsLoss()
-        
+        self.bce = nn.BCELoss()#nn.BCEWithLogitsLoss() 
+        if similarity_type is not None:
+            self.similarity = SimilarityLoss(similarity_type)
+        else:
+            self.simiilarity = None
     
-    def forward(self,y1_true, y2_true, y1_pred, y2_pred,  eval=False): #with_logits=False,
+    def forward(self,y1_true, y2_true, y1_pred, y2_pred, lstm_output=None, final_decoder_layer_output= None, eval=False): #with_logits=False,
         # if with_logits:
         #     y2_pred = y2_pred.softmax(dim=2)
         #print("sparse shapes: ", y2_pred.shape, y2_true.shape)
-        
+                
         if torch.all(y1_true.eq(-1)):
             bce_loss = self.bce(y1_pred, y1_true) * 0    
             #print("Bce loss for last sentence: ", y1_pred)
@@ -41,8 +66,21 @@ class CustomLoss(nn.Module):
             sparse_loss = self.cross_entropy(y2_pred[y2_mask], y2_true[y2_mask])
             #print("Sparse loss: ", sparse_loss)
         
+        # Calculate similarity between lstm output and model output.
+        if lstm_output is not None and self.similarity is not None:
+            assert lstm_output.squeeze().shape[-1] == y2_pred.squeeze().shape[-1]
+            
+            if torch.all(y1_true.ne(1)):
+                similarity_loss = self.simiilarity(lstm_output.squeeze(),final_decoder_layer_output.squeeze()) * 0
+            else:
+                similarity_loss = self.similarity(lstm_output.squeeze(), final_decoder_layer_output.squeeze())
+            
         # print("Bce loss: ", bce_loss)
         # print("sparse loss: ", sparse_loss)
+            if eval:
+                return bce_loss , sparse_loss, similarity_loss
+            else:
+                return bce_loss + sparse_loss + similarity_loss
         
         if eval:
             return bce_loss , sparse_loss

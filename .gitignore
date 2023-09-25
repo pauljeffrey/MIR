@@ -4,5 +4,6 @@ rotary_embedding.py
 txt_data
 checkpoint.tar
 final
+*.ipynb
 
 

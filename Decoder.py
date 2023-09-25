@@ -155,6 +155,7 @@ class DecoderLayer(nn.Module):
         # print("min max of topic: ", torch.min(topic), torch.max(topic))
         
         if self.norm_first:
+            x1 = self.__ff_block(self.norm1(x))
             x = x + self._sa_block(self.norm1(x), tgt_mask, tgt_key_padding_mask, topic, tgt_is_causal)
             
             if self.use_cross_attention:
@@ -163,8 +164,10 @@ class DecoderLayer(nn.Module):
                     x = x + self._mha_block(self.norm2(x), prompt, memory_mask, memory_key_padding_mask, memory_is_causal)
                 else:    
                     x = x + self._mha_block(self.norm2(x), weighted_images, memory_mask, key_padding_mask=None, is_causal=memory_is_causal)
-            x = x + self._ff_block(self.norm3(x))
+            x = x + self._ff_block(self.norm3(x)) + x1
+            
         else:
+            x1 = self.norm1(self.__ff_block(x))
             x = self.norm1(x + self._sa_block(x, tgt_mask, tgt_key_padding_mask, topic, tgt_is_causal))
             
             if self.use_cross_attention:
@@ -176,9 +179,8 @@ class DecoderLayer(nn.Module):
                     memory_key_padding_mask = None
                     #print("Image shape; ", memory_mask.shape)
                     x = self.norm2(x + self._mha_block(x, weighted_images, memory_mask, key_padding_mask=memory_key_padding_mask, is_causal=memory_is_causal))
-            
                 
-            x = self.norm3(x + self._ff_block(x))
+            x = self.norm3(x + self._ff_block(x)+ x1) 
             
 
         return x
@@ -361,7 +363,7 @@ class MIRDecoder(nn.Module):
     def forward(self, tgt: Tensor, topic: Tensor=None, memory: Tensor=None, tgt_mask: Optional[Tensor] = None,
                 memory_mask: Optional[Tensor] = None, tgt_key_padding_mask: Optional[Tensor] = None,
                 memory_key_padding_mask: Optional[Tensor] = None, tgt_is_causal: bool = True,
-                memory_is_causal: bool = False) -> Tensor:
+                memory_is_causal: bool = False, return_final_decoder_output= True) -> Tensor:
         r"""Pass the inputs (and mask) through the decoder layer in turn.
 
         Args:
@@ -416,10 +418,12 @@ class MIRDecoder(nn.Module):
         
         if self.norm is not None:
             output = self.norm(output)
-
-        output = self.causal_lm_head(output)
         
-        return output
+        if return_final_decoder_output:
+            return self.causal_lm_head(output), torch.mean(output, dim=1)
+            
+        else:
+            return self.causal_lm_head(output)
     
     def get_causal_mask(self, input):
         return src_mask(input.shape[1])

@@ -1,11 +1,11 @@
-output_dir: "train"
+output_dir: "/content/drive/MyDrive/MIR/train"
 load_dir: "model_with_best_eval" #"epoch_most_recent" #
 
 dataset:
   name: null
   tokens:
     s_max: 15
-    n_max: 40
+    n_max: 60
     encoder_n_max: 60
 
   train:
@@ -28,7 +28,7 @@ model:
   from_checkpoint: false
 
 tokenizer:
-  name: '/content/sample_data/MIR/tokenizers/wordpiece_tokenizer8000.json'
+  name: '/content/sample_data/MIR/tokenizers/bpe_tokenizer.json'
   use_fast: false
   preprocessing_num_workers: null
 
@@ -41,16 +41,16 @@ training:
   shuffle: true
   learning_rate: 3e-4
   weight_decay: 0.1
-  num_epochs: 1
-  max_train_steps: 100000
-  gradient_accumulation_steps: 2
+  num_epochs: 30
+  max_train_steps: 200000
+  gradient_accumulation_steps: 32
   lr_scheduler: "cosine" # ["linear", "cosine", "cosine_with_restarts", "polynomial", "constant", "constant_with_warmup"]
-  lr_warmup_steps: 1500
+  lr_warmup_steps: 2000
   eval_every: 1024
   save_every: 64
   img_size: (224,224)
-  train_batch_size: 4
-  eval_batch_size: 16
+  train_batch_size: 8
+  eval_batch_size: 12
 
   checkpoint:
     resume_from_checkpoint: 0 # integer representing which checkpoint to load from, or <= 0 to not
@@ -69,8 +69,8 @@ architecture:
   #   mlc: null
 
   #history_encoder:
-  history_encoder_num_layers: 8
-  history_encoder_n_heads: 12
+  history_encoder_num_layers: 12
+  history_encoder_n_heads: 16
   history_encoder_dim_feedforward: 2048
   #history_encoder_dmodel: 256 
   use_history: true
@@ -89,30 +89,30 @@ architecture:
   co_attention: false
   features_dim: 49 # visual features dim
   #hidden_dim: 512 # must be the same for hidden size of lstm in sentence lstm
-  att_units: 512 # Number of linear units for the attention network
+  att_units: 768 #512 # Number of linear units for the attention network
   #semantic_dim: 512 # Must be the same as semantic_features_dim in semantic_extractor
   
 
   #sent_lstm:
   #hidden_layer_size: 128 # Number of units for the hidden layer of the MLP
-  hidden_dim: 768
-  lstm_layers: 6 #Num of lstm layers
+  hidden_dim: 1024 #768
+  lstm_layers: 10 #Num of lstm layers
   #features_dim: 2048 # visual features dim (not number of channels)
   enforce_info: false
   
 
   #decoder:
-  dec_num_layers: 10
-  vocab_size: 5666 
-  use_topic_per_layer: [false, false, false, true,true, true, true,true ,false, false] # 
-  use_cross_att_per_layer: [false, false, false, false, false,true, true, true, true, false] # 
-  use_prompt_per_layer: [false, false, false, false,false,true, false, true, false, false] #
-  d_model: 768
-  nhead: 12
+  dec_num_layers: 16
+  vocab_size: 6287
+  use_topic_per_layer: [false, false, false, false, false, false, false, true, true, true,true, true, true,true ,false, false] # 
+  use_cross_att_per_layer: [false, false, false, false, false, false, false, true, true, true, true,true, true, false, false, false] # 
+  use_prompt_per_layer: [false,false, false, false, false, false, false, false, true, false,true,false, true, false, false, false] #
+  d_model: 1024 #768
+  nhead: 16 #12
   #mem_dim: 2048 # visual features dim (not number of channels)
   dim_feedforward: 2048
   #topic_emb:  512 # must be the same as hidden_size for lstm 
-  topic_units:  768 #256 # Number of units for the topic's linear transform network in each layer
+  topic_units:  1024 #768 #256 # Number of units for the topic's linear transform network in each layer
   dropout: 0.1
   activation: gelu
   layer_norm_eps: 1e-5

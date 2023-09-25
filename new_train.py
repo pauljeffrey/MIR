@@ -156,6 +156,7 @@ def evaluate(model, accelerator, eval_loader, custom_loss): #, bce_loss
     with torch.no_grad():
         eval_losses = []
         eval_stop_losses = []
+        similarity_losses = []
         #eval_bce_losses = []
         print("In evaluation function ....")
         for _ , (encoded_images, indication_prompt, true_stop_probs, reports) in enumerate(eval_loader):   #labels,      
@@ -262,7 +263,7 @@ def evaluate(model, accelerator, eval_loader, custom_loss): #, bce_loss
                 #memory = model.prompt_attention(memory, indication_prompt, key_padding_mask=mem_mask, residual_connection=True)
                 # print(memory.shape, indication_prompt.shape, tgt.shape, prev_hidden.shape)
                 # print(encoder_pad_mask.shape)
-                output = model.decoder(tgt, prev_hidden, (indication_prompt, memory), tgt_key_padding_mask=None,
+                output, final_decoder_layer_output = model.decoder(tgt, prev_hidden, (indication_prompt, memory), tgt_key_padding_mask=None,
                                     memory_key_padding_mask=encoder_pad_mask, tgt_mask=tgt_mask,
                                         tgt_is_causal=False)  # [batch_size, seq_len - 1, d_model] 
                 
@@ -273,12 +274,14 @@ def evaluate(model, accelerator, eval_loader, custom_loss): #, bce_loss
                 # print("stop prob shape: ", pred_stop_probs.shape, true_stop_probs[:, 0].shape)
                 
                 #loss += custom_loss(true_stop_probs[:,i].type(indication_prompt.dtype), reports[:, i, 1:], pred_stop_probs,  output, eval=True)  # Ignore <sos> token
-                stop_loss, sparse_loss = custom_loss(true_stop_probs[:,i].type(indication_prompt.dtype), reports[:, i, 1:],pred_stop_probs,  output, eval=True)  # Ignore <sos> token
+                stop_loss, sparse_loss, similarity_loss = custom_loss(true_stop_probs[:,i].type(indication_prompt.dtype), reports[:, i, 1:],
+                                                     pred_stop_probs,  output, prev_hidden, final_decoder_layer_output, eval=True)  # Ignore <sos> token
                 
                 # print("stop loss: ", stop_loss)
                 # print("sparse_loss: ", sparse_loss)
                 eval_stop_losses.append(accelerator.gather(stop_loss.repeat(cfg.training.eval_batch_size)))
                 eval_losses.append(accelerator.gather(sparse_loss.repeat(cfg.training.eval_batch_size)))
+                similarity_losses.append(accelerator.gather(similarity_loss.repeat(cfg.training.eval_batch_size)))
                 
             # print("loss : ", stop_loss, sparse_loss)
             # print("Loss list: ",eval_stop_losses, eval_losses)
@@ -290,17 +293,17 @@ def evaluate(model, accelerator, eval_loader, custom_loss): #, bce_loss
         try:
             eval_loss = torch.mean(torch.cat(eval_losses))
             eval_stop_loss = torch.mean(torch.cat(eval_stop_losses))
+            dist_loss = torch.mean(torch.cat(similarity_losses))
             #eval_bce_loss = torch.mean(torch.cat(eval_bce_losses))
             perplexity = math.exp(eval_loss.item())
-            #print("Try : ", eval_loss, eval_stop_loss)
-            
+            #print("Try : ", eval_loss, eval_stop_loss)    
             
         except OverflowError:
             perplexity = float("inf")
         
         #print(eval_loss, eval_stop_loss, perplexity)
                     
-    return eval_loss , eval_stop_loss, perplexity #eval_bce_loss
+    return eval_loss , eval_stop_loss, perplexity, dist_loss #eval_bce_loss
 
 
 #@hydra.main(version_base=None, config_path="conf", config_name="config")
@@ -315,7 +318,7 @@ def train(cfg: DictConfig):
     )
 
     deepspeed_plugin = DeepSpeedPlugin(zero_stage=2, gradient_accumulation_steps=cfg.training.gradient_accumulation_steps, gradient_clipping=1.0)
-    accelerator = Accelerator( deepspeed_plugin =deepspeed_plugin) #,  mixed_precision='fp16',
+    accelerator = Accelerator(mixed_precision='fp16', deepspeed_plugin =deepspeed_plugin) #,  mixed_precision='fp16',
     
     accelerator.wait_for_everyone()
     device= accelerator.device
@@ -364,7 +367,7 @@ def train(cfg: DictConfig):
         # transforms.RandomHorizontalFlip(0.45),
         transforms.RandomRotation((0,5)),
         #transforms.v2.RandomResize((200, 250)), v2.RandomResize
-        transforms.GaussianBlur(kernel_size=(3, 3), sigma=(0.1, 1.2)),
+        #transforms.GaussianBlur(kernel_size=(3, 3), sigma=(0.1, 1.2)),
         transforms.ColorJitter(brightness= (0.5, 1.5) , contrast=(0, 1.0)),
         transforms.Pad(20),
         transforms.Resize((224,224), antialias=True), 
@@ -409,15 +412,6 @@ def train(cfg: DictConfig):
     eval_loader = get_loader2(cfg.dataset.eval.image_dir, cfg.dataset.eval.caption_json, 
             tokenizer_name = cfg.tokenizer.name, transform= transform, batch_size = cfg.training.eval_batch_size, s_max= cfg.dataset.tokens.s_max,
             n_max=cfg.dataset.tokens.n_max, encoder_n_max=cfg.dataset.tokens.encoder_n_max, shuffle=cfg.training.shuffle, use_tokenizer_fast=cfg.tokenizer.use_fast, collate_fn=collate_fn2)
-    # else:
-    #     vocabulary1 = load_vocab(cfg.vocabs.name1)
-    #     train_loader = get_loader(cfg.dataset.train.image_dir, cfg.dataset.train.caption_json,cfg.dataset.train.history_json, cfg.dataset.train.file_list,
-    #            vocabulary = vocabulary1, vocabulary2=vocabulary2, transform= transform, batch_size = cfg.dataset.train_batch_size, s_max= cfg.dataset.tokens.s_max,
-    #            n_max=cfg.dataset.tokens.n_max, shuffle=cfg.training.shuffle, collate_fn=collate_fn)
-    
-    #     eval_loader = get_loader(cfg.dataset.eval.image_dir, cfg.dataset.eval.caption_json, cfg.dataset.eval.history_json, cfg.dataset.eval.file_list,
-    #            vocabulary = vocabulary1, vocabulary2=vocabulary2, transform= transform, batch_size = cfg.dataset.eval_batch_size, s_max= cfg.dataset.tokens.s_max,
-    #            n_max=cfg.dataset.tokens.n_max, shuffle=cfg.training.shuffle, collate_fn=collate_fn)
 
 
     # Prepare everything using our accelerator
@@ -436,7 +430,7 @@ def train(cfg: DictConfig):
         os.mkdir(cfg.output_dir)
 
     #print(device, model.device)
-    custom_loss = CustomLoss()
+    custom_loss = CustomLoss() # use both cosine and euclidean similarities.
     #custom_bce_loss = CustomBCELoss()
     
     # for name , each in model.named_parameters():
@@ -461,15 +455,13 @@ def train(cfg: DictConfig):
             #     if step % 100 == 0:
             #         print(f"\nOn step {step}, Skipping to step {500}..")
             #     continue
-            if step % 500 == 0:
-                print("\nIndication prompt device: ", indication_prompt.device)
-                print("step: ", step, encoded_images.shape, indication_prompt.shape, true_stop_probs.shape, reports.shape)
+            # if step % 500 == 0:
+            #     print("\nIndication prompt device: ", indication_prompt.device)
+            #     print("step: ", step, encoded_images.shape, indication_prompt.shape, true_stop_probs.shape, reports.shape)
             
             # if torch.any(torch.isnan(encoded_images)):
             #     print("Raw images are nan..")
-                
-            #print("True_stop_probs: ", true_stop_probs)
-            #print(f"Step: {step} \n\n")
+        
             loss = 0            
             n_sentences  = reports.shape[1]
             # print('Length of sentences: ', n_sentences)
@@ -578,7 +570,7 @@ def train(cfg: DictConfig):
                 #memory = model.prompt_attention(memory, indication_prompt, key_padding_mask=mem_mask, residual_connection=True)
                 # print(memory.shape, indication_prompt.shape, tgt.shape, prev_hidden.shape)
                 # print(encoder_pad_mask.shape)
-                output = model.decoder(tgt, prev_hidden, (indication_prompt, memory), tgt_key_padding_mask= None,
+                output , final_decoder_layer_output = model.decoder(tgt, prev_hidden, (indication_prompt, memory), tgt_key_padding_mask= None,
                                     memory_key_padding_mask=encoder_pad_mask, tgt_mask=tgt_mask,
                                         tgt_is_causal=False)  # [batch_size, seq_len - 1, d_model] 
                 
@@ -588,7 +580,8 @@ def train(cfg: DictConfig):
                 # print("output shape: ", output.shape, reports[:, i, 1:].shape)
                 # print("stop prob shape: ", pred_stop_probs.shape, true_stop_probs[:, 0].shape)
                 
-                loss += custom_loss(true_stop_probs[:,i].type(indication_prompt.dtype), reports[:, i, 1:], pred_stop_probs,  output)  # Ignore <sos> token
+                loss += custom_loss(true_stop_probs[:,i].type(indication_prompt.dtype), reports[:, i, 1:],
+                                    pred_stop_probs, output, prev_hidden, final_decoder_layer_output)  # Ignore <sos> token
 
             #loss += custom_bce_loss( tags, labels)
             
@@ -621,13 +614,13 @@ def train(cfg: DictConfig):
             
             if step % cfg.training.eval_every == 0:
                 model.eval()   
-                #print("\nEvaluating model...")
-                eval_loss, eval_bce_loss, perplexity = evaluate(model, accelerator, eval_loader, custom_loss) #custom_bce_loss
+                print("\nEvaluating model...")
+                eval_loss, eval_bce_loss, perplexity, similarity_loss = evaluate(model, accelerator, eval_loader, custom_loss) #custom_bce_loss
                 logger.info(f"\nEpoch {epoch}, Step {step} : train_loss: {train_loss} perplexity: {perplexity} sparse_loss: {eval_loss}  \
-                    stop_loss {eval_bce_loss} total_eval_loss {eval_loss + eval_bce_loss }" ) #label_loss: {label_loss} 
+                    stop_loss {eval_bce_loss} total_eval_loss {eval_loss + eval_bce_loss + similarity_loss }" ) #label_loss: {label_loss} 
                 
                 print(f"\nEpoch {epoch}, Step {step} : train_loss: {train_loss} perplexity: {perplexity} sparse_loss: {eval_loss}  \
-                    stop_loss {eval_bce_loss} total_eval_loss {eval_loss + eval_bce_loss}" ) #label_loss: {label_loss} 
+                    stop_loss {eval_bce_loss} similarity loss {similarity_loss} total_eval_loss {eval_loss + eval_bce_loss + similarity_loss}" ) #label_loss: {label_loss} 
                 
                 model.train()
                 #train_losses = []
