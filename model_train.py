@@ -118,7 +118,7 @@ def evaluate(model, eval_loader, custom_loss): #, bce_loss
                     
     return eval_loss , eval_stop_loss, perplexity #eval_bce_loss
 
-@profile
+#@profile
 def train(cfg: DictConfig):
     torch.manual_seed(42)
     torch.autograd.set_detect_anomaly(True)
@@ -127,7 +127,7 @@ def train(cfg: DictConfig):
         datefmt="%m/%d/%Y %H:%M:%S",
         level=logging.INFO,
     )
-    device = "cuda"
+    device = "cuda" if torch.cuda.is_available() else "cpu"
     # logger.info(OmegaConf.to_yaml(cfg))
     
     if not cfg.model.from_checkpoint:

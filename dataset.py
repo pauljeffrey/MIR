@@ -16,6 +16,7 @@ from torchvision import transforms
 from typing import Union
 #from multiprocessing import Manager, Array
 #import cstl
+import psutil
 
 from torch.utils.data import WeightedRandomSampler
 
@@ -91,7 +92,7 @@ class ChestXrayDataSet(Dataset):
         self.len = len(data)
         print("Chestxray Dataset..")
 
-        self._data = NumpySerializedList(data)
+        self._data = TorchSerializedList(data)
         
         if use_tokenizer_fast:
             self.tokenizer = Tokenizer.from_pretrained(tokenizer_name)
@@ -104,13 +105,17 @@ class ChestXrayDataSet(Dataset):
         self.n_max = n_max
         self.encoder_n_max = encoder_n_max
         
-    @profile
+    #@profile
     def __getitem__(self, index):      
         sample = self._data[index]
-        
+        # print(f"There are {len(psutil.process_iter())} processes running in the dataset __getitem__()")
+        # for process in psutil.process_iter():
+        #     print(f"Process Name: {process.name}, Process ID: {process.pid}.")
+            
         image_name = sample["image"]
         indication = sample["indication"]
         caption = sample["caption"]
+        print(f"Index number {index}- Image name: {image_name}")
         # if sample_type == "original":
             
             #indication = sample[4] #sample["indication"]
@@ -260,7 +265,7 @@ def collate_fn(data):
         
     return images, patient_history, torch.Tensor(label), targets, prob
 
-@profile
+#@profile
 def collate_fn2(data): #, history_word_num=60
     images, indication, captions, sentence_num, word_num = zip(*data)  #labels,  
     #print(len(images), len(indication), len(captions), len(sentence_num,len(word_num)))
