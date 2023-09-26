@@ -673,7 +673,7 @@ def train(cfg: DictConfig):
                     #     save_function=accelerator.save,
                     #     state_dict=accelerator.get_state_dict(model),
                     # )
-
+            logger.info("Returning back to the next step...")
             if completed_steps >= cfg.training.max_train_steps:
                 break
             
