@@ -615,9 +615,9 @@ def train(cfg: DictConfig):
             if step % cfg.training.eval_every == 0:
                 model.eval()   
                 print("\nEvaluating model...")
-                eval_loss, eval_bce_loss, perplexity, similarity_loss = evaluate(model, accelerator, eval_loader, custom_loss) #custom_bce_loss
+                eval_loss, eval_bce_loss, perplexity, sim_loss = evaluate(model, accelerator, eval_loader, custom_loss) #custom_bce_loss
                 logger.info(f"\nEpoch {epoch}, Step {step} : train_loss: {train_loss} perplexity: {perplexity} sparse_loss: {eval_loss}\n \
-                    stop_loss {eval_bce_loss} total_eval_loss {eval_loss + eval_bce_loss + similarity_loss }" ) #label_loss: {label_loss} 
+                    stop_loss {eval_bce_loss} similarity loss: {sim_loss} total_eval_loss {eval_loss + eval_bce_loss + sim_loss }" ) #label_loss: {label_loss} 
                 
                 model.train()
                 #train_losses = []
@@ -675,10 +675,10 @@ def train(cfg: DictConfig):
             if completed_steps >= cfg.training.max_train_steps:
                 break
             
-        eval_loss, eval_bce_loss, perplexity, similarity_loss = evaluate(model,accelerator,eval_loader, custom_loss) #, custom_bce_loss
+        eval_loss, eval_bce_loss, perplexity, sim_loss = evaluate(model,accelerator,eval_loader, custom_loss) #, custom_bce_loss
         model.train()
         logger.info(f"\nEpoch {epoch}, Step {step} : train_loss: {train_loss} perplexity: {perplexity} sparse_loss: {eval_loss}\n \
-            stop_loss {eval_bce_loss} total_eval_loss {eval_loss + eval_bce_loss + similarity_loss }" ) #label_loss: {label_loss} 
+            stop_loss {eval_bce_loss} similarity loss: {sim_loss} total_eval_loss {eval_loss + eval_bce_loss + sim_loss }" ) #label_loss: {label_loss} 
         
     print('Saving the model using the best weights checkpoint in the current output directory')
     if cfg.output_dir is not None:
