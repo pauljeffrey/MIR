@@ -600,17 +600,17 @@ def train(cfg: DictConfig):
             # print("Loss before division by gradient accumulation: ", loss)
             loss = loss / cfg.training.gradient_accumulation_steps
             
-            print("Loss before backward: ", loss)
+            #print("Loss before backward: ", loss)
             accelerator.backward(loss)
             
             # #continue
             
-            # if step  % cfg.training.gradient_accumulation_steps == 0 or step == len(train_loader) - 1:
-            #     optimizer.step()
-            #     lr_scheduler.step()
-            #     optimizer.zero_grad()
-            #     progress_bar.update(1)
-            #     completed_steps += 1
+            if step  % cfg.training.gradient_accumulation_steps == 0 or step == len(train_loader) - 1:
+                optimizer.step()
+                #lr_scheduler.step()
+                optimizer.zero_grad()
+                #progress_bar.update(1)
+                #completed_steps += 1
                 
     #         # continue
             
