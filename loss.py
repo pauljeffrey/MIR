@@ -18,8 +18,9 @@ class SimilarityLoss(nn.Module):
         self.similarity_type = similarity_type
             
     def forward(self, true, pred):
-        cosine_loss = self.cosine_loss(true, pred)
-        dist_loss = self.dist_loss(true, pred)
+        print("Shape of vectors: ", true.shape, pred.shape)
+        cosine_loss = torch.mean(1/ self.cosine_loss(true, pred)) 
+        dist_loss = torch.mean(self.dist_loss(true, pred))
         print(cosine_loss, dist_loss)
         
         if self.similarity_type == "all":
@@ -32,7 +33,7 @@ class SimilarityLoss(nn.Module):
         return loss
             
 class CustomLoss(nn.Module):
-    def __init__(self, similarity_type= "all"):
+    def __init__(self, similarity_type= "euclidean"):
         super(CustomLoss, self).__init__()
         #self.alpha = alpha
         self.cross_entropy = nn.CrossEntropyLoss()
