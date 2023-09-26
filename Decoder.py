@@ -155,7 +155,7 @@ class DecoderLayer(nn.Module):
         # print("min max of topic: ", torch.min(topic), torch.max(topic))
         
         if self.norm_first:
-            x1 = self.__ff_block(self.norm1(x))
+            x1 = self._ff_block(self.norm1(x))
             x = x + self._sa_block(self.norm1(x), tgt_mask, tgt_key_padding_mask, topic, tgt_is_causal)
             
             if self.use_cross_attention:
@@ -167,7 +167,7 @@ class DecoderLayer(nn.Module):
             x = x + self._ff_block(self.norm3(x)) + x1
             
         else:
-            x1 = self.norm1(self.__ff_block(x))
+            x1 = self.norm1(self._ff_block(x))
             x = self.norm1(x + self._sa_block(x, tgt_mask, tgt_key_padding_mask, topic, tgt_is_causal))
             
             if self.use_cross_attention:
