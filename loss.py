@@ -78,11 +78,13 @@ class CustomLoss(nn.Module):
             
         # print("Bce loss: ", bce_loss)
         # print("sparse loss: ", sparse_loss)
+            print(bce_loss + sparse_loss + similarity_loss)
             if eval:
                 return bce_loss , sparse_loss, similarity_loss
             else:
                 return bce_loss + sparse_loss + similarity_loss
         
+        print(bce_loss + sparse_loss )
         if eval:
             return bce_loss , sparse_loss
         else:
