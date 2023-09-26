@@ -594,8 +594,8 @@ def train(cfg: DictConfig):
             # train_loss = torch.mean(torch.cat(train_losses))  
                       
             # We keep track of the loss at each epoch
-            if cfg.tracking:
-                total_loss += loss.detach().float()
+            # if cfg.tracking:
+            #     total_loss += loss.detach().float()
                 
             # print("Loss before division by gradient accumulation: ", loss)
             # loss = loss / cfg.training.gradient_accumulation_steps

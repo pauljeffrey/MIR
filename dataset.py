@@ -85,7 +85,7 @@ class ChestXrayDataSet(Dataset):
                 for _ in range(20):
                     data = random.sample(data, len(data))
                 
-                data = random.sample(data, 1024)
+                data = random.sample(data, 256)
             
         else:          
             with open(caption_json, "r") as f:
