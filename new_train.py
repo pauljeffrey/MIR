@@ -589,7 +589,7 @@ def train(cfg: DictConfig):
             # print("Loss shape: ",loss.shape)
             train_losses += loss.item()
     
-            train_loss = train_losses/ step + 1
+            train_loss = train_losses/ (step + 1)
                       
             # We keep track of the loss at each epoch
             # if cfg.tracking:
