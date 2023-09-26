@@ -500,7 +500,7 @@ def get_loader2(image_dir,
                                               shuffle=shuffle,
                                               #drop_last = False,
                                               collate_fn=collate_fn,
-                                              num_workers = 4,
+                                              num_workers = 8,
                                               #sampler=sampler,
                                               pin_memory=True)
     return data_loader

@@ -19,16 +19,18 @@ class SimilarityLoss(nn.Module):
             
     def forward(self, true, pred):
         print("Shape of vectors: ", true.shape, pred.shape)
-        cosine_loss = torch.mean(1/ self.cosine_loss(true, pred)) 
-        dist_loss = torch.mean(self.dist_loss(true, pred))
-        print(cosine_loss, dist_loss)
+       
         
         if self.similarity_type == "all":
+            cosine_loss = torch.mean(1/ self.cosine_loss(true, pred)) 
+            dist_loss = torch.mean(self.dist_loss(true, pred))
+            print(cosine_loss, dist_loss)
             loss = cosine_loss + dist_loss
+            
         elif self.similarity_type == "cosine":
-            loss = self.cosine_loss(true, pred)
+            loss = torch.mean(1/ self.cosine_loss(true, pred))
         else:
-            loss = self.dist_loss(true, pred)
+            loss = torch.mean(self.dist_loss(true, pred))
         
         return loss
             
