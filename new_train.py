@@ -442,7 +442,7 @@ def train(cfg: DictConfig):
         #model.train()
         # if cfg.tracking:
         #     total_loss = 0
-        train_losses = []
+        train_losses = 0.0
         #check = True
         for step, (encoded_images,indication_prompt, true_stop_probs, reports) in enumerate(train_loader): #labels,
             #print("Training the next batches now..")
@@ -587,11 +587,9 @@ def train(cfg: DictConfig):
             #loss += custom_bce_loss( tags, labels)
             # print("Loss: ", loss)
             # print("Loss shape: ",loss.shape)
-            # train_losses.append(
-            #         accelerator.gather(loss.repeat(cfg.training.train_batch_size))
-            #     )
+            train_losses += loss.item()
     
-            # train_loss = torch.mean(torch.cat(train_losses))  
+            train_loss = train_losses/ step + 1
                       
             # We keep track of the loss at each epoch
             # if cfg.tracking:
@@ -607,7 +605,7 @@ def train(cfg: DictConfig):
             
             if step  % cfg.training.gradient_accumulation_steps == 0 or step == len(train_loader) - 1:
                 optimizer.step()
-                #lr_scheduler.step()
+                lr_scheduler.step()
                 optimizer.zero_grad()
                 #progress_bar.update(1)
                 #completed_steps += 1
@@ -618,40 +616,40 @@ def train(cfg: DictConfig):
                 model.eval()   
                 print("\nEvaluating model...")
                 eval_loss, eval_bce_loss, perplexity, similarity_loss = evaluate(model, accelerator, eval_loader, custom_loss) #custom_bce_loss
-                # logger.info(f"\nEpoch {epoch}, Step {step} : train_loss: {train_loss} perplexity: {perplexity} sparse_loss: {eval_loss}\n \
-                #     stop_loss {eval_bce_loss} total_eval_loss {eval_loss + eval_bce_loss + similarity_loss }" ) #label_loss: {label_loss} 
+                logger.info(f"\nEpoch {epoch}, Step {step} : train_loss: {train_loss} perplexity: {perplexity} sparse_loss: {eval_loss}\n \
+                    stop_loss {eval_bce_loss} total_eval_loss {eval_loss + eval_bce_loss + similarity_loss }" ) #label_loss: {label_loss} 
                 
                 model.train()
                 #train_losses = []
                 
                 # Tracks the best checkpoint and best metric
-                # mean_loss = (train_loss + eval_loss)/2
-                # loss_diff = train_loss - eval_loss
+                mean_loss = (train_loss + eval_loss)/2
+                loss_diff = train_loss - eval_loss
                 
-                # if (best_metric is None or (best_metric > mean_loss and loss_diff > -0.65)):
-                #     best_metric = mean_loss
-                #     best_metric_checkpoint = os.path.join(cfg.output_dir, str(epoch))
-                #     #logger.info(f"New best metric: {best_metric} at epoch {epoch}")
-                #     logger.info(f"Saving model with best metric: Eval loss {best_metric}...")
+                if (best_metric is None or (best_metric > mean_loss and loss_diff > -0.65)):
+                    best_metric = mean_loss
+                    best_metric_checkpoint = os.path.join(cfg.output_dir, str(epoch))
+                    #logger.info(f"New best metric: {best_metric} at epoch {epoch}")
+                    logger.info(f"Saving model with best metric: Eval loss {best_metric}...")
 
-                #     epoch_dir = f"model_with_best_eval"
-                #     if cfg.output_dir is not None:
-                #         accelerator.wait_for_everyone()
-                #         unwrapped_model = accelerator.unwrap_model(model)            
+                    epoch_dir = f"model_with_best_eval"
+                    if cfg.output_dir is not None:
+                        accelerator.wait_for_everyone()
+                        unwrapped_model = accelerator.unwrap_model(model)            
 
                         
                             
-                #         output_dir = os.path.join(cfg.output_dir, epoch_dir)
-                #         if not os.path.exists(output_dir):
-                #             os.mkdir(output_dir)
+                        output_dir = os.path.join(cfg.output_dir, epoch_dir)
+                        if not os.path.exists(output_dir):
+                            os.mkdir(output_dir)
                             
-                #         save_model(unwrapped_model, optimizer=optimizer, epoch=epoch, loss=loss, path=output_dir)
-                        # unwrapped_model.save_pretrained(
-                        #     output_dir,
-                        #     is_main_process=accelerator.is_main_process,
-                        #     save_function=accelerator.save,
-                        #     state_dict=accelerator.get_state_dict(model),
-                        # )
+                        save_model(unwrapped_model, optimizer=optimizer, epoch=epoch, loss=loss, path=output_dir)
+                        unwrapped_model.save_pretrained(
+                            output_dir,
+                            is_main_process=accelerator.is_main_process,
+                            save_function=accelerator.save,
+                            state_dict=accelerator.get_state_dict(model),
+                        )
                 
             #print("Back to training...")        
             # if step % cfg.training.save_every == 0:                 
