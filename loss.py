@@ -70,10 +70,11 @@ class CustomLoss(nn.Module):
         if lstm_output is not None and self.similarity is not None:
             assert lstm_output.squeeze().shape[-1] == y2_pred.squeeze().shape[-1]
             
-            if torch.all(y1_true.ne(1)):
+            if torch.all(y1_true.ne(0)):
                 similarity_loss = self.simiilarity(lstm_output.squeeze(),final_decoder_layer_output.squeeze()) * 0
             else:
-                similarity_loss = self.similarity(lstm_output.squeeze(), final_decoder_layer_output.squeeze())
+                mask = y1_true.eq(0)
+                similarity_loss = self.similarity(lstm_output.squeeze()[mask], final_decoder_layer_output.squeeze()[mask])
             
         # print("Bce loss: ", bce_loss)
         # print("sparse loss: ", sparse_loss)
