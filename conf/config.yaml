@@ -47,7 +47,7 @@ training:
   lr_scheduler: "cosine" # ["linear", "cosine", "cosine_with_restarts", "polynomial", "constant", "constant_with_warmup"]
   lr_warmup_steps: 2000
   eval_every: 1024
-  save_every: 64
+  save_every: 768
   img_size: (224,224)
   train_batch_size: 16
   eval_batch_size: 20
