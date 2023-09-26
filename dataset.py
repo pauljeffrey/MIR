@@ -96,7 +96,7 @@ class ChestXrayDataSet(Dataset):
         self.len = len(data)
         print("Chestxray Dataset..")
 
-        self._data = TorchSerializedList(data)
+        self._data = NumpySerializedList(data)
         
         if use_tokenizer_fast:
             self.tokenizer = Tokenizer.from_pretrained(tokenizer_name)
@@ -490,7 +490,7 @@ def get_loader2(image_dir,
                #sampler = None
                ):
     
-    dataset = ChestXrayDataSet3(image_dir=image_dir,
+    dataset = ChestXrayDataSet(image_dir=image_dir,
                                caption_json=caption_json,
                                tokenizer_name=tokenizer_name,
                                s_max=s_max,
