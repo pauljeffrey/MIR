@@ -584,7 +584,8 @@ def train(cfg: DictConfig):
                                     pred_stop_probs, output, prev_hidden, final_decoder_layer_output)  # Ignore <sos> token
 
             #loss += custom_bce_loss( tags, labels)
-            
+            print("Loss: ", loss)
+            print("Loss shape: ",loss.shape)
             train_losses.append(
                     accelerator.gather(loss.repeat(cfg.training.train_batch_size))
                 )
