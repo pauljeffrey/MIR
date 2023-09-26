@@ -579,7 +579,7 @@ def train(cfg: DictConfig):
                     
                 # print("output shape: ", output.shape, reports[:, i, 1:].shape)
                 # print("stop prob shape: ", pred_stop_probs.shape, true_stop_probs[:, 0].shape)
-                
+                print(true_stop_probs[:,i].type(indication_prompt.dtype).shape)
                 loss += custom_loss(true_stop_probs[:,i].type(indication_prompt.dtype), reports[:, i, 1:],
                                     pred_stop_probs, output, prev_hidden, final_decoder_layer_output)  # Ignore <sos> token
 
