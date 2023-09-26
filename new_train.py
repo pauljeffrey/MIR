@@ -579,17 +579,14 @@ def train(cfg: DictConfig):
                     
                 # print("output shape: ", output.shape, reports[:, i, 1:].shape)
                 # print("stop prob shape: ", pred_stop_probs.shape, true_stop_probs[:, 0].shape)
-                print(true_stop_probs[:,i].type(indication_prompt.dtype).shape)
-                print(reports[:, i, 1:].shape)
-                l = custom_loss(true_stop_probs[:,i].type(indication_prompt.dtype), reports[:, i, 1:],
+                
+                loss += custom_loss(true_stop_probs[:,i].type(indication_prompt.dtype), reports[:, i, 1:],
                                     pred_stop_probs, output, prev_hidden, final_decoder_layer_output)  # Ignore <sos> token
                 
-                print("Loss: ", l.shape)
-                loss += l
 
             #loss += custom_bce_loss( tags, labels)
-            print("Loss: ", loss)
-            print("Loss shape: ",loss.shape)
+            # print("Loss: ", loss)
+            # print("Loss shape: ",loss.shape)
             train_losses.append(
                     accelerator.gather(loss.repeat(cfg.training.train_batch_size))
                 )

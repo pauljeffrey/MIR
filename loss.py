@@ -17,14 +17,12 @@ class SimilarityLoss(nn.Module):
             self.dist_loss = torch.cdist
         self.similarity_type = similarity_type
             
-    def forward(self, true, pred):
-        print("Shape of vectors: ", true.shape, pred.shape)
-       
+    def forward(self, true, pred):  
         
         if self.similarity_type == "all":
             cosine_loss = torch.mean(1/ self.cosine_loss(true, pred)) 
             dist_loss = torch.mean(self.dist_loss(true, pred))
-            print(cosine_loss, dist_loss)
+            #print(cosine_loss, dist_loss)
             loss = cosine_loss + dist_loss
             
         elif self.similarity_type == "cosine":
@@ -67,8 +65,8 @@ class CustomLoss(nn.Module):
         else:
             # Calculate sparse cross entropy
             y2_mask = y2_true.ne(0)
-            if torch.any(torch.isnan(y2_pred)):
-                print("Sparse predictions : ", y2_pred)
+            # if torch.any(torch.isnan(y2_pred)):
+            #     print("Sparse predictions : ", y2_pred)
             #print("shape of sparse output: ", y2_pred.shape)
             sparse_loss = self.cross_entropy(y2_pred[y2_mask], y2_true[y2_mask])
             #print("Sparse loss: ", sparse_loss)
@@ -85,13 +83,13 @@ class CustomLoss(nn.Module):
             
         # print("Bce loss: ", bce_loss)
         # print("sparse loss: ", sparse_loss)
-            print(bce_loss + sparse_loss + similarity_loss)
+            #print(bce_loss + sparse_loss + similarity_loss)
             if eval:
                 return bce_loss , sparse_loss, similarity_loss
             else:
                 return bce_loss + sparse_loss + similarity_loss
         
-        print(bce_loss + sparse_loss )
+        #print(bce_loss + sparse_loss )
         if eval:
             return bce_loss , sparse_loss
         else:
