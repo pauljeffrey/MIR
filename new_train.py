@@ -651,7 +651,7 @@ def train(cfg: DictConfig):
                         #     state_dict=accelerator.get_state_dict(model),
                         # )
                 
-            print("Back to training...")        
+            #print("Back to training...")        
             if step % cfg.training.save_every == 0:                 
                 epoch_dir = f"epoch_most_recent"
                 
@@ -671,7 +671,7 @@ def train(cfg: DictConfig):
                     #     save_function=accelerator.save,
                     #     state_dict=accelerator.get_state_dict(model),
                     # )
-            logger.info("Returning back to the next step...")
+            #logger.info("Returning back to the next step...")
             if completed_steps >= cfg.training.max_train_steps:
                 break
             
