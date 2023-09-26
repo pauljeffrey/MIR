@@ -46,7 +46,7 @@ training:
   gradient_accumulation_steps: 32
   lr_scheduler: "cosine" # ["linear", "cosine", "cosine_with_restarts", "polynomial", "constant", "constant_with_warmup"]
   lr_warmup_steps: 500
-  eval_every: 16
+  eval_every: 64
   save_every: 768
   img_size: (224,224)
   train_batch_size: 2
