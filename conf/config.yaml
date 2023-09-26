@@ -49,7 +49,7 @@ training:
   eval_every: 256
   save_every: 768
   img_size: (224,224)
-  train_batch_size: 8
+  train_batch_size: 4
   eval_batch_size: 12
 
   checkpoint:
