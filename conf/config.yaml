@@ -39,7 +39,7 @@ tokenizer:
 training:
   seed: 15
   shuffle: true
-  learning_rate: 3e-4
+  learning_rate: 5e-4
   weight_decay: 0.1
   num_epochs: 30
   max_train_steps: 200000
