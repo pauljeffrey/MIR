@@ -582,7 +582,7 @@ def train(cfg: DictConfig):
                 print(true_stop_probs[:,i].type(indication_prompt.dtype).shape)
                 print(reports[:, i, 1:].shape)
                 l = custom_loss(true_stop_probs[:,i].type(indication_prompt.dtype), reports[:, i, 1:],
-                                    pred_stop_probs, output, prev_hidden, final_decoder_layer_output)  # Ignore <sos> token
+                                    pred_stop_probs, output, None, final_decoder_layer_output)  # Ignore <sos> token
                 
                 print(l.shape, l)
                 loss += l
