@@ -587,11 +587,11 @@ def train(cfg: DictConfig):
             #loss += custom_bce_loss( tags, labels)
             # print("Loss: ", loss)
             # print("Loss shape: ",loss.shape)
-            train_losses.append(
-                    accelerator.gather(loss.repeat(cfg.training.train_batch_size))
-                )
+            # train_losses.append(
+            #         accelerator.gather(loss.repeat(cfg.training.train_batch_size))
+            #     )
     
-            train_loss = torch.mean(torch.cat(train_losses))  
+            # train_loss = torch.mean(torch.cat(train_losses))  
                       
             # We keep track of the loss at each epoch
             if cfg.tracking:
@@ -601,16 +601,16 @@ def train(cfg: DictConfig):
             # loss = loss / cfg.training.gradient_accumulation_steps
             
             # print("Loss before backward: ", loss)
-            accelerator.backward(loss)
+            # accelerator.backward(loss)
             
-            #continue
+            # #continue
             
-            if step  % cfg.training.gradient_accumulation_steps == 0 or step == len(train_loader) - 1:
-                optimizer.step()
-                lr_scheduler.step()
-                optimizer.zero_grad()
-                progress_bar.update(1)
-                completed_steps += 1
+            # if step  % cfg.training.gradient_accumulation_steps == 0 or step == len(train_loader) - 1:
+            #     optimizer.step()
+            #     lr_scheduler.step()
+            #     optimizer.zero_grad()
+            #     progress_bar.update(1)
+            #     completed_steps += 1
                 
     #         # continue
             
