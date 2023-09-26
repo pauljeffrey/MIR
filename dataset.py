@@ -506,7 +506,7 @@ def get_loader2(image_dir,
                                               collate_fn=collate_fn,
                                               num_workers = 0,
                                               #sampler=sampler,
-                                              pin_memory=False)
+                                              pin_memory=True)
     return data_loader
 
 
