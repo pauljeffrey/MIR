@@ -654,19 +654,19 @@ def train(cfg: DictConfig):
                         # )
                 
             #print("Back to training...")        
-            if step % cfg.training.save_every == 0:                 
-                epoch_dir = f"epoch_most_recent"
+            # if step % cfg.training.save_every == 0:                 
+            #     epoch_dir = f"epoch_most_recent"
                 
-                logger.info(f"Saving most recent model in {epoch_dir}..")
-                if cfg.output_dir is not None:
-                    accelerator.wait_for_everyone()
-                    unwrapped_model = accelerator.unwrap_model(model)            
-                    output_dir = os.path.join(os.path.abspath(cfg.output_dir), epoch_dir)
+            #     logger.info(f"Saving most recent model in {epoch_dir}..")
+            #     if cfg.output_dir is not None:
+            #         accelerator.wait_for_everyone()
+            #         unwrapped_model = accelerator.unwrap_model(model)            
+            #         output_dir = os.path.join(os.path.abspath(cfg.output_dir), epoch_dir)
                     
-                    if not os.path.exists(output_dir):
-                        os.mkdir(output_dir)
+            #         if not os.path.exists(output_dir):
+            #             os.mkdir(output_dir)
                             
-                    save_model(unwrapped_model, optimizer= optimizer, epoch=epoch, loss= loss, path =output_dir)
+            #         save_model(unwrapped_model, optimizer= optimizer, epoch=epoch, loss= loss, path =output_dir)
                     # unwrapped_model.save_pretrained(
                     #     output_dir,
                     #     is_man_process=accelerator.is_main_process,
