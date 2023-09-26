@@ -18,8 +18,12 @@ class SimilarityLoss(nn.Module):
         self.similarity_type = similarity_type
             
     def forward(self, true, pred):
+        cosine_loss = self.cosine_loss(true, pred)
+        dist_loss = self.dist_loss(true, pred)
+        print(cosine_loss, dist_loss)
+        
         if self.similarity_type == "all":
-            loss = self.cosine_loss(true, pred) + self.dist_loss(true, pred)
+            loss = cosine_loss + dist_loss
         elif self.similarity_type == "cosine":
             loss = self.cosine_loss(true, pred)
         else:
