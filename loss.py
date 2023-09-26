@@ -68,7 +68,7 @@ class CustomLoss(nn.Module):
         
         # Calculate similarity between lstm output and model output.
         if lstm_output is not None and self.similarity is not None:
-            assert lstm_output.squeeze().shape[-1] == y2_pred.squeeze().shape[-1]
+            assert lstm_output.squeeze().shape[-1] == final_decoder_layer_output.squeeze().shape[-1]
             
             if torch.all(y1_true.ne(0)):
                 similarity_loss = self.simiilarity(lstm_output.squeeze(),final_decoder_layer_output.squeeze()) * 0
