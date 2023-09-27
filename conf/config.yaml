@@ -25,7 +25,7 @@ model:
   config_name: null
   build_model: true
   from_trained: false
-  from_checkpoint: false
+  from_checkpoint: true
 
 tokenizer:
   name: '/content/sample_data/MIR/tokenizers/bpe_tokenizer.json'
