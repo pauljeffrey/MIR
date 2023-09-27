@@ -39,17 +39,17 @@ tokenizer:
 training:
   seed: 15
   shuffle: true
-  learning_rate: 5e-4
+  learning_rate: 1e-4
   weight_decay: 0.1
   num_epochs: 30
   max_train_steps: 200000
-  gradient_accumulation_steps: 32
+  gradient_accumulation_steps: 64
   lr_scheduler: "cosine" # ["linear", "cosine", "cosine_with_restarts", "polynomial", "constant", "constant_with_warmup"]
-  lr_warmup_steps: 2000
+  lr_warmup_steps: 1800
   eval_every: 1024
   save_every: 64
   img_size: (224,224)
-  train_batch_size: 4
+  train_batch_size: 2
   eval_batch_size: 4
 
   checkpoint:
