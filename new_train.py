@@ -452,8 +452,8 @@ def train(cfg: DictConfig):
             # true_stop_probs = true_stop_probs.to(device)
             #print("Max and Min values of raw images: ", torch.max(encoded_images), torch.min(encoded_images))
             # if step <= 480:
-            if step < 10240:
-                continue
+            # if step < 10240:
+            #     continue
             # if step % 500 == 0:
             #     print("\nIndication prompt device: ", indication_prompt.device)
             #     print("step: ", step, encoded_images.shape, indication_prompt.shape, true_stop_probs.shape, reports.shape)
