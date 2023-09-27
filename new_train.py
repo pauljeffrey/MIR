@@ -383,7 +383,7 @@ def train(cfg: DictConfig):
     progress_bar = tqdm(range(cfg.training.max_train_steps)) #, disable=not accelerator.is_local_main_process)
     completed_steps = 0
     starting_epoch = epoch if epoch is not None else 0
-    best_metric = loss
+    best_metric = None #loss
     best_metric_checkpoint = None
     
   
@@ -622,8 +622,8 @@ def train(cfg: DictConfig):
                 #train_losses = []
                 
                 # Tracks the best checkpoint and best metric
-                mean_loss = (train_loss + eval_loss)/2
-                loss_diff = train_loss - eval_loss
+                mean_loss = (train_loss + (eval_loss+eval_bce_loss +sim_loss))/2
+                loss_diff = train_loss - (eval_loss+eval_bce_loss +sim_loss)
                 
                 if (best_metric is None or (best_metric > mean_loss and loss_diff > -0.65)):
                     best_metric = mean_loss
@@ -651,19 +651,19 @@ def train(cfg: DictConfig):
                         # )
                 
             #print("Back to training...")        
-            # if step % cfg.training.save_every == 0:                 
-            #     epoch_dir = f"epoch_most_recent"
+            if step % cfg.training.save_every == 0:                 
+                epoch_dir = f"epoch_most_recent"
                 
-            #     logger.info(f"Saving most recent model in {epoch_dir}..")
-            #     if cfg.output_dir is not None:
-            #         accelerator.wait_for_everyone()
-            #         unwrapped_model = accelerator.unwrap_model(model)            
-            #         output_dir = os.path.join(os.path.abspath(cfg.output_dir), epoch_dir)
+                logger.info(f"Saving most recent model in {epoch_dir}..")
+                if cfg.output_dir is not None:
+                    accelerator.wait_for_everyone()
+                    unwrapped_model = accelerator.unwrap_model(model)            
+                    output_dir = os.path.join(os.path.abspath(cfg.output_dir), epoch_dir)
                     
-            #         if not os.path.exists(output_dir):
-            #             os.mkdir(output_dir)
+                    if not os.path.exists(output_dir):
+                        os.mkdir(output_dir)
                             
-            #         save_model(unwrapped_model, optimizer= optimizer, epoch=epoch, loss= loss, path =output_dir)
+                    save_model(unwrapped_model, optimizer= optimizer, epoch=epoch, loss= loss, path =output_dir)
                     # unwrapped_model.save_pretrained(
                     #     output_dir,
                     #     is_man_process=accelerator.is_main_process,
