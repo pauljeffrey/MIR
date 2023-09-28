@@ -58,7 +58,7 @@ torch.manual_seed(42)
 
 #     return
 
-def save_model(model, optimizer= None, epoch=None, loss=None, path="./model.tar"):
+def save_model(model, optimizer= None, epoch=None, step = None, loss=None, path="./model.tar"):
     
     if not os.path.exists(path):
         os.mkdir(path)
@@ -74,6 +74,7 @@ def save_model(model, optimizer= None, epoch=None, loss=None, path="./model.tar"
                 "optimizer_state": optimizer.state_dict(),
                 "loss": loss ,
                 "epoch": epoch,
+                "last_step": step
             }, os.path.join(path, "checkpoint.tar")
         )
         
@@ -102,8 +103,13 @@ def load(model, cfg, from_checkpoint=False):
         optimizer = torch.optim.AdamW(model.parameters(), lr=cfg.training.learning_rate)
         optimizer.load_state_dict(checkpoint['optimizer_state'])
         epoch = checkpoint['epoch']
+        if "last_step" in checkpoint.keys():
+            last_step = checkpoint['last_step']
+        else:
+            last_step = None
+            
         loss = checkpoint['loss']
-        return model, optimizer, epoch, loss
+        return model, optimizer, epoch, last_step, loss
     else:        
         return model
 
@@ -120,8 +126,8 @@ def load_model(cfg: DictConfig, device= "cuda"):
     elif cfg.model.from_checkpoint:
         path = os.path.join(os.path.abspath(cfg.output_dir ), cfg.load_dir) # Assumes that all state_dicts are stored in the same directory.
         print(f"\nLoading checkpoint from {path}...")
-        model, optimizer, epoch, loss = load(model, cfg, True)
-        return model, optimizer, epoch, loss
+        model, optimizer, epoch, last_step, loss = load(model, cfg, True)
+        return model, optimizer, epoch, last_step, loss
     else:
         return model
         
@@ -330,6 +336,7 @@ def train(cfg: DictConfig):
     if not cfg.model.from_checkpoint:
         model = load_model(cfg, device= device)
         epoch = None
+        last_step = None
         loss = None
         # Optimizer
         # Creates Dummy Optimizer if `optimizer` was specified in the config file else creates Adam Optimizer
@@ -347,7 +354,7 @@ def train(cfg: DictConfig):
     #     #     or "scheduler" not in accelerator.state.deepspeed_plugin.deepspeed_config
     #     # ):
     else:
-        model, optimizer, epoch, loss = load_model(cfg)
+        model, optimizer, epoch, last_step, loss = load_model(cfg)
         
     lr_scheduler = get_scheduler(
         name=cfg.training.lr_scheduler,
@@ -452,7 +459,9 @@ def train(cfg: DictConfig):
             # true_stop_probs = true_stop_probs.to(device)
             #print("Max and Min values of raw images: ", torch.max(encoded_images), torch.min(encoded_images))
             # if step <= 480:
-            if step < 3584:
+            if last_step is not None and step < last_step:
+                continue
+            elif step < 3584:
                 continue
             # if step % 500 == 0:
             #     print("\nIndication prompt device: ", indication_prompt.device)
@@ -642,7 +651,7 @@ def train(cfg: DictConfig):
                         if not os.path.exists(output_dir):
                             os.mkdir(output_dir)
                             
-                        save_model(unwrapped_model, optimizer=optimizer, epoch=epoch, loss=loss, path=output_dir)
+                        save_model(unwrapped_model, optimizer=optimizer, epoch=epoch, last_step=step, loss=loss, path=output_dir)
                         # unwrapped_model.save_pretrained(
                         #     output_dir,
                         #     is_main_process=accelerator.is_main_process,
@@ -663,7 +672,7 @@ def train(cfg: DictConfig):
                     if not os.path.exists(output_dir):
                         os.mkdir(output_dir)
                             
-                    save_model(unwrapped_model, optimizer= optimizer, epoch=epoch, loss= loss, path =output_dir)
+                    save_model(unwrapped_model, optimizer= optimizer, epoch=epoch, last_step=step, loss= loss, path =output_dir)
                     # unwrapped_model.save_pretrained(
                     #     output_dir,
                     #     is_man_process=accelerator.is_main_process,
