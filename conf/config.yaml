@@ -1,5 +1,5 @@
 output_dir: "/content/drive/MyDrive/MIR/train"
-load_dir: "model_with_best_eval" #"epoch_most_recent" #
+load_dir: "epoch_most_recent" # "model_with_best_eval" #
 
 dataset:
   name: null
