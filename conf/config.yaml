@@ -47,10 +47,10 @@ training:
   lr_scheduler: "cosine" # ["linear", "cosine", "cosine_with_restarts", "polynomial", "constant", "constant_with_warmup"]
   lr_warmup_steps: 1800
   eval_every: 1024
-  save_every: 512
+  save_every: 4096
   img_size: (224,224)
-  train_batch_size: 6 #2
-  eval_batch_size: 4
+  train_batch_size: 8 #2
+  eval_batch_size: 6
 
   checkpoint:
     resume_from_checkpoint: 0 # integer representing which checkpoint to load from, or <= 0 to not

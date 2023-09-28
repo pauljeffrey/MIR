@@ -651,7 +651,7 @@ def train(cfg: DictConfig):
                         if not os.path.exists(output_dir):
                             os.mkdir(output_dir)
                             
-                        save_model(unwrapped_model, optimizer=optimizer, epoch=epoch, last_step=step, loss=loss, path=output_dir)
+                        save_model(unwrapped_model, optimizer=optimizer, epoch=epoch, step=step, loss=loss, path=output_dir)
                         # unwrapped_model.save_pretrained(
                         #     output_dir,
                         #     is_main_process=accelerator.is_main_process,
@@ -672,7 +672,7 @@ def train(cfg: DictConfig):
                     if not os.path.exists(output_dir):
                         os.mkdir(output_dir)
                             
-                    save_model(unwrapped_model, optimizer= optimizer, epoch=epoch, last_step=step, loss= loss, path =output_dir)
+                    save_model(unwrapped_model, optimizer= optimizer, epoch=epoch, step=step, loss= loss, path =output_dir)
                     # unwrapped_model.save_pretrained(
                     #     output_dir,
                     #     is_man_process=accelerator.is_main_process,
