@@ -153,6 +153,8 @@ def create_optimizer(cfg, model):
     ]
     return optimizer_grouped_parameters
 
+def count_parameters(model):
+    return sum(p.numel() for p in model.parameters() if p.requires_grad)
 
 def evaluate(model, accelerator, eval_loader, custom_loss): #, bce_loss
     model.eval()
@@ -355,6 +357,10 @@ def train(cfg: DictConfig):
     #     # ):
     else:
         model, optimizer, epoch, last_step, loss = load_model(cfg)
+        # Remove this later
+        last_step = None
+        
+    logger.info(f"Model with {count_parameters(model)} parameters loaded ...")
         
     lr_scheduler = get_scheduler(
         name=cfg.training.lr_scheduler,
@@ -452,17 +458,17 @@ def train(cfg: DictConfig):
         train_losses = 0.0
         #check = True
         for step, (encoded_images,indication_prompt, true_stop_probs, reports) in enumerate(train_loader): #labels,
-            #print("Training the next batches now..")
-            #print(f"\nStep {step}")
-            # encoded_images = encoded_images.to(device)
-            # reports = reports.to(device)
-            # true_stop_probs = true_stop_probs.to(device)
-            #print("Max and Min values of raw images: ", torch.max(encoded_images), torch.min(encoded_images))
-            # if step <= 480:
-            # if last_step is not None and step < last_step:
-            #     continue
-            # elif step < 20000:
-            #     continue
+            
+            if last_step is not None and step < last_step + 1:
+                if step % 1024 == 0:
+                    print(f"Step {last_step}", end=" ")
+                continue
+            elif step < 1024:
+                if step % 512 == 0:
+                    print(f"Step {step}", end=" ")
+                continue
+            
+            print("")
             # if step % 500 == 0:
             #     print("\nIndication prompt device: ", indication_prompt.device)
             #     print("step: ", step, encoded_images.shape, indication_prompt.shape, true_stop_probs.shape, reports.shape)
