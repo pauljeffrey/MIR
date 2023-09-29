@@ -460,13 +460,15 @@ def train(cfg: DictConfig):
         for step, (encoded_images,indication_prompt, true_stop_probs, reports) in enumerate(train_loader): #labels,
             
             if last_step is not None and step < last_step + 1:
-                if step % 1024 == 0:
+                if step % 2048 == 0:
                     print(f"Step {last_step}", end=" ")
                 continue
-            elif step < 1024:
-                if step % 512 == 0:
+            elif step < 16384:
+                if step % 2048 == 0:
                     print(f"Step {step}", end=" ")
                 continue
+            else:
+                print(" ")
             
             #print("")
             # if step % 500 == 0:
