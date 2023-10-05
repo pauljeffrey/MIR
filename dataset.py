@@ -85,12 +85,12 @@ class ChestXrayDataSet(Dataset):
                 for _ in range(20):
                     data = random.sample(data, len(data))
                 
-                data = random.sample(data, 1024)
+                #data = random.sample(data, 1)
             
         else:          
             with open(caption_json, "r") as f:
                 data = json.load(f)
-                data.reverse()
+                #data.reverse()
             
             #data = pd.read_json(caption_json)#, 'type', "caption","indication"
           
@@ -125,12 +125,14 @@ class ChestXrayDataSet(Dataset):
             
             #indication = sample[4] #sample["indication"]
         if "<prompt>" in indication:
-            indication = "<ind>" + add_noise(indication.split("<ind>")[1]) + "<ind>" + indication.split("<ind>")[-1]
             indication = indication.split("<prompt>")[0] + "<prompt>" + add_noise(indication.split("<prompt>")[1]) + "<prompt>"
             indication = rm_indication(indication)
+            if "<ind>" in indication:
+                indication = "<ind>" + add_noise(indication.split("<ind>")[1]) + "<ind>" + indication.split("<ind>")[-1]
+                
             
         else:
-            indication = "<ind>" + add_noise(indication.split("<ind>")[1]) + "<ind>"
+            indication = "<ind>" + add_noise(indication.split("<ind>")[1]) + "<ind>" + add_prompt
        
         if self.transform is not None:
             if index % 2 == 0:

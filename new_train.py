@@ -191,14 +191,14 @@ def evaluate(model, accelerator, eval_loader, custom_loss): #, bce_loss
             # if model.co_attention:
             #     semantic_features = model.semantic_features_extractor(tags)
                 
-            if model.history_encoder is not None:
-                indication_prompt = model.decoder.embed_layer(indication_prompt)
-                # if torch.any(torch.isinf(indication_prompt)) or torch.any(torch.isnan(indication_prompt)):
-                #     print("Encoding by decoder embedding layer is nan")
-                    
-                indication_prompt = model.history_encoder(indication_prompt, mask=encoder_pad_mask.type(indication_prompt.dtype))
-                if torch.any(torch.isinf(indication_prompt)) or torch.any(torch.isnan(indication_prompt)):
-                    print("Encoding by History encoder is nan")  
+            #if model.history_encoder is not None:
+            indication_prompt = model.decoder.embed_layer(indication_prompt)
+            # if torch.any(torch.isinf(indication_prompt)) or torch.any(torch.isnan(indication_prompt)):
+            #     print("Encoding by decoder embedding layer is nan")
+                
+            indication_prompt = model.history_encoder(indication_prompt, mask=encoder_pad_mask.type(indication_prompt.dtype))
+            if torch.any(torch.isinf(indication_prompt)) or torch.any(torch.isnan(indication_prompt)):
+                print("Encoding by History encoder is nan")  
 
             # # compute mask, confirm the first part.
             # mem_mask = torch.cat([torch.zeros((encoded_images.shape[0], encoded_images.shape[1])), encoder_pad_mask], dim=-1)
@@ -209,7 +209,8 @@ def evaluate(model, accelerator, eval_loader, custom_loss): #, bce_loss
                 
             #print("lstm hidden state and cell state: ", model.sent_lstm.num_layers)
             
-            prev_hidden, (hn, cn) = model.sent_lstm.init_state(encoded_images,indication_prompt)
+            prev_hidden, (hn, cn) = model.sent_lstm.init_state(encoded_images,indication_prompt) #prev_hidden, 
+            
             #lstm_init = True
             #print(hn.shape, cn.shape)
             #output = model(encoded_images, reports[:, :-1])  # [batch_size, seq_len - 1, vocab_size]
@@ -232,10 +233,10 @@ def evaluate(model, accelerator, eval_loader, custom_loss): #, bce_loss
                 # else:
                 
                 # Attend to encoded_images
-                if model.history_encoder is not None:
-                    context_vector, att_wts = model.attention(prev_hidden, encoded_images, indication_prompt)                          
-                else:
-                    context_vector, att_wts = model.attention(prev_hidden, encoded_images)
+                #if model.history_encoder is not None:
+                context_vector, att_wts = model.attention(prev_hidden, encoded_images)    #prev_hidden, encoded_images, indication_prompt                      
+                #else:
+                #context_vector, att_wts = model.attention(prev_hidden, encoded_images)
 
                 # if torch.any(torch.isinf(context_vector)) or torch.any(torch.isnan(context_vector)):
                 #     print("Context Vector is nan")
@@ -326,7 +327,7 @@ def train(cfg: DictConfig):
     )
 
     deepspeed_plugin = DeepSpeedPlugin(zero_stage=2, gradient_accumulation_steps=cfg.training.gradient_accumulation_steps, gradient_clipping=1.0)
-    accelerator = Accelerator(mixed_precision='fp16', deepspeed_plugin =deepspeed_plugin) #,  mixed_precision='fp16',
+    accelerator = Accelerator(mixed_precision='bf16', deepspeed_plugin =deepspeed_plugin) #,  mixed_precision='fp16',
     
     accelerator.wait_for_everyone()
     device= accelerator.device
@@ -380,7 +381,7 @@ def train(cfg: DictConfig):
         # transforms.RandomHorizontalFlip(0.45),
         transforms.RandomRotation((0,5)),
         #transforms.v2.RandomResize((200, 250)), v2.RandomResize
-        #transforms.GaussianBlur(kernel_size=(3, 3), sigma=(0.1, 1.2)),
+        transforms.GaussianBlur(kernel_size=(3, 3), sigma=(0.1, 1.2)),
         transforms.ColorJitter(brightness= (0.5, 1.5) , contrast=(0, 1.0)),
         transforms.Pad(20),
         transforms.Resize((224,224), antialias=True), 
@@ -463,12 +464,6 @@ def train(cfg: DictConfig):
                 if step % 2048 == 0:
                     print(f"Step {last_step}", end=" ")
                 continue
-            elif step < 16384:
-                if step % 2048 == 0:
-                    print(f"Step {step}", end=" ")
-                continue
-            else:
-                print(" ")
             
             #print("")
             # if step % 500 == 0:
@@ -505,12 +500,12 @@ def train(cfg: DictConfig):
             # if model.co_attention:
             #     semantic_features = model.semantic_features_extractor(tags)
                 
-            if model.history_encoder is not None:
-                indication_prompt = model.decoder.embed_layer(indication_prompt)
-                # if torch.any(torch.isinf(indication_prompt)) or torch.any(torch.isnan(indication_prompt)):
-                #     print("Encoding by decoder embedding layer is nan")
-                    
-                indication_prompt = model.history_encoder(indication_prompt, mask=encoder_pad_mask.type(indication_prompt.dtype))
+            #if model.history_encoder is not None:
+            indication_prompt = model.decoder.embed_layer(indication_prompt)
+            # if torch.any(torch.isinf(indication_prompt)) or torch.any(torch.isnan(indication_prompt)):
+            #     print("Encoding by decoder embedding layer is nan")
+                
+            indication_prompt = model.history_encoder(indication_prompt, mask=encoder_pad_mask.type(indication_prompt.dtype))
                 # if torch.any(torch.isinf(indication_prompt)) or torch.any(torch.isnan(indication_prompt)):
                 #     print("Encoding by History encoder is nan")  
 
@@ -547,10 +542,10 @@ def train(cfg: DictConfig):
                 
                 
                 # Attend to encoded_images
-                if model.history_encoder is not None:
-                    context_vector, att_wts = model.attention(prev_hidden, encoded_images, indication_prompt)                          
-                else:
-                    context_vector, att_wts = model.attention(prev_hidden, encoded_images)
+                #if model.history_encoder is not None:
+                context_vector, att_wts = model.attention(prev_hidden, encoded_images)                          
+                # else:
+                #     context_vector, att_wts = model.attention(prev_hidden, encoded_images)
 
                 # if torch.any(torch.isinf(context_vector)) or torch.any(torch.isnan(context_vector)):
                 #     print("Context Vector is nan")

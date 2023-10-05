@@ -12,29 +12,41 @@ attention weights. Finally, it returns the context vector and the attention weig
 
 """
 
+class MLP(nn.Module):
+    def __init__(self, input_size, hidden_size, output_size):
+        super(MLP, self).__init__()
+        self.fc1 = nn.Linear(input_size, hidden_size)
+        self.fc2 = nn.Linear(hidden_size, output_size)
+        self.activation = nn.ReLU()
+        
+    def forward(self, x):
+        x = self.fc1(x)
+        x = self.activation(x)
+        x = self.fc2(x)
+        return x
 
 class BahdanauAttention(nn.Module):
-    def __init__(self, features_dim, hidden_dim,  att_units, d_model):
+    def __init__(self, features_dim, hidden_dim,  att_units):
         super(BahdanauAttention, self).__init__()
 
         self.W1 = nn.Linear(hidden_dim, att_units, bias=False)
         self.W2 = nn.Linear(features_dim, att_units, bias=False)
        
-        self.W3 = nn.Linear(d_model, att_units)
+        #self.W3 = nn.Linear(d_model, att_units)
         #self.patient_data_encoder_provided= True
         # else:
         #     self.patient_data_encoder_provided= False
             
         self.v = nn.Linear(att_units, 1, bias=False)
 
-    def forward(self, query, visual_features, patient_info=None):
+    def forward(self, query, visual_features): #, patient_info=None
         # query: [batch_size, hidden_size]
          # visual_features: [batch_size, channels, h*w]
 
         # Compute scores
         #query = query.unsqueeze(1)  # [batch_size, 1, hidden_size]
         #if self.patient_data_encoder_provided and patient_info is not None:
-        scores = self.v(torch.tanh(self.W1(query) + self.W2(visual_features) +  self.W3(torch.mean(patient_info,dim=1,keepdim=True))))
+        scores = self.v(torch.tanh(self.W1(query) + self.W2(visual_features)))
         # else:
         #     scores = self.v(torch.tanh(self.W1(query) + self.W2(visual_features)))  # [batch_size, seq_len, 1]
 

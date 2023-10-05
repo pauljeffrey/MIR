@@ -442,16 +442,29 @@ def remove_punc(string, remove_prob=0.5):
         string = string.replace("?", "")
         return string
 
-def add_prompt(string, add_prob=0.5):
+def add_prompt(string="", add_prob=0.3):
     templates = ["Give a detailed report of the image.",
                  'Explain this image',
+                 "what is in this image?",
+                 "what can you find in this image?",
+                 "Tell me about this image",
+                 "Explain it",
+                 "Tell me all you can find in this image",
                  'Explain the image given',
                  "Describe this image to me.",
+                 "Tell me about this x-ray",
+                 "Can you tell me about this chest image?",
+                 "What are your findings as regards the image provided?",
+                 "What do you see in it",
+                 "what can you see in the image I have provided for you?",
+                 "Give me information about what I have provided you.",
+                 "Give me information about the xray I have provided you.",
                  "Can you give a detailed explanation of this x-ray image?"]
+    
     add_ppt = random.choices([0,1],weights = [add_prob, 1- add_prob])[0]
     if add_ppt:
         ppt = random.sample(templates, 1)[0]
-        string = string + "<prompt> " + ppt + "<prompt>"
+        string = string + "<prompt> " + ppt + " <prompt>"
         return string
     else:
         return string
@@ -464,7 +477,7 @@ def rm_indication(string, rm_prob=0.4):
     else:
         return string
 
-def add_noise(string, add_noise_prob=0.2, noise_prob=0.05 ):
+def add_noise(string, add_noise_prob=0.15, noise_prob=0.05 ):
   insert_noise = random.choices([0,1], weights=[1 - add_noise_prob, add_noise_prob])[0]
   if not insert_noise:
     return string
@@ -542,27 +555,27 @@ def get_qa(image_name, report, problems, indication, question_template):
         
     return data
 
-# def chat_openai(report=None, text=None, template=1, temperature =0.):
-#     if template == 1:
-#         system_message = return_report_template(report)
-#     elif template ==2:
-#         system_message  = return_question_template(report,text)
-#     elif template ==3:
-#         system_message = return_indication_template(text)
-#     else:
-#         system_message = return_problems_template(text)
+def chat_openai(report=None, text=None, template=1, temperature =0.):
+    if template == 1:
+        system_message = return_report_template(report)
+    elif template ==2:
+        system_message  = return_question_template(report,text)
+    elif template ==3:
+        system_message = return_indication_template(text)
+    else:
+        system_message = return_problems_template(text)
             
-#     response = openai.ChatCompletion.create(
-#     model="gpt-3.5-turbo",
-#     messages=[
-#             #{"role": "system", "content": system_message},
-#             {"role": "user", "content": system_message},
+    response = openai.ChatCompletion.create(
+    model="gpt-3.5-turbo",
+    messages=[
+            #{"role": "system", "content": system_message},
+            {"role": "user", "content": system_message},
             
-#         ],
-#     temperature=temperature
-#     )
-#     response_message = response['choices'][0]['message']['content']
-#     return response_message
+        ],
+    temperature=temperature
+    )
+    response_message = response['choices'][0]['message']['content']
+    return response_message
 
 
 # text = """"findings: the heart is normal in size . the mediastinum is stable . left-sided chest xx is again visualized with tip at \

@@ -8,10 +8,10 @@ class MedicalReportGenerator(nn.Module):
     def __init__(self, model_name: str, hidden_layer_size: int, classes: int, semantic_features_dim: int , att_units: int, 
                  hidden_dim: int, features_dim: int, k: int, lstm_layers: int, dec_num_layers: int, vocab_size: int, use_topic_per_layer: List[bool], 
                  use_cross_att_per_layer: List[bool], use_prompt_per_layer: List[bool], d_model: int, nhead: int, history_encoder_num_layers: int =None, model_dict=None,
-                 history_encoder_n_heads: int = None, history_encoder_dim_feedforward: int= None, dim_feedforward: int = 2048, 
+                 history_encoder_n_heads: int = None, history_encoder_dim_feedforward: int= None, dim_feedforward: int = 4096, 
                  topic_units: Optional[int]= 0, dropout: float = 0.1, pretrained: bool = True, activation: Union[str, Callable[[Tensor], Tensor]] = F.gelu, 
                  layer_norm_eps: float = 1e-5, batch_first: bool = True, norm_first: bool = False, device="cuda", dtype=None,  
-                 norm=None, co_attention: bool = True, add_encoder= True, enforce_info= False, pa_nhead= 1,use_residual = True,use_history=None ):
+                 norm=None, co_attention: bool = True, add_encoder= True, enforce_info= False, pa_nhead= 1,use_residual = True,use_history=True ):
         # history_encoder_dmodel: int = None,
         super(MedicalReportGenerator, self).__init__()
         # Image Encoder
@@ -33,7 +33,7 @@ class MedicalReportGenerator(nn.Module):
         
         # Attention Module: Bahdanau Attention
         else:
-            self.attention = BahdanauAttention(features_dim, hidden_dim, att_units, d_model).to(device)
+            self.attention = BahdanauAttention(features_dim, hidden_dim, att_units).to(device)
             self.semantic_features_extractor = None
             
         self.co_attention = co_attention

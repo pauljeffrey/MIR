@@ -28,16 +28,19 @@ package first using pip install tokenizers.
 SPECIAL_TOKENS = ["<PAD>", "<UNK>", "[CLS]", "[SEP]", "<s>","<MASK>", "<size>", "<ind>", "<prompt>",
                   "T1", "T2","T3", "T4","T5","T6","T7","T8","T9","T10","T11","T12", "1","2","3","4","5","6","7","8","9","0",
                   "<loc0>", "<loc1>", "<loc2>", "<loc00>","<loc01>","<loc02>","<loc10>","<loc11>","<loc12>","<loc20>","<loc21>",
-                  "<loc22>","<loc02><loc22>","<loc0><loc2>","<rib1>","<rib2>","<rib3>","<rib4>","<rib5>","<rib6>","<rib7>","<rib8>",
-                  "<rib9>","<rib10>","<rib11>","<rib12>"]# + list(string.ascii_letters)
+                  "<loc22>","<loc02><loc22>","<loc0><loc2>",] #+ list(string.ascii_letters)
+                #   "<rib1>","<rib2>","<rib3>","<rib4>","<rib5>","<rib6>","<rib7>","<rib8>",
+                #   "<rib9>","<rib10>","<rib11>","<rib12>"]# + list(string.ascii_letters)
 
 #loc = axis, x, y
 DIRECTIONS = {"left":"2", "right": "0", "up":"0", "mid":"1","down":"2", "mid-":"1","mid - ": "1", 
               "upper":"0", "lower":"2", "apical": "0","basilar": "2", "middle":"1", "bilateral": "<loc0><loc2>", "bibasal": "<loc02><loc22>","basal":"2",
               "anterior":"2", "bilaterally": "<loc0><loc2>", "bibasilar":"<loc02><loc22>", "posterior":"0","retrosternal":"2"}
-NUMBERS = {"1st":"first", "2nd": "second", "3rd": "third", "4th": "fourth","5th": "fifth", "6th": "sixth","7th":"seventh",
+
+RIB_NUMBERS = {"1st":"first", "2nd": "second", "3rd": "third", "4th": "fourth","5th": "fifth", "6th": "sixth","7th":"seventh",
            "8th": "eighth", "9th":"Ninth","10th":"tenth", "11th": "eleventh","12th": "twelfth"}
 
+ribs = {value: key for key, value in RIB_NUMBERS.items()}
 
 def build_bpe_tokenizer(texts, vocab_size=8000, min_frequency=2, special_tokens=SPECIAL_TOKENS, save_dir= "bpe_tokenizer.json"):
     
@@ -121,6 +124,7 @@ def contains_digit_and_alphabet(string):
 
 def add_tags(text):
     #caption = caption.lower()
+    
     text = re.sub("\s+"," ",text)
     #print(text)
     caption = text.replace('.',' . ')
@@ -132,9 +136,15 @@ def add_tags(text):
     #print(caption_split)
     directions = []
     sizes = []
+    rib_format = []
     #direction_start = False
     for index, word in enumerate(caption_split):
+        if word in ribs.keys():
+            rib_format.append({word: ribs[word]})
+            continue
+        
         if word.isdigit():
+            
             sizes.append({word : "<size> " + word.strip(" ") })
                         
         elif contains_digit_and_alphabet(word):
@@ -147,7 +157,8 @@ def add_tags(text):
             #     else:
             #         break
             # unit = word.strip(number).strip(" ")
-            if word[0].isdigit() and not word.lower().endswith("th") or not word.lower().endswith("nd"):
+            if word[0].isdigit() and ("th" not in word.lower() and "nd" not in word.lower()):
+                #print(word, "th" not in word.lower())
                 sizes.append({word :"<size> "  + word.strip(" ")})
             
         
@@ -197,6 +208,9 @@ def add_tags(text):
             #if item == "anterior middle" and item in text:
                 #print("yes")
             text = text.replace(item, value,1)
+    for each in rib_format:
+        for item, value in each.items():
+            text = text.replace(item, value, 1)
         
     return text
 
@@ -204,7 +218,7 @@ def add_tags(text):
 if __name__ == "__main__":
     # Load the dataset
     ex = "The lung is 5 nm long and 3nm wide. t9 it is located in the middle of the UPPER left LUng zone. it can also be found in the  anterior middle \
-        upper lung zone that you can tell me T12, 4th, anterior posterior"
+        upper lung first zone that you third can tell me T12, 4th,eighth anterior posterior"
     texts = ["This is the first text. I am the main man \n", "This is the second text."]
     # print(type(texts) == list)
     # bpe_tokenizer = build_bpe_tokenizer(texts)
@@ -235,5 +249,5 @@ if __name__ == "__main__":
 # Max tokens in indications: 51..
 # Minium sentences: 1..
 # Maximum sentences: 20..
-# print(add_tags(ex))
+    print(add_tags(ex))
             

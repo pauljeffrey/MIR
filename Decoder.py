@@ -254,18 +254,21 @@ class DecoderLayer(nn.Module):
                    attn_mask: Optional[Tensor], key_padding_mask: Optional[Tensor], is_causal: bool = False) -> Tensor:
         #print("mha shape: ",x.shape, mem.shape)
         b, seq_l = x.shape[:2]
+        
+        x= x.reshape(-1, seq_l, self.n_head, int(self.d_model/self.n_head)).permute(0,2,1,3)
+        x = self.pos_emb.rotate_queries_or_keys(x)
+        
+        #x= x.reshape(-1, seq_l, self.n_head, int(self.d_model/self.n_head)).permute(0,2,1,3)
         if self.use_prompt:
             #print("Prompt shape: ", mem.shape)
             prompt_seq_l, prompt_d_model = mem.shape[1], mem.shape[-1]
             #print(prompt_seq_l, prompt_d_model, self.n_head)
             assert prompt_d_model % self.n_head == 0
-            
-            x= x.reshape(-1, seq_l, self.n_head, int(self.d_model/self.n_head)).permute(0,2,1,3)
+        
             k = mem.reshape(-1, prompt_seq_l, self.n_head, int(prompt_d_model/self.n_head)).permute(0,2,1,3)
-            
             #apply positional rotary embedding:
             #print(k.shape, q.shape)
-            x = self.pos_emb.rotate_queries_or_keys(x)
+            
             k = self.pos_emb.rotate_queries_or_keys(k)
             
             # Reshape q, k to normal
@@ -290,9 +293,9 @@ class DecoderLayer(nn.Module):
                                     is_causal=is_causal,
                                     need_weights=False)[0]
         else:
-            x= x.reshape(-1, seq_l, self.n_head, int(self.d_model/self.n_head)).permute(0,2,1,3)
+            
             #apply positional rotary embedding:
-            x= self.pos_emb.rotate_queries_or_keys(x)
+            #x= self.pos_emb.rotate_queries_or_keys(x)
             
             if torch.any(torch.isnan(x)):
                 print("cross attention x contains nan values.")

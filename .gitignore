@@ -5,5 +5,7 @@ txt_data
 checkpoint.tar
 final
 *.ipynb
+api_key.py
+
 
 

@@ -27,7 +27,7 @@ class SentLSTM(nn.Module):
         self.stop_linear = nn.Linear(in_features= hidden_layer_size, out_features = 1)
         self.stop_prev_hidden = nn.Linear(in_features = hidden_size , out_features = hidden_layer_size )
         self.stop_cur_hidden  = nn.Linear( in_features = hidden_size , out_features = hidden_layer_size)
-        self.fc_hidden = MLP(features_dim + d_model, hidden_layer_size, hidden_size)
+        #self.fc_hidden = MLP(features_dim + d_model, hidden_layer_size, hidden_size)
         self.fc_cell = MLP(features_dim + d_model,hidden_layer_size, hidden_size)
         self.num_layers = num_layers
         #self.enforce_info = enforce_info            
@@ -36,14 +36,14 @@ class SentLSTM(nn.Module):
         
         
     def init_state(self, visual_features, encoded_info):
-        hidden_state = self.fc_hidden(torch.cat([torch.mean(visual_features, dim=1),torch.mean(encoded_info, dim=1)], dim=-1))
+        hidden_state = torch.mean(encoded_info, dim=1) #self.fc_hidden(torch.cat([torch.mean(visual_features, dim=1),torch.mean(encoded_info, dim=1)], dim=-1))
         cell_state  = self.fc_cell(torch.cat([torch.mean(visual_features, dim=1),torch.mean(encoded_info, dim=1)], dim=-1))
         #shape == (batch_size, hidden_size)
         # (D∗num_layers,batch_size, hidden_dim)
         #print("hidden", torch.transpose(hidden_state, 0, 1).unsqueeze(0).shape)
         hidden_states = hidden_state.unsqueeze(0).repeat(self.num_layers, 1,1)
         cell_states = cell_state.unsqueeze(0).repeat(self.num_layers, 1,1)
-        return torch.unsqueeze(hidden_state, dim=1), (hidden_states, cell_states)
+        return torch.unsqueeze(hidden_state, dim=1), (hidden_states, cell_states)#, 
 
     def forward(self, context_vector, prev_hidden, prev_states):
         #model.lstm(context_vector.unsqueeze(1), prev_hidden, prev_cell_state, init=lstm_init)
