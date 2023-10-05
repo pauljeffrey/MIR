@@ -85,7 +85,7 @@ class ChestXrayDataSet(Dataset):
                 for _ in range(20):
                     data = random.sample(data, len(data))
                 
-                data = random.sample(data, 128)
+                data = random.sample(data, 1024)
             
         else:          
             with open(caption_json, "r") as f:
@@ -507,7 +507,7 @@ def get_loader2(image_dir,
                                               shuffle=shuffle,
                                               #drop_last = False,
                                               collate_fn=collate_fn,
-                                              num_workers = 4,
+                                              num_workers = 6,
                                               #sampler=sampler,
                                               pin_memory=True)
     return data_loader
