@@ -326,8 +326,7 @@ def train(cfg: DictConfig):
         level=logging.INFO,
     )
 
-    deepspeed_plugin = DeepSpeedPlugin(zero_stage=3, gradient_accumulation_steps=cfg.training.gradient_accumulation_steps, 
-                                      offload_parameters=True, offload_optimizer=True, cpu_checkpointing=True, offload_param_device= 'cpu', 
+    deepspeed_plugin = DeepSpeedPlugin(zero_stage=3, gradient_accumulation_steps=cfg.training.gradient_accumulation_steps, cpu_checkpointing=True, offload_param_device= 'cpu', 
                                       offload_optimizer_device="cpu", pin_memory=True, gradient_clipping=1.0)
     accelerator = Accelerator(mixed_precision='fp16', deepspeed_plugin =deepspeed_plugin) #,  mixed_precision='fp16',
     
