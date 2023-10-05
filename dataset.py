@@ -132,7 +132,7 @@ class ChestXrayDataSet(Dataset):
                 
             
         else:
-            indication = "<ind>" + add_noise(indication.split("<ind>")[1]) + "<ind>" + add_prompt
+            indication = "<ind>" + add_noise(indication.split("<ind>")[1]) + "<ind>" + add_prompt()
        
         if self.transform is not None:
             if index % 2 == 0:
