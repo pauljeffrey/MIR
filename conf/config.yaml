@@ -108,7 +108,7 @@ architecture:
   use_cross_att_per_layer: [false, false, false, false, false, false, false, true, true, true, true,true, true, false, false, false] # 
   use_prompt_per_layer: [false,false, false, false, false, false, false, false, true, false,true,false, false, false, false, false] #
   d_model: 1280 #768
-  nhead: 16 #12
+  nhead: 20 #12
   #mem_dim: 2048 # visual features dim (not number of channels)
   dim_feedforward: 2560
   #topic_emb:  512 # must be the same as hidden_size for lstm 
