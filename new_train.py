@@ -393,12 +393,7 @@ def train(cfg: DictConfig):
     #     model.tie_weights()
 
   
-    # Only show the progress bar once on each machine.
-    progress_bar = tqdm(range(cfg.training.max_train_steps)) #, disable=not accelerator.is_local_main_process)
-    completed_steps = 0
-    starting_epoch = epoch if epoch is not None else 0
-    best_metric = None #loss
-    best_metric_checkpoint = None
+    
     
   
     # Get gradient accumulation steps from deepspeed config if available
@@ -451,7 +446,14 @@ def train(cfg: DictConfig):
     #     if torch.any(torch.isnan(each)):
     #         print(name, " layer has nan values in it..")
             
-
+    # Only show the progress bar once on each machine.
+    progress_bar = tqdm(range(cfg.training.max_train_steps)) #, disable=not accelerator.is_local_main_process)
+    completed_steps = 0
+    starting_epoch = epoch if epoch is not None else 0
+    best_metric = None #loss
+    #best_metric_checkpoint = None
+    
+    
     for epoch in range(starting_epoch, cfg.training.num_epochs):        
         #model.train()
         # if cfg.tracking:
