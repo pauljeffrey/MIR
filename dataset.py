@@ -79,17 +79,22 @@ class ChestXrayDataSet(Dataset):
                  use_tokenizer_fast =True):
         
         self.image_dir = image_dir
+        
         if caption_json.endswith("validation.json") or caption_json.endswith("val.json"):
             with open(caption_json, "r") as f:
                 data = json.load(f) 
                 for _ in range(20):
                     data = random.sample(data, len(data))
                 
-                data = random.sample(data, 2048)
+                data = random.sample(data, 256)
             
         else:          
+            random.seed(42)
             with open(caption_json, "r") as f:
                 data = json.load(f)
+                
+            data.reverse()
+            data = random.sample(data, len(data))
                 #data.reverse()
             
             #data = pd.read_json(caption_json)#, 'type', "caption","indication"

@@ -58,7 +58,7 @@ torch.manual_seed(42)
 
 #     return
 
-def save_model(model, optimizer= None, epoch=None, step = None, loss=None, path="./model.tar"):
+def save_model(model, optimizer= None, lr_scheduler=None, epoch=None, step = None, loss=None, path="./model.tar"):
     
     if not os.path.exists(path):
         os.mkdir(path)
@@ -72,6 +72,7 @@ def save_model(model, optimizer= None, epoch=None, step = None, loss=None, path=
                 "sent_lstm": model.sent_lstm.state_dict(),
                 "decoder": model.decoder.state_dict(),
                 "optimizer_state": optimizer.state_dict(),
+                "lr_scheduler" : lr_scheduler.state_dict(),
                 "loss": loss ,
                 "epoch": epoch,
                 "last_step": step
@@ -102,14 +103,29 @@ def load(model, cfg, from_checkpoint=False):
     if from_checkpoint:
         optimizer = torch.optim.AdamW(model.parameters(), lr=cfg.training.learning_rate)
         optimizer.load_state_dict(checkpoint['optimizer_state'])
+        
+        if "lr_scheduler" in checkpoint.keys():
+            lr_scheduler = get_scheduler(
+                            name=cfg.training.lr_scheduler, optimizer=optimizer, num_warmup_steps=cfg.training.lr_warmup_steps,
+                            num_training_steps=cfg.training.max_train_steps,
+                        )
+            lr_scheduler.load_state_dict(checkpoint['lr_scheduler'])
+        
+        else:
+            lr_scheduler = get_scheduler(
+                            name=cfg.training.lr_scheduler, optimizer=optimizer, num_warmup_steps=cfg.training.lr_warmup_steps,
+                            num_training_steps=cfg.training.max_train_steps,
+                        )
+            
         epoch = checkpoint['epoch']
+        
         if "last_step" in checkpoint.keys():
             last_step = checkpoint['last_step']
         else:
             last_step = None
             
         loss = checkpoint['loss']
-        return model, optimizer, epoch, last_step, loss
+        return model, optimizer, lr_scheduler, epoch, last_step, loss
     else:        
         return model
 
@@ -317,7 +333,7 @@ def evaluate(model, accelerator, eval_loader, custom_loss): #, bce_loss
 
 #@hydra.main(version_base=None, config_path="conf", config_name="config")
 def train(cfg: DictConfig):
-    torch.manual_seed(42)
+    #torch.manual_seed(42)
     torch.autograd.set_detect_anomaly(True)
     logger = get_logger(__name__)
     logging.basicConfig(
@@ -358,18 +374,19 @@ def train(cfg: DictConfig):
     #     #     or "scheduler" not in accelerator.state.deepspeed_plugin.deepspeed_config
     #     # ):
     else:
-        model, optimizer, epoch, last_step, loss = load_model(cfg)
+        model, optimizer, lr_scheduler, epoch, last_step, loss = load_model(cfg)
         # Remove this later
-        #last_step = None
+        last_step = None
         
     logger.info(f"Model with {count_parameters(model)} parameters loaded ...")
-        
-    lr_scheduler = get_scheduler(
-        name=cfg.training.lr_scheduler,
-        optimizer=optimizer,
-        num_warmup_steps=cfg.training.lr_warmup_steps,
-        num_training_steps=cfg.training.max_train_steps,
-    )
+     
+    # if lr_scheduler is None:   
+    #     lr_scheduler = get_scheduler(
+    #         name=cfg.training.lr_scheduler,
+    #         optimizer=optimizer,
+    #         num_warmup_steps=cfg.training.lr_warmup_steps,
+    #         num_training_steps=cfg.training.max_train_steps,
+    #     )
     # else:
     #     lr_scheduler = DummyScheduler(
     #         optimizer, total_num_steps=cfg.training.max_train_steps, warmup_num_steps=cfg.training.lr_warmup_steps
@@ -462,13 +479,7 @@ def train(cfg: DictConfig):
         train_losses = 0.0
         #check = True
         start_time = time()
-        for step, (encoded_images,indication_prompt, true_stop_probs, reports) in enumerate(train_loader): #labels,
-            
-            if last_step is not None and step < last_step + 1:
-                if step % 2048 == 0:
-                    print(f"Step {last_step}, Time taken: {round((time() - start_time)/60)} mins..", end="-")
-                continue
-            
+        for step, (encoded_images,indication_prompt, true_stop_probs, reports) in enumerate(train_loader): #labels            
             #print("")
             # if step % 500 == 0:
             #     print("\nIndication prompt device: ", indication_prompt.device)
@@ -658,7 +669,7 @@ def train(cfg: DictConfig):
                         if not os.path.exists(output_dir):
                             os.mkdir(output_dir)
                             
-                        save_model(unwrapped_model, optimizer=optimizer, epoch=epoch, step=step, loss=loss, path=output_dir)
+                        save_model(unwrapped_model, optimizer=optimizer, lr_scheduler=lr_scheduler, epoch=epoch, step=step, loss=loss, path=output_dir)
                         # unwrapped_model.save_pretrained(
                         #     output_dir,
                         #     is_main_process=accelerator.is_main_process,
@@ -679,7 +690,7 @@ def train(cfg: DictConfig):
                     if not os.path.exists(output_dir):
                         os.mkdir(output_dir)
                             
-                    save_model(unwrapped_model, optimizer= optimizer, epoch=epoch, step=step, loss= loss, path =output_dir)
+                    save_model(unwrapped_model, optimizer= optimizer, lr_scheduler=lr_scheduler, epoch=epoch, step=step, loss= loss, path =output_dir)
                     # unwrapped_model.save_pretrained(
                     #     output_dir,
                     #     is_man_process=accelerator.is_main_process,
