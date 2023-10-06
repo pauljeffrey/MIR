@@ -599,7 +599,7 @@ def train(cfg: DictConfig):
                 # print(memory.shape, indication_prompt.shape, tgt.shape, prev_hidden.shape)
                 # print(encoder_pad_mask.shape)
                 output , final_decoder_layer_output = model.decoder(tgt, prev_hidden, (indication_prompt, memory), tgt_key_padding_mask= None,
-                                    memory_key_padding_mask=encoder_pad_mask, tgt_mask=tgt_mask,
+                                    memory_key_padding_mask=encoder_pad_mask.type(indication_prompt.dtype), tgt_mask=tgt_mask,
                                         tgt_is_causal=False)  # [batch_size, seq_len - 1, d_model] 
                 
                 # if torch.any(torch.isinf(output)) or torch.any(torch.isnan(output)):
