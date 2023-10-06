@@ -194,7 +194,7 @@ def evaluate(model, accelerator, eval_loader, custom_loss): #, bce_loss
             #print("Mem shape: ", indication_prompt.shape, "mask shape: ", encoder_pad_mask.shape)
             #encoder_causal_mask = src_mask(indication_prompt.shape[1])
             
-            encoded_images  = model.encoder(encoded_images)#.type(torch.cuda.HalfTensor)) # , tags
+            encoded_images  = model.encoder(encoded_images.type(torch.cuda.HalfTensor)) # , tags
             
             if torch.any(torch.isinf(encoded_images)) or torch.any(torch.isnan(encoded_images)):
                 print("Encoded Images is nan")
@@ -342,7 +342,7 @@ def train(cfg: DictConfig):
         level=logging.INFO,
     )
 
-    deepspeed_plugin = DeepSpeedPlugin(zero_stage=2, gradient_accumulation_steps=cfg.training.gradient_accumulation_steps, gradient_clipping=1.0)
+    deepspeed_plugin = DeepSpeedPlugin(zero_stage=3, gradient_accumulation_steps=cfg.training.gradient_accumulation_steps, gradient_clipping=1.0)
     accelerator = Accelerator(mixed_precision='fp16', deepspeed_plugin =deepspeed_plugin) #,  mixed_precision='fp16',
     
     accelerator.wait_for_everyone()
@@ -500,7 +500,7 @@ def train(cfg: DictConfig):
             #print("Mem shape: ", indication_prompt.shape, "mask shape: ", encoder_pad_mask.shape)
             #encoder_causal_mask = src_mask(indication_prompt.shape[1])
            
-            encoded_images  = model.encoder(encoded_images)#.type(torch.cuda.HalfTensor))
+            encoded_images  = model.encoder(encoded_images.type(torch.cuda.HalfTensor))
             
             # for name , each in model.encoder.named_parameters():
             #     if torch.any(torch.isnan(each)):
