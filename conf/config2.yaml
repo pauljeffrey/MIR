@@ -25,7 +25,7 @@ model:
   config_name: null
   build_model: true
   from_trained: false
-  from_checkpoint: true
+  from_checkpoint: false
 
 tokenizer:
   name: '/kaggle/working/MIR/tokenizers/bpe_tokenizer.json'
