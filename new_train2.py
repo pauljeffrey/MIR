@@ -367,7 +367,10 @@ def train(cfg: DictConfig):
             # else DummyOptim
         )
         optimizer = optimizer_cls(model.parameters(), lr=cfg.training.learning_rate)
-
+        lr_scheduler = get_scheduler(
+                            name=cfg.training.lr_scheduler, optimizer=optimizer, num_warmup_steps=cfg.training.lr_warmup_steps,
+                            num_training_steps=cfg.training.max_train_steps,
+                        )
 
     #     # if (
     #     #     accelerator.state.deepspeed_plugin is None
