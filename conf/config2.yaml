@@ -9,13 +9,13 @@ dataset:
     encoder_n_max: 60
 
   train:
-    image_dir: "/kaggle/input/chest-xrays-indiana-university/data/images/images_normalized"
+    image_dir: "/kaggle/input/chest-xrays-indiana-university/images/images_normalized"
     caption_json: "/kaggle/input/mir-data/new_train.json" #
     #history_json: null
     #file_list: null
 
   eval:
-    image_dir: "/kaggle/input/chest-xrays-indiana-university/data/images/images_normalized"
+    image_dir: "/kaggle/input/chest-xrays-indiana-university/images/images_normalized"
     caption_json: "/kaggle/input/mir-data/new_val.json" #
     #history_json: null
     #file_list: null
