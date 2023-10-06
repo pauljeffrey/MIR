@@ -1,5 +1,5 @@
-output_dir: "/content/drive/MyDrive/MIR/train"
-load_dir:  "epoch_most_recent" # "model_with_best_eval" #
+output_dir: "/kaggle/working/train"
+load_dir: "model_with_best_eval" # "epoch_most_recent" # 
 
 dataset:
   name: null
@@ -9,14 +9,14 @@ dataset:
     encoder_n_max: 60
 
   train:
-    image_dir: "/content/sample_data/data/images/images_normalized"
-    caption_json: "/content/drive/MyDrive/MIR/train.json" #"/kaggle/input/custom/train.json" #
+    image_dir: "/kaggle/input/chest-xrays-indiana-university/data/images/images_normalized"
+    caption_json: "/kaggle/input/MIR/new_train.json" #
     #history_json: null
     #file_list: null
 
   eval:
-    image_dir: "/content/sample_data/data/images/images_normalized"
-    caption_json: "/content/drive/MyDrive/MIR/val.json" #"/kaggle/input/custom/val.json" #
+    image_dir: "/kaggle/input/chest-xrays-indiana-university/data/images/images_normalized"
+    caption_json: "/kaggle/input/MIR/new_val.json" #
     #history_json: null
     #file_list: null
 
@@ -28,7 +28,7 @@ model:
   from_checkpoint: true
 
 tokenizer:
-  name: '/content/sample_data/MIR/tokenizers/bpe_tokenizer.json'
+  name: '/kaggle/working/MIR/tokenizers/bpe_tokenizer.json'
   use_fast: false
   preprocessing_num_workers: null
 
