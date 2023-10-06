@@ -360,7 +360,7 @@ def train(cfg: DictConfig):
     else:
         model, optimizer, epoch, last_step, loss = load_model(cfg)
         # Remove this later
-        last_step = None
+        #last_step = None
         
     logger.info(f"Model with {count_parameters(model)} parameters loaded ...")
         
