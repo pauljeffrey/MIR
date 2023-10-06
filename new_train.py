@@ -142,8 +142,8 @@ def load_model(cfg: DictConfig, device= "cuda"):
     elif cfg.model.from_checkpoint:
         path = os.path.join(os.path.abspath(cfg.output_dir ), cfg.load_dir) # Assumes that all state_dicts are stored in the same directory.
         print(f"\nLoading checkpoint from {path}...")
-        model, optimizer, epoch, last_step, loss = load(model, cfg, True)
-        return model, optimizer, epoch, last_step, loss
+        model, optimizer, lr_scheduler, epoch, last_step, loss = load(model, cfg, True)
+        return model, optimizer, lr_scheduler, epoch, last_step, loss
     else:
         return model
         
