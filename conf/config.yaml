@@ -1,5 +1,5 @@
 output_dir: "/content/drive/MyDrive/MIR/train"
-load_dir: "epoch_most_recent" # "model_with_best_eval" #
+load_dir: "model_with_best_eval" # "epoch_most_recent" # 
 
 dataset:
   name: null
@@ -25,7 +25,7 @@ model:
   config_name: null
   build_model: true
   from_trained: false
-  from_checkpoint: false
+  from_checkpoint: true
 
 tokenizer:
   name: '/content/sample_data/MIR/tokenizers/bpe_tokenizer.json'
@@ -45,9 +45,9 @@ training:
   max_train_steps: 200000
   gradient_accumulation_steps: 128
   lr_scheduler: "cosine" # ["linear", "cosine", "cosine_with_restarts", "polynomial", "constant", "constant_with_warmup"]
-  lr_warmup_steps: 1200
+  lr_warmup_steps: 800
   eval_every: 3072
-  save_every: 2048
+  save_every: 1024
   img_size: (224,224)
   train_batch_size: 2 #2
   eval_batch_size: 12

@@ -461,11 +461,12 @@ def train(cfg: DictConfig):
         #     total_loss = 0
         train_losses = 0.0
         #check = True
+        start_time = time()
         for step, (encoded_images,indication_prompt, true_stop_probs, reports) in enumerate(train_loader): #labels,
             
             if last_step is not None and step < last_step + 1:
                 if step % 2048 == 0:
-                    print(f"Step {last_step}", end=" ")
+                    print(f"Step {last_step}, Time taken: {round((time() - start_time)/60)} mins..", end="-")
                 continue
             
             #print("")
@@ -666,19 +667,19 @@ def train(cfg: DictConfig):
                         # )
                 
             #print("Back to training...")        
-            # if step % cfg.training.save_every == 0:                 
-            #     epoch_dir = f"epoch_most_recent"
+            if step % cfg.training.save_every == 0:                 
+                epoch_dir = f"epoch_most_recent"
                 
-            #     logger.info(f"Saving most recent model in {epoch_dir}..")
-            #     if cfg.output_dir is not None:
-            #         accelerator.wait_for_everyone()
-            #         unwrapped_model = accelerator.unwrap_model(model)            
-            #         output_dir = os.path.join(os.path.abspath(cfg.output_dir), epoch_dir)
+                logger.info(f"Saving most recent model in {epoch_dir}..")
+                if cfg.output_dir is not None:
+                    accelerator.wait_for_everyone()
+                    unwrapped_model = accelerator.unwrap_model(model)            
+                    output_dir = os.path.join(os.path.abspath(cfg.output_dir), epoch_dir)
                     
-            #         if not os.path.exists(output_dir):
-            #             os.mkdir(output_dir)
+                    if not os.path.exists(output_dir):
+                        os.mkdir(output_dir)
                             
-            #         save_model(unwrapped_model, optimizer= optimizer, epoch=epoch, step=step, loss= loss, path =output_dir)
+                    save_model(unwrapped_model, optimizer= optimizer, epoch=epoch, step=step, loss= loss, path =output_dir)
                     # unwrapped_model.save_pretrained(
                     #     output_dir,
                     #     is_man_process=accelerator.is_main_process,
