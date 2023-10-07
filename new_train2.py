@@ -1,7 +1,7 @@
 
 from torch import nn
 from utils import *
-from loss import *
+from loss2 import *
 from dataset import *
 #from build_vocab import load_vocab
 from full_model import * 
