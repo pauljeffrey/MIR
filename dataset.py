@@ -86,7 +86,7 @@ class ChestXrayDataSet(Dataset):
                 for _ in range(20):
                     data = random.sample(data, len(data))
                 
-                data = random.sample(data, 2048)
+                data = random.sample(data, 5000)
             
         else:          
             random.seed(42)
@@ -97,7 +97,7 @@ class ChestXrayDataSet(Dataset):
             for _ in range(5):
                 data = random.sample(data, len(data))
                 #data.reverse()
-            data = data[135000:]
+            data = data[163000:]
             #data = pd.read_json(caption_json)#, 'type', "caption","indication"
           
         self.len = len(data)
