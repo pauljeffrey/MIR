@@ -83,10 +83,10 @@ class ChestXrayDataSet(Dataset):
         if caption_json.endswith("validation.json") or caption_json.endswith("val.json"):
             with open(caption_json, "r") as f:
                 data = json.load(f) 
-                # for _ in range(20):
-                #     data = random.sample(data, len(data))
+                for _ in range(20):
+                    data = random.sample(data, len(data))
                 
-                # data = random.sample(data, 8000)
+                data = random.sample(data, 1024)
             
         else:          
             random.seed(42)
