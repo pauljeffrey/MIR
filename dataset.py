@@ -98,7 +98,7 @@ class ChestXrayDataSet(Dataset):
                 data = random.sample(data, len(data))
                 #data.reverse()
                 
-            start = 46000 #197102
+            start = 50500 #197102
             data = data[start:] + data[:start]
             #data = pd.read_json(caption_json)#, 'type', "caption","indication"
           
