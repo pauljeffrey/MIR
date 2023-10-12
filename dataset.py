@@ -86,7 +86,7 @@ class ChestXrayDataSet(Dataset):
                 for _ in range(20):
                     data = random.sample(data, len(data))
                 
-                data = random.sample(data, 5000)
+                data = random.sample(data, 1000)
             
         else:          
             random.seed(42)

@@ -46,11 +46,11 @@ training:
   gradient_accumulation_steps: 64
   lr_scheduler: "cosine" # ["linear", "cosine", "cosine_with_restarts", "polynomial", "constant", "constant_with_warmup"]
   lr_warmup_steps: 800
-  eval_every: 3072
+  eval_every: 4096 #3072
   save_every: 1024
   img_size: (224,224)
   train_batch_size: 4 #2
-  eval_batch_size: 32 #12
+  eval_batch_size: 16 #12
 
   checkpoint:
     resume_from_checkpoint: 0 # integer representing which checkpoint to load from, or <= 0 to not
