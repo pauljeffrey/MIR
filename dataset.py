@@ -83,10 +83,10 @@ class ChestXrayDataSet(Dataset):
         if caption_json.endswith("validation.json") or caption_json.endswith("val.json"):
             with open(caption_json, "r") as f:
                 data = json.load(f) 
-                # for _ in range(20):
-                #     data = random.sample(data, len(data))
+                for _ in range(20):
+                    data = random.sample(data, len(data))
                 
-                # data = random.sample(data, 5000)
+                data = random.sample(data, 5000)
             
         else:          
             random.seed(42)
@@ -98,7 +98,7 @@ class ChestXrayDataSet(Dataset):
                 data = random.sample(data, len(data))
                 #data.reverse()
                 
-            start = 112000 #197102
+            start = 136832 #197102
             data = data[start:] + data[:start]
             #data = pd.read_json(caption_json)#, 'type', "caption","indication"
           
