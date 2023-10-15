@@ -6,10 +6,6 @@ checkpoint.tar
 final
 *.ipynb
 api_key.py
-Decoder.py
-loss.py
-loss2.py
-new_train.py
-new_train2.py
+
 
 

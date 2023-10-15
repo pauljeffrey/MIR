@@ -104,18 +104,18 @@ def load(model, cfg, from_checkpoint=False):
         optimizer = torch.optim.AdamW(model.parameters(), lr=cfg.training.learning_rate)
         optimizer.load_state_dict(checkpoint['optimizer_state'])
         
-        if "lr_scheduler" in checkpoint.keys():
-            lr_scheduler = get_scheduler(
-                            name=cfg.training.lr_scheduler, optimizer=optimizer, num_warmup_steps=cfg.training.lr_warmup_steps,
-                            num_training_steps=cfg.training.max_train_steps,
-                        )
-            lr_scheduler.load_state_dict(checkpoint['lr_scheduler'])
+        # if "lr_scheduler" in checkpoint.keys():
+        #     lr_scheduler = get_scheduler(
+        #                     name=cfg.training.lr_scheduler, optimizer=optimizer, num_warmup_steps=cfg.training.lr_warmup_steps,
+        #                     num_training_steps=cfg.training.max_train_steps,
+        #                 )
+        #     lr_scheduler.load_state_dict(checkpoint['lr_scheduler'])
         
-        else:
-            lr_scheduler = get_scheduler(
-                            name=cfg.training.lr_scheduler, optimizer=optimizer, num_warmup_steps=cfg.training.lr_warmup_steps,
-                            num_training_steps=cfg.training.max_train_steps,
-                        )
+        # else:
+        lr_scheduler = get_scheduler(
+                        name=cfg.training.lr_scheduler, optimizer=optimizer, num_warmup_steps=cfg.training.lr_warmup_steps,
+                        num_training_steps=cfg.training.max_train_steps,
+                    )
             
         epoch = checkpoint['epoch']
         
